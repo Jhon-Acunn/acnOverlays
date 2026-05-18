@@ -256,29 +256,18 @@ function actualizarValDual() {
   document.getElementById('valDualRY').textContent = document.getElementById('dualRY').value + 'px';
 }
 
-// ── Smart toggles: individual exclusivity + both ──
+// ── Individual exclusivity + both ──
 
 let dualToggleBusy = false;
-
-function dualSetBoth(state) {
-  const both = document.getElementById('dualBothToggle');
-  both.checked = state;
-  document.getElementById('dualBothToggleLabel').textContent = state ? 'Encendido' : 'Apagado';
-}
 
 document.getElementById('dualLToggle').addEventListener('change', function() {
   if (dualToggleBusy) return;
   dualToggleBusy = true;
-  const cfg = leerDualCfg();
   if (this.checked) {
-    // Show left, hide right (right toggle stays ON as memory)
+    const cfg = leerDualCfg();
     dualEmit({ accion: 'SHOW_LEFT', left: cfg.left });
-    dualEmit({ accion: 'HIDE_RIGHT' });
-    dualSetBoth(false);
   } else {
     dualEmit({ accion: 'HIDE_LEFT' });
-    // Both auto-OFF if the other is also OFF
-    dualSetBoth(document.getElementById('dualRToggle').checked && false);
   }
   dualToggleBusy = false;
 });
@@ -286,15 +275,11 @@ document.getElementById('dualLToggle').addEventListener('change', function() {
 document.getElementById('dualRToggle').addEventListener('change', function() {
   if (dualToggleBusy) return;
   dualToggleBusy = true;
-  const cfg = leerDualCfg();
   if (this.checked) {
-    // Show right, hide left (left toggle stays ON as memory)
+    const cfg = leerDualCfg();
     dualEmit({ accion: 'SHOW_RIGHT', right: cfg.right });
-    dualEmit({ accion: 'HIDE_LEFT' });
-    dualSetBoth(false);
   } else {
     dualEmit({ accion: 'HIDE_RIGHT' });
-    dualSetBoth(false);
   }
   dualToggleBusy = false;
 });
@@ -304,7 +289,6 @@ document.getElementById('dualBothToggle').addEventListener('change', function() 
   dualToggleBusy = true;
   const cfg = leerDualCfg();
   if (this.checked) {
-    // Both ON → turn on missing side and SHOW both
     if (!document.getElementById('dualLToggle').checked) {
       document.getElementById('dualLToggle').checked = true;
       document.getElementById('dualLToggleLabel').textContent = 'Encendido';
