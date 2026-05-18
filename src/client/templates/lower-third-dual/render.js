@@ -210,7 +210,12 @@ if (!isPreview) {
             document.getElementById('ltr-cargo').textContent = (right.cargo || '').toUpperCase();
             if (right.estilo) aplicarEstilo('ltr', right.estilo);
           }
-          animarEntrada();
+          if (timeline) timeline.kill();
+          timeline = gsap.timeline();
+          if (!leftVisible) timeline.add(entryLeft(), 0);
+          if (!rightVisible) timeline.add(entryRight(), 0);
+          // If both already visible, mark as such after timeline
+          if (leftVisible && rightVisible) { leftVisible = true; rightVisible = true; }
           break;
 
         case 'SHOW_LEFT':
