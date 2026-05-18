@@ -241,9 +241,7 @@ function enviarPreviewDual() {
   iframe.contentWindow.postMessage({ tipo: 'PREVIEW_LOWER_DUAL', data: leerDualCfg() }, '*');
 }
 
-function dualEmit(accion) {
-  const cfg = leerDualCfg();
-  cfg.accion = accion;
+function dualEmit(cfg) {
   socket.emit('update-graphic', { tipo: 'LOWER_DUAL', data: cfg });
 }
 
@@ -261,13 +259,34 @@ function actualizarValDual() {
 document.getElementById('dualLToggle').addEventListener('change', function() {
   const label = document.getElementById('dualLToggleLabel');
   label.textContent = this.checked ? 'Encendido' : 'Apagado';
-  dualEmit(this.checked ? 'SHOW' : 'HIDE');
+  const cfg = leerDualCfg();
+  if (this.checked) {
+    dualEmit({ accion: 'SHOW_LEFT', left: cfg.left, right: null });
+  } else {
+    dualEmit({ accion: 'HIDE_LEFT' });
+  }
 });
 
 document.getElementById('dualRToggle').addEventListener('change', function() {
   const label = document.getElementById('dualRToggleLabel');
   label.textContent = this.checked ? 'Encendido' : 'Apagado';
-  dualEmit(this.checked ? 'SHOW' : 'HIDE');
+  const cfg = leerDualCfg();
+  if (this.checked) {
+    dualEmit({ accion: 'SHOW_RIGHT', left: null, right: cfg.right });
+  } else {
+    dualEmit({ accion: 'HIDE_RIGHT' });
+  }
+});
+
+document.getElementById('dualBothToggle').addEventListener('change', function() {
+  const label = document.getElementById('dualBothToggleLabel');
+  label.textContent = this.checked ? 'Encendido' : 'Apagado';
+  const cfg = leerDualCfg();
+  if (this.checked) {
+    dualEmit({ accion: 'SHOW', left: cfg.left, right: cfg.right });
+  } else {
+    dualEmit({ accion: 'HIDE' });
+  }
 });
 
 for (const id of ['dualLNombre', 'dualLApellido', 'dualLCargo', 'dualRNombre', 'dualRApellido', 'dualRCargo', 'dualFont', 'dualTitleColor', 'dualTitleBg', 'dualSubColor', 'dualSubBg']) {
