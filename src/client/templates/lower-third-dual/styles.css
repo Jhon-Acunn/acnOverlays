@@ -145,7 +145,6 @@ body {
 
 #ltr-name-text {
   display: flex;
-  flex-direction: row-reverse;
   gap: 8px;
   opacity: 0;
   will-change: opacity;
