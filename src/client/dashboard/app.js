@@ -197,6 +197,103 @@ document.querySelectorAll('[data-sponsors]').forEach(btn => {
   });
 });
 
+// ── Dual Lower Third ──────────────────────────────
+
+function leerDualCfg() {
+  const estiloL = {
+    escala: parseFloat(document.getElementById('dualLScale').value) || 1.0,
+    posX: parseInt(document.getElementById('dualLX').value, 10) || 100,
+    posY: parseInt(document.getElementById('dualLY').value, 10) || 90
+  };
+  const estiloR = {
+    escala: parseFloat(document.getElementById('dualRScale').value) || 1.0,
+    posX: parseInt(document.getElementById('dualRX').value, 10) || 100,
+    posY: parseInt(document.getElementById('dualRY').value, 10) || 90
+  };
+  const shared = {
+    fontFamily: document.getElementById('dualFont').value || 'Montserrat, sans-serif',
+    titleFontSize: document.getElementById('dualTitleSize').value + 'rem',
+    subtitleFontSize: document.getElementById('dualSubSize').value + 'rem',
+    titleColor: document.getElementById('dualTitleColor').value,
+    titleBg: document.getElementById('dualTitleBg').value,
+    subtitleColor: document.getElementById('dualSubColor').value,
+    subtitleBg: document.getElementById('dualSubBg').value
+  };
+  return {
+    left: {
+      nombre: document.getElementById('dualLNombre').value,
+      apellido: document.getElementById('dualLApellido').value,
+      cargo: document.getElementById('dualLCargo').value,
+      estilo: { ...shared, ...estiloL }
+    },
+    right: {
+      nombre: document.getElementById('dualRNombre').value,
+      apellido: document.getElementById('dualRApellido').value,
+      cargo: document.getElementById('dualRCargo').value,
+      estilo: { ...shared, ...estiloR }
+    }
+  };
+}
+
+function enviarPreviewDual() {
+  const iframe = document.querySelector('[data-tab-content="lower-dual"] .preview-iframe');
+  if (!iframe || !iframe.contentWindow) return;
+  iframe.contentWindow.postMessage({ tipo: 'PREVIEW_LOWER_DUAL', data: leerDualCfg() }, '*');
+}
+
+function dualEmit(accion) {
+  const cfg = leerDualCfg();
+  cfg.accion = accion;
+  socket.emit('update-graphic', { tipo: 'LOWER_DUAL', data: cfg });
+}
+
+function actualizarValDual() {
+  document.getElementById('valDualTitleSize').textContent = document.getElementById('dualTitleSize').value + 'rem';
+  document.getElementById('valDualSubSize').textContent = document.getElementById('dualSubSize').value + 'rem';
+  document.getElementById('valDualLScale').textContent = document.getElementById('dualLScale').value + 'x';
+  document.getElementById('valDualLX').textContent = document.getElementById('dualLX').value + 'px';
+  document.getElementById('valDualLY').textContent = document.getElementById('dualLY').value + 'px';
+  document.getElementById('valDualRScale').textContent = document.getElementById('dualRScale').value + 'x';
+  document.getElementById('valDualRX').textContent = document.getElementById('dualRX').value + 'px';
+  document.getElementById('valDualRY').textContent = document.getElementById('dualRY').value + 'px';
+}
+
+document.getElementById('dualLToggle').addEventListener('change', function() {
+  const label = document.getElementById('dualLToggleLabel');
+  label.textContent = this.checked ? 'Encendido' : 'Apagado';
+  dualEmit(this.checked ? 'SHOW' : 'HIDE');
+});
+
+document.getElementById('dualRToggle').addEventListener('change', function() {
+  const label = document.getElementById('dualRToggleLabel');
+  label.textContent = this.checked ? 'Encendido' : 'Apagado';
+  dualEmit(this.checked ? 'SHOW' : 'HIDE');
+});
+
+for (const id of ['dualLNombre', 'dualLApellido', 'dualLCargo', 'dualRNombre', 'dualRApellido', 'dualRCargo', 'dualFont', 'dualTitleColor', 'dualTitleBg', 'dualSubColor', 'dualSubBg']) {
+  document.getElementById(id).addEventListener('input', enviarPreviewDual);
+}
+
+for (const id of ['dualTitleSize', 'dualSubSize', 'dualLScale', 'dualLX', 'dualLY', 'dualRScale', 'dualRX', 'dualRY']) {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => { actualizarValDual(); enviarPreviewDual(); });
+}
+
+actualizarValDual();
+setTimeout(enviarPreviewDual, 500);
+
+// Font dropdown
+document.getElementById('dualFontDropdownBtn')?.addEventListener('click', () => {
+  const input = document.getElementById('dualFont');
+  const prev = input.value;
+  input.value = '';
+  input.showPicker();
+  input.addEventListener('blur', function restore() {
+    if (!input.value) input.value = prev;
+    input.removeEventListener('blur', restore);
+  }, { once: true });
+});
+
 let tickerLogoUrl = null;
 
 function leerTkrCfg() {

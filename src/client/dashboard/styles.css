@@ -108,6 +108,10 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.8rem; padd
 .switch input:checked + .switch-slider::before { transform: translateX(24px); }
 
 .lower-grid { display: flex; gap: 1.5rem; }
+.dual-grid { display: flex; gap: 0.75rem; margin-top: 0.5rem; }
+.dual-side { flex: 1; min-width: 0; }
+.dual-divider { width: 1px; background: var(--border); flex-shrink: 0; }
+.dual-heading { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.5rem; }
 .lower-left { flex: 1; min-width: 0; }
 .lower-right { width: 280px; flex-shrink: 0; border-left: 1px solid var(--border); padding-left: 1.5rem; }
 .lower-right h3 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }

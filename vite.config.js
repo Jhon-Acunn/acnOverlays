@@ -11,6 +11,7 @@ export default defineConfig({
       input: {
         dashboard: resolve(__dirname, 'src/client/dashboard/index.html'),
         'lower-third': resolve(__dirname, 'src/client/templates/lower-third/index.html'),
+        'lower-third-dual': resolve(__dirname, 'src/client/templates/lower-third-dual/index.html'),
         scoreboard: resolve(__dirname, 'src/client/templates/scoreboard/index.html'),
         sponsors: resolve(__dirname, 'src/client/templates/sponsors/index.html'),
         ticker: resolve(__dirname, 'src/client/templates/ticker/index.html'),
