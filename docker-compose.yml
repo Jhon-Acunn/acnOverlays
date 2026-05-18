@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  overlays:
+    build: .
+    container_name: acn-overlays
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    restart: unless-stopped
