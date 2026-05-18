@@ -1,0 +1,82 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: transparent !important;
+  overflow: hidden;
+  width: 1920px;
+  height: 1080px;
+  position: relative;
+}
+
+#tkr-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65px;
+  display: none;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.tkr-title {
+  background: #071041;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 44px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 30px 0 40px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.tkr-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0.5rem;
+  height: 100%;
+  background: #ffffff;
+}
+
+#tkr-sep {
+  width: 1px;
+  background: rgba(255, 255, 255, 0.3);
+  flex-shrink: 0;
+}
+
+#tkr-track {
+  flex: 1;
+  background: #ffffff;
+  overflow: hidden;
+  position: relative;
+}
+
+.tkr-message {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  white-space: nowrap;
+  color: #111111;
+  font-size: 33px;
+  font-weight: 500;
+  will-change: transform;
+}
+
+.tkr-logo {
+  height: 48px;
+  width: 90px;
+  flex-shrink: 0;
+  object-fit: contain;
+}

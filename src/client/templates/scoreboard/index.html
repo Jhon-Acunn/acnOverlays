@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scoreboard Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="scoreboard-container">
+    <div class="team local">
+      <div class="team-name" id="teamNameA">LOCAL</div>
+      <div class="team-score" id="scoreA">0</div>
+    </div>
+    <div class="vs-divider">VS</div>
+    <div class="team visitor">
+      <div class="team-name" id="teamNameB">VISITANTE</div>
+      <div class="team-score" id="scoreB">0</div>
+    </div>
+  </div>
+
+  <script type="module" src="./render.js"></script>
+</body>
+</html>

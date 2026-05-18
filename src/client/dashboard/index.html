@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Control de Overlays</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <h1>Panel de Control — Overlays</h1>
+
+  <nav class="tabs">
+    <button class="tab" data-tab="scoreboard">Scoreboard</button>
+    <button class="tab active" data-tab="lower">Lower Third</button>
+    <button class="tab" data-tab="sponsors">Patrocinadores</button>
+    <button class="tab" data-tab="ticker">Ticker</button>
+    <button class="tab" data-tab="media">Media</button>
+  </nav>
+
+  <section class="tab-content" data-tab-content="scoreboard">
+    <h2>Scoreboard / Marcador</h2>
+    <div class="preview-scene">
+      <div class="preview-stage">
+        <iframe src="/templates/scoreboard/" class="preview-iframe" title="Vista previa Scoreboard"></iframe>
+      </div>
+    </div>
+    <div class="row">
+      <span class="row-label">Equipo A</span>
+      <input type="text" id="nameA" value="LOCAL" placeholder="Nombre A">
+      <span class="score-display" id="displayA">0</span>
+      <button class="small" data-score="A" data-val="1">+1</button>
+      <button class="small" data-score="A" data-val="-1">-1</button>
+    </div>
+    <div class="row">
+      <span class="row-label">Equipo B</span>
+      <input type="text" id="nameB" value="VISITANTE" placeholder="Nombre B">
+      <span class="score-display" id="displayB">0</span>
+      <button class="small" data-score="B" data-val="1">+1</button>
+      <button class="small" data-score="B" data-val="-1">-1</button>
+    </div>
+    <div class="row" style="margin-top: 0.75rem;">
+      <button class="danger block" data-reset-score>Resetear Marcador</button>
+    </div>
+    <div class="url-row" data-path="/templates/scoreboard/"></div>
+  </section>
+
+  <section class="tab-content active" data-tab-content="lower">
+    <h2>Lower Third / Tercio Inferior</h2>
+    <div class="lower-grid">
+      <div class="lower-left">
+        <div class="preview-scene">
+          <div class="preview-stage">
+            <iframe src="/templates/lower-third/?preview=1" class="preview-iframe" title="Vista previa Lower Third"></iframe>
+          </div>
+        </div>
+        <div class="row">
+          <input type="text" id="inputNombre" placeholder="Nombre">
+        </div>
+        <div class="row">
+          <input type="text" id="inputApellido" placeholder="Apellido">
+        </div>
+        <div class="row">
+          <input type="text" id="inputCargo" placeholder="Cargo / Título">
+        </div>
+        <div class="row" style="margin-top: 0.75rem; justify-content:center;">
+          <label class="switch">
+            <input type="checkbox" id="lowerToggle">
+            <span class="switch-slider"></span>
+          </label>
+          <span id="lowerToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
+        </div>
+        <div class="row" style="margin-top:0.75rem; gap:0.25rem;" id="guest-grid"></div>
+        <div class="url-row" data-path="/templates/lower-third/"></div>
+      </div>
+      <div class="lower-right">
+        <h3>Personalizar estilo</h3>
+        <div class="row">
+          <span class="row-label">Fuente</span>
+          <div style="display:flex;flex:1;gap:0;position:relative;">
+            <input type="text" id="inputFont" value="Montserrat, sans-serif" placeholder="Nombre de fuente" list="fontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
+            <button id="fontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
+          </div>
+          <datalist id="fontList">
+            <option value="Montserrat, sans-serif">
+            <option value="Inter, sans-serif">
+            <option value="Arial, Helvetica, sans-serif">
+            <option value="Verdana, sans-serif">
+            <option value="Tahoma, sans-serif">
+            <option value="Trebuchet MS, sans-serif">
+            <option value="Georgia, serif">
+            <option value="Times New Roman, serif">
+            <option value="Courier New, monospace">
+            <option value="Impact, sans-serif">
+            <option value="Segoe UI, sans-serif">
+          </datalist>
+        </div>
+
+        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Título <button data-reset-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <div class="row">
+          <span class="row-label">Tamaño</span>
+          <input type="range" id="inputTitleSize" min="1.0" max="4.0" step="0.1" value="3.0">
+          <span class="val" id="valTitleSize">3.0rem</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="inputTitleColor" value="#ffffff">
+        </div>
+        <div class="row">
+          <span class="row-label">Fondo</span>
+          <input type="color" id="inputTitleBg" value="#06155A">
+        </div>
+
+        <h4 style="margin:1.5rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Subtítulo <button data-reset-sub style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <div class="row">
+          <span class="row-label">Tamaño</span>
+          <input type="range" id="inputSubtitleSize" min="0.8" max="2.5" step="0.1" value="1.65">
+          <span class="val" id="valSubtitleSize">1.65rem</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="inputSubtitleColor" value="#111111">
+        </div>
+        <div class="row">
+          <span class="row-label">Fondo</span>
+          <input type="color" id="inputSubtitleBg" value="#ffffff">
+        </div>
+
+        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Posición <button data-reset-pos title="Restaurar valores por defecto" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <div class="row">
+          <span class="row-label">Escala</span>
+          <input type="range" id="inputScale" min="0.5" max="2.0" step="0.1" value="1.0">
+          <span class="val" id="valScale">1.0x</span>
+        </div>
+        <div class="row">
+          <span class="row-label">X</span>
+          <input type="range" id="inputPosX" min="0" max="1800" step="5" value="100">
+          <span class="val" id="valPosX">100px</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Y</span>
+          <input type="range" id="inputPosY" min="0" max="1000" step="5" value="90">
+          <span class="val" id="valPosY">90px</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-content" data-tab-content="sponsors">
+    <h2>Patrocinadores</h2>
+    <div class="preview-scene">
+      <div class="preview-stage">
+        <iframe src="/templates/sponsors/" class="preview-iframe" title="Vista previa Patrocinadores"></iframe>
+      </div>
+    </div>
+    <div class="row" style="margin-top: 0.75rem;">
+      <button class="success block" data-sponsors="SHOW">Mostrar Patrocinadores</button>
+    </div>
+    <div class="row">
+      <button class="warning block" data-sponsors="HIDE">Ocultar Patrocinadores</button>
+    </div>
+    <div class="url-row" data-path="/templates/sponsors/"></div>
+  </section>
+
+  <section class="tab-content" data-tab-content="ticker">
+    <h2>Ticker / Barra Inferior</h2>
+    <div class="lower-grid">
+      <div class="lower-left">
+        <div class="preview-scene">
+          <div class="preview-stage">
+            <iframe src="/templates/ticker/?preview=1" class="preview-iframe" title="Vista previa Ticker"></iframe>
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-label">Título</span>
+          <input type="text" id="tkrTitle" value="LIVE" placeholder="Texto del bloque izquierdo">
+        </div>
+        <div class="row">
+          <span class="row-label">Mensaje</span>
+          <input type="text" id="tkrMessage" value="masterización profesional. Producción musical de calidad" placeholder="Texto del ticker">
+        </div>
+        <div class="row" style="margin-top:0.5rem; justify-content:center;">
+          <label class="switch">
+            <input type="checkbox" id="tkrToggle">
+            <span class="switch-slider"></span>
+          </label>
+          <span id="tkrToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Logo final</span>
+          <div id="tkr-logo-select" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;"></div>
+        </div>
+        <div class="row" style="margin-top:0.75rem; gap:0.25rem;" id="tkr-guest-grid"></div>
+        <div class="url-row" data-path="/templates/ticker/"></div>
+      </div>
+      <div class="lower-right">
+        <h3>Personalizar estilo</h3>
+        <div class="row">
+          <span class="row-label">Fuente</span>
+          <div style="display:flex;flex:1;gap:0;position:relative;">
+            <input type="text" id="tkrFont" value="Inter, sans-serif" placeholder="Nombre de fuente" list="tkrFontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
+            <button id="tkrFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
+          </div>
+          <datalist id="tkrFontList">
+            <option value="Inter, sans-serif">
+            <option value="Montserrat, sans-serif">
+            <option value="Arial, Helvetica, sans-serif">
+            <option value="Verdana, sans-serif">
+            <option value="Tahoma, sans-serif">
+            <option value="Trebuchet MS, sans-serif">
+            <option value="Georgia, serif">
+            <option value="Times New Roman, serif">
+            <option value="Courier New, monospace">
+            <option value="Impact, sans-serif">
+            <option value="Segoe UI, sans-serif">
+          </datalist>
+        </div>
+        <div class="row">
+          <span class="row-label">Velocidad</span>
+          <input type="range" id="tkrSpeed" min="30" max="200" step="5" value="80">
+          <span class="val" id="valTkrSpeed">80px/s</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Ancho logo</span>
+          <input type="range" id="tkrLogoWidth" min="1" max="15" step="0.5" value="4">
+          <span class="val" id="valTkrLogoWidth">4%</span>
+        </div>
+        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Título <button data-reset-tkr-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <div class="row">
+          <span class="row-label">Tamaño</span>
+          <input type="range" id="tkrTitleSize" min="16" max="60" step="1" value="44">
+          <span class="val" id="valTkrTitleSize">44px</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="tkrTitleColor" value="#ffffff">
+        </div>
+        <div class="row">
+          <span class="row-label">Fondo</span>
+          <input type="color" id="tkrTitleBg" value="#071041">
+        </div>
+        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Mensaje <button data-reset-tkr-msg style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <div class="row">
+          <span class="row-label">Tamaño</span>
+          <input type="range" id="tkrFontSize" min="16" max="60" step="1" value="33">
+          <span class="val" id="valTkrFontSize">33px</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="tkrMsgColor" value="#111111">
+        </div>
+        <div class="row">
+          <span class="row-label">Fondo</span>
+          <input type="color" id="tkrMsgBg" value="#ffffff">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-content" data-tab-content="media">
+    <h2>Media / Logos</h2>
+    <div class="media-layout">
+      <div id="media-grid" class="media-grid"></div>
+      <div class="media-side">
+        <input type="file" id="media-file-input" accept="image/*" multiple hidden>
+        <button id="media-upload-btn" class="media-upload-btn">+ Subir imágenes</button>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
