@@ -215,7 +215,6 @@ if (!isPreview) {
 
         case 'SHOW_LEFT':
           if (!left) break;
-          if (rightVisible) exitRight(() => {});
           document.getElementById('ltl-nombre').textContent = left.nombre || '';
           document.getElementById('ltl-apellido').textContent = left.apellido || '';
           document.getElementById('ltl-cargo').textContent = (left.cargo || '').toUpperCase();
@@ -226,7 +225,6 @@ if (!isPreview) {
 
         case 'SHOW_RIGHT':
           if (!right) break;
-          if (leftVisible) exitLeft(() => {});
           document.getElementById('ltr-nombre').textContent = right.nombre || '';
           document.getElementById('ltr-apellido').textContent = right.apellido || '';
           document.getElementById('ltr-cargo').textContent = (right.cargo || '').toUpperCase();

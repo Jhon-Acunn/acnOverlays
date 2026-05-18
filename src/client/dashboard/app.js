@@ -256,9 +256,18 @@ function actualizarValDual() {
   document.getElementById('valDualRY').textContent = document.getElementById('dualRY').value + 'px';
 }
 
-// ── Individual exclusivity + both ──
+// ── Individual toggles (independent) + Both ──
 
 let dualToggleBusy = false;
+
+function dualSyncBoth() {
+  const both = document.getElementById('dualBothToggle');
+  const on = document.getElementById('dualLToggle').checked && document.getElementById('dualRToggle').checked;
+  if (both.checked !== on) {
+    both.checked = on;
+    document.getElementById('dualBothToggleLabel').textContent = on ? 'Encendido' : 'Apagado';
+  }
+}
 
 document.getElementById('dualLToggle').addEventListener('change', function() {
   if (dualToggleBusy) return;
@@ -269,6 +278,7 @@ document.getElementById('dualLToggle').addEventListener('change', function() {
   } else {
     dualEmit({ accion: 'HIDE_LEFT' });
   }
+  dualSyncBoth();
   dualToggleBusy = false;
 });
 
@@ -281,6 +291,7 @@ document.getElementById('dualRToggle').addEventListener('change', function() {
   } else {
     dualEmit({ accion: 'HIDE_RIGHT' });
   }
+  dualSyncBoth();
   dualToggleBusy = false;
 });
 
