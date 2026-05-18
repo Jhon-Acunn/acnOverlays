@@ -116,6 +116,13 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.8rem; padd
 .lower-right { width: 280px; flex-shrink: 0; border-left: 1px solid var(--border); padding-left: 1.5rem; }
 .lower-right h3 { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
 section.tab-content[data-tab-content="ticker"] { max-width: 820px; }
+section.tab-content[data-tab-content="lower-dual"] { max-width: 920px; }
+[data-tab-content="lower-dual"] .lower-right { width: 330px; }
+[data-tab-content="lower-dual"] .lower-right h4 { margin-top: 1rem; margin-bottom: 0.35rem; }
+[data-tab-content="lower-dual"] .lower-right h4:first-of-type { margin-top: 0; }
+[data-tab-content="lower-dual"] .lower-right .row { margin-bottom: 0.6rem; }
+[data-tab-content="lower-dual"] .dual-grid { gap: 1.25rem; margin-top: 1rem; }
+[data-tab-content="lower-dual"] .dual-heading { margin-bottom: 0.65rem; }
 
 .preview-scene { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background: var(--preview-bg); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1rem; }
 .preview-stage { position: absolute; width: 1920px; height: 1080px; transform-origin: top left; }
