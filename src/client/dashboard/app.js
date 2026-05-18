@@ -256,37 +256,90 @@ function actualizarValDual() {
   document.getElementById('valDualRY').textContent = document.getElementById('dualRY').value + 'px';
 }
 
+// ── Smart toggles: left + right = both, both turns on missing side ──
+
+let dualToggleBusy = false;
+
+function dualSetBoth(state) {
+  const both = document.getElementById('dualBothToggle');
+  both.checked = state;
+  document.getElementById('dualBothToggleLabel').textContent = state ? 'Encendido' : 'Apagado';
+}
+
+function dualSetLeft(state) {
+  const left = document.getElementById('dualLToggle');
+  left.checked = state;
+  document.getElementById('dualLToggleLabel').textContent = state ? 'Encendido' : 'Apagado';
+}
+
+function dualSetRight(state) {
+  const right = document.getElementById('dualRToggle');
+  right.checked = state;
+  document.getElementById('dualRToggleLabel').textContent = state ? 'Encendido' : 'Apagado';
+}
+
 document.getElementById('dualLToggle').addEventListener('change', function() {
-  const label = document.getElementById('dualLToggleLabel');
-  label.textContent = this.checked ? 'Encendido' : 'Apagado';
+  if (dualToggleBusy) return;
+  dualToggleBusy = true;
   const cfg = leerDualCfg();
   if (this.checked) {
     dualEmit({ accion: 'SHOW_LEFT', left: cfg.left, right: null });
+    // If right was already ON → both auto-ON
+    if (document.getElementById('dualRToggle').checked) {
+      dualSetBoth(true);
+    } else {
+      dualSetBoth(false);
+    }
   } else {
     dualEmit({ accion: 'HIDE_LEFT' });
+    // One is OFF → both OFF
+    dualSetBoth(false);
   }
+  dualToggleBusy = false;
 });
 
 document.getElementById('dualRToggle').addEventListener('change', function() {
-  const label = document.getElementById('dualRToggleLabel');
-  label.textContent = this.checked ? 'Encendido' : 'Apagado';
+  if (dualToggleBusy) return;
+  dualToggleBusy = true;
   const cfg = leerDualCfg();
   if (this.checked) {
     dualEmit({ accion: 'SHOW_RIGHT', left: null, right: cfg.right });
+    if (document.getElementById('dualLToggle').checked) {
+      dualSetBoth(true);
+    } else {
+      dualSetBoth(false);
+    }
   } else {
     dualEmit({ accion: 'HIDE_RIGHT' });
+    dualSetBoth(false);
   }
+  dualToggleBusy = false;
 });
 
 document.getElementById('dualBothToggle').addEventListener('change', function() {
-  const label = document.getElementById('dualBothToggleLabel');
-  label.textContent = this.checked ? 'Encendido' : 'Apagado';
+  if (dualToggleBusy) return;
+  dualToggleBusy = true;
   const cfg = leerDualCfg();
   if (this.checked) {
-    dualEmit({ accion: 'SHOW', left: cfg.left, right: cfg.right });
+    // Both ON → also turn on the missing side
+    if (!document.getElementById('dualLToggle').checked) {
+      dualSetLeft(true);
+      dualEmit({ accion: 'SHOW_LEFT', left: cfg.left, right: null });
+    }
+    if (!document.getElementById('dualRToggle').checked) {
+      dualSetRight(true);
+      dualEmit({ accion: 'SHOW_RIGHT', left: null, right: cfg.right });
+    }
+    // If both were already ON, just emit SHOW
+    if (document.getElementById('dualLToggle').checked && document.getElementById('dualRToggle').checked) {
+      dualEmit({ accion: 'SHOW', left: cfg.left, right: cfg.right });
+    }
   } else {
     dualEmit({ accion: 'HIDE' });
+    dualSetLeft(false);
+    dualSetRight(false);
   }
+  dualToggleBusy = false;
 });
 
 for (const id of ['dualLNombre', 'dualLApellido', 'dualLCargo', 'dualRNombre', 'dualRApellido', 'dualRCargo', 'dualFont', 'dualTitleColor', 'dualTitleBg', 'dualSubColor', 'dualSubBg']) {
