@@ -37,7 +37,7 @@ if (isPreview) {
     estilo: {
       fontFamily: 'Montserrat, sans-serif',
       titleFontSize: '3.0rem',
-      subtitleFontSize: '1.65rem',
+      subtitleFontSize: '2.0rem',
       titleColor: '#ffffff',
       titleBg: '#06155A',
       subtitleColor: '#111111',

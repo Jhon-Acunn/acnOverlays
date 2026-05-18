@@ -169,10 +169,10 @@ document.querySelector('[data-reset-title]').addEventListener('click', () => {
   enviarPreview();
 });
 document.querySelector('[data-reset-sub]').addEventListener('click', () => {
-  document.getElementById('inputSubtitleSize').value = '1.65';
+  document.getElementById('inputSubtitleSize').value = '2.0';
   document.getElementById('inputSubtitleColor').value = '#111111';
   document.getElementById('inputSubtitleBg').value = '#ffffff';
- document.getElementById('valSubtitleSize').textContent = '1.65rem';
+ document.getElementById('valSubtitleSize').textContent = '2.0rem';
   enviarPreview();
 });
 document.querySelector('[data-reset-pos]').addEventListener('click', () => {
