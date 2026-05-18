@@ -294,6 +294,84 @@ document.getElementById('dualFontDropdownBtn')?.addEventListener('click', () => 
   }, { once: true });
 });
 
+// ── Dual Guest Slots (shared 10 presets, independent left/right assign) ──
+
+const DUAL_GUEST_KEY = 'dual_guests';
+function cargarDualInvitados() {
+  try { return JSON.parse(localStorage.getItem(DUAL_GUEST_KEY)) || {}; } catch { return {}; }
+}
+function guardarDualInvitados(data) {
+  localStorage.setItem(DUAL_GUEST_KEY, JSON.stringify(data));
+}
+
+const dualInvitados = cargarDualInvitados();
+
+function crearDualSlots(containerId, prefix) {
+  const grid = document.getElementById(containerId);
+  if (!grid) return;
+
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'guest-btn' + (dualInvitados[i] ? ' filled' : '');
+    btn.dataset.slot = i;
+    btn.textContent = i;
+    btn.title = dualInvitados[i]
+      ? `${dualInvitados[i].nombre || ''} ${dualInvitados[i].apellido || ''}`
+      : 'Slot vacío — clic der. para guardar';
+
+    btn.addEventListener('click', (e) => {
+      if (e.shiftKey) {
+        delete dualInvitados[i];
+        guardarDualInvitados(dualInvitados);
+        document.querySelectorAll(`#${containerId} .guest-btn`).forEach(b => {
+          if (b.dataset.slot == i) { b.classList.remove('filled'); b.title = 'Slot vacío — clic der. para guardar'; }
+        });
+        return;
+      }
+      const data = dualInvitados[i];
+      if (!data) return;
+      document.getElementById(prefix + 'Nombre').value = data.nombre || '';
+      document.getElementById(prefix + 'Apellido').value = data.apellido || '';
+      document.getElementById(prefix + 'Cargo').value = data.cargo || '';
+      // Mark active on this side only
+      document.querySelectorAll(`#${containerId} .guest-btn`).forEach(b => b.classList.remove('active-slot'));
+      btn.classList.add('active-slot');
+      enviarPreviewDual();
+    });
+
+    btn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById(prefix + 'Nombre').value.trim();
+      const apellido = document.getElementById(prefix + 'Apellido').value.trim();
+      const cargo = document.getElementById(prefix + 'Cargo').value.trim();
+      if (!nombre && !apellido && !cargo) return;
+      dualInvitados[i] = { nombre, apellido, cargo };
+      guardarDualInvitados(dualInvitados);
+      document.querySelectorAll(`#${containerId} .guest-btn`).forEach(b => {
+        if (b.dataset.slot == i) { b.classList.add('filled'); b.title = `${nombre} ${apellido}`; }
+      });
+      document.querySelectorAll(`#${containerId} .guest-btn`).forEach(b => b.classList.remove('active-slot'));
+      btn.classList.add('active-slot');
+      enviarPreviewDual();
+    });
+
+    grid.appendChild(btn);
+  }
+}
+
+crearDualSlots('dualL-guest-grid', 'dualL');
+crearDualSlots('dualR-guest-grid', 'dualR');
+
+if (dualInvitados[1]) {
+  const d1 = dualInvitados[1];
+  document.getElementById('dualLNombre').value = d1.nombre || '';
+  document.getElementById('dualLApellido').value = d1.apellido || '';
+  document.getElementById('dualLCargo').value = d1.cargo || '';
+  document.getElementById('dualRNombre').value = d1.nombre || '';
+  document.getElementById('dualRApellido').value = d1.apellido || '';
+  document.getElementById('dualRCargo').value = d1.cargo || '';
+}
+
 let tickerLogoUrl = null;
 
 function leerTkrCfg() {
