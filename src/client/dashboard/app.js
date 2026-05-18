@@ -337,7 +337,15 @@ document.querySelectorAll('.url-row').forEach(row => {
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.url-copy');
   if (!btn) return;
-  navigator.clipboard.writeText(btn.dataset.url).catch(() => {});
+  try { navigator.clipboard.writeText(btn.dataset.url); } catch {
+    const ta = document.createElement('textarea');
+    ta.value = btn.dataset.url;
+    ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
 });
 
 const GUEST_KEY = 'lower_guests';
