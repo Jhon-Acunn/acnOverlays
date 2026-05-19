@@ -15,6 +15,7 @@ export default defineConfig({
         scoreboard: resolve(__dirname, 'src/client/templates/scoreboard/index.html'),
         sponsors: resolve(__dirname, 'src/client/templates/sponsors/index.html'),
         ticker: resolve(__dirname, 'src/client/templates/ticker/index.html'),
+        combo: resolve(__dirname, 'src/client/templates/combo/index.html'),
       }
     }
   },

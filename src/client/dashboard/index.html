@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <h1>Panel de Control — Overlays</h1>
 
 <div class="theme-toggle">
   <span class="theme-icon">☀️</span>
@@ -18,12 +17,74 @@
   <span class="theme-icon">🌙</span>
 </div>
 
+<!-- ═══ SIDEBAR ═══ -->
+<aside id="quick-panel">
+  <div class="qp-header">⚡ Control Rápido</div>
+
+  <div class="qp-section">
+    <div class="qp-toggle-row">
+      <span class="qp-label">Scoreboard</span>
+      <label class="switch qp-switch"><input type="checkbox" id="qpScoreToggle"><span class="switch-slider"></span></label>
+    </div>
+    <div class="qp-toggle-row">
+      <span class="qp-label">Lower Third</span>
+      <label class="switch qp-switch"><input type="checkbox" id="qpLowerToggle"><span class="switch-slider"></span></label>
+    </div>
+    <div class="qp-toggle-row">
+      <span class="qp-label">Dual L</span>
+      <label class="switch qp-switch"><input type="checkbox" id="qpDualLToggle"><span class="switch-slider"></span></label>
+    </div>
+    <div class="qp-toggle-row">
+      <span class="qp-label">Dual R</span>
+      <label class="switch qp-switch"><input type="checkbox" id="qpDualRToggle"><span class="switch-slider"></span></label>
+    </div>
+    <div class="qp-toggle-row">
+      <span class="qp-label">Sponsors</span>
+      <label class="switch qp-switch"><input type="checkbox" id="qpSponsorToggle"><span class="switch-slider"></span></label>
+    </div>
+    <div class="qp-toggle-row">
+      <span class="qp-label">Ticker</span>
+      <label class="switch qp-switch"><input type="checkbox" id="qpToggle"><span class="switch-slider"></span></label>
+    </div>
+  </div>
+
+  <div class="qp-section">
+    <div class="qp-subtitle">Textos rápidos</div>
+    <input type="text" id="qpDualNombre" placeholder="Dual Nombre">
+    <input type="text" id="qpDualApellido" placeholder="Dual Apellido">
+    <input type="text" id="qpDualCargo" placeholder="Dual Cargo">
+    <input type="text" id="qpMensaje" placeholder="Ticker mensaje" style="margin-top:0.3rem;">
+  </div>
+
+  <div class="qp-section">
+    <div class="qp-subtitle">Slots <span style="font-weight:400;font-size:0.6rem;color:var(--text-muted);">clic → cargar · clic der. → guardar</span></div>
+    <div class="qp-guest-grid" id="qp-guest-grid"></div>
+  </div>
+
+  <div class="qp-section" style="padding-top:0.25rem;">
+    <div class="qp-toggle-row">
+      <span class="qp-label" style="font-weight:700;color:var(--accent);">★ Combo</span>
+      <label class="switch qp-switch"><input type="checkbox" id="qpComboToggle"><span class="switch-slider"></span></label>
+    </div>
+    <div style="display:flex;gap:0.3rem;margin-top:0.3rem;">
+      <button id="qpShowAll" class="qp-btn" style="flex:1;">Mostrar todo</button>
+      <button id="qpHideAll" class="qp-btn" style="flex:1;">Ocultar todo</button>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="main-content">
+
+  <h1>Panel de Control — Overlays</h1>
+
   <nav class="tabs">
     <button class="tab" data-tab="scoreboard">Scoreboard</button>
     <button class="tab active" data-tab="lower">Lower Third</button>
     <button class="tab" data-tab="lower-dual">Lower Dual</button>
     <button class="tab" data-tab="sponsors">Patrocinadores</button>
     <button class="tab" data-tab="ticker">Ticker</button>
+    <button class="tab" data-tab="combo">Combo</button>
     <button class="tab" data-tab="media">Media</button>
   </nav>
 
@@ -590,6 +651,44 @@
     </div>
   </section>
 
+  <section class="tab-content" data-tab-content="combo">
+    <h2>Combo — Todo en uno</h2>
+    <div class="lower-grid">
+      <div class="lower-left">
+        <div class="preview-scene">
+          <div class="preview-stage">
+            <iframe src="/templates/combo/?preview=1" class="preview-iframe" title="Vista previa Combo"></iframe>
+          </div>
+        </div>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;line-height:1.5;">
+          Este overlay combina <strong>Lower Dual</strong> + <strong>Patrocinadores</strong> + <strong>Ticker</strong>
+          en una sola salida. Controla cada elemento desde su pestaña individual.
+        </p>
+        <div class="row" style="margin-top:0.5rem;justify-content:center;">
+          <label class="switch">
+            <input type="checkbox" id="comboToggle">
+            <span class="switch-slider"></span>
+          </label>
+          <span id="comboToggleLabel" style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
+        </div>
+        <div class="url-row" data-path="/templates/combo/"></div>
+      </div>
+      <div class="lower-right">
+        <h3>Información</h3>
+        <p style="font-size:0.75rem;color:var(--text-muted);line-height:1.6;">
+          Capas (z-index):<br>
+          <strong>Sponsors</strong> z-index: 10 (arriba izquierda)<br>
+          <strong>Lower Dual</strong> z-index: 20 (abajo ambos lados)<br>
+          <strong>Ticker</strong> z-index: 30 (abajo, 65px altura)
+        </p>
+        <p style="font-size:0.75rem;color:var(--text-muted);margin-top:1rem;line-height:1.6;">
+          El toggle "Mostrar todo" emite <em>SHOW</em> para los tres componentes
+          simultáneamente. Úsalo para encender o apagar el combo completo desde OBS.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <section class="tab-content" data-tab-content="media">
     <h2>Media / Logos</h2>
     <div class="media-layout">
@@ -600,6 +699,8 @@
       </div>
     </div>
   </section>
+
+</div> <!-- /.main-content -->
 
   <script type="module" src="./app.js"></script>
 </body>

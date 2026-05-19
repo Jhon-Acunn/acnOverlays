@@ -63,6 +63,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     }
 
     requestAnimationFrame(ajustarEscalas);
+    setTimeout(qpSyncToggles, 50); // sync sidebar toggles
   });
 });
 
@@ -1236,6 +1237,204 @@ function enviarTercio(estadoAnimacion) {
     }
   });
 }
+
+// ─── COMBO TAB ───────────────────────────────────────────────
+
+function comboLeerLowerDual() {
+  const cfg = leerDualCfg();
+  return {
+    accion: 'SHOW',
+    left: cfg.left,
+    right: cfg.right
+  };
+}
+
+function comboLeerSponsors() {
+  const items = document.querySelectorAll('.sponsor-item');
+  const sponsors = [];
+  items.forEach(item => {
+    const name = item.querySelector('.sp-name').value.trim();
+    const logoUrl = item.querySelector('.sp-logo-url').value.trim() || null;
+    if (name || logoUrl) sponsors.push({ name, logoUrl });
+  });
+  return {
+    accion: 'SHOW',
+    sponsors,
+    config: leerSponsorsCfg()
+  };
+}
+
+function comboLeerTicker() {
+  const cfg = leerTkrCfg();
+  cfg.accion = 'SHOW';
+  return cfg;
+}
+
+function comboEmit(accion) {
+  if (accion === 'SHOW') {
+    // Sync all three tab toggles so UI stays coherent
+    const bt = document.getElementById('dualBothToggle');
+    if (bt && !bt.checked) { bt.checked = true; bt.dispatchEvent(new Event('change')); }
+    const st = document.getElementById('sponsorToggle');
+    if (st && !st.checked) { st.checked = true; st.dispatchEvent(new Event('change')); }
+    const tt = document.getElementById('tkrToggle');
+    if (tt && !tt.checked) { tt.checked = true; tt.dispatchEvent(new Event('change')); }
+  } else {
+    const bt = document.getElementById('dualBothToggle');
+    if (bt && bt.checked) { bt.checked = false; bt.dispatchEvent(new Event('change')); }
+    const st = document.getElementById('sponsorToggle');
+    if (st && st.checked) { st.checked = false; st.dispatchEvent(new Event('change')); }
+    const tt = document.getElementById('tkrToggle');
+    if (tt && tt.checked) { tt.checked = false; tt.dispatchEvent(new Event('change')); }
+  }
+}
+
+document.getElementById('comboToggle').addEventListener('change', function() {
+  const label = document.getElementById('comboToggleLabel');
+  if (this.checked) {
+    label.textContent = 'Encendido';
+    comboEmit('SHOW');
+  } else {
+    label.textContent = 'Apagado';
+    comboEmit('HIDE');
+  }
+});
+
+// ─── QUICK PANEL SIDEBAR ─────────────────────────────────────
+
+// Map sidebar toggle IDs → tab toggle IDs
+const QP_MAP = {
+  qpScoreToggle: 'scoreToggle',
+  qpLowerToggle: 'lowerToggle',
+  qpDualLToggle: 'dualLToggle',
+  qpDualRToggle: 'dualRToggle',
+  qpSponsorToggle: 'sponsorToggle',
+  qpToggle: 'tkrToggle',
+  qpComboToggle: 'comboToggle'
+};
+
+function qpSyncToggles() {
+  for (const [qpId, tabId] of Object.entries(QP_MAP)) {
+    const qp = document.getElementById(qpId);
+    const tab = document.getElementById(tabId);
+    if (qp && tab) qp.checked = tab.checked;
+  }
+}
+
+// Sidebar toggle → proxy to tab toggle change event
+for (const [qpId, tabId] of Object.entries(QP_MAP)) {
+  document.getElementById(qpId)?.addEventListener('change', function() {
+    const tab = document.getElementById(tabId);
+    if (tab && tab.checked !== this.checked) {
+      tab.checked = this.checked;
+      tab.dispatchEvent(new Event('change'));
+    }
+  });
+}
+
+// Whenever ANY tab toggle changes (user click OR dispatchEvent), sync sidebar to match
+const ALL_TAB_TOGGLES = ['scoreToggle','lowerToggle','dualLToggle','dualRToggle','sponsorToggle','tkrToggle','comboToggle'];
+document.addEventListener('change', (e) => {
+  if (e.target && e.target.type === 'checkbox' && ALL_TAB_TOGGLES.includes(e.target.id)) {
+    qpSyncToggles();
+  }
+});
+
+// Sidebar text sync: Dual
+['Nombre', 'Apellido', 'Cargo'].forEach(field => {
+  document.getElementById('qpDual' + field)?.addEventListener('input', function() {
+    const left = document.getElementById('dualL' + field);
+    const right = document.getElementById('dualR' + field);
+    if (left) left.value = this.value;
+    if (right) right.value = this.value;
+    enviarPreviewDual();
+  });
+});
+
+// Sidebar text sync: Ticker message
+document.getElementById('qpMensaje')?.addEventListener('input', function() {
+  const tkrMsg = document.getElementById('tkrMessage');
+  if (tkrMsg) { tkrMsg.value = this.value; enviarPreviewTicker(); }
+});
+
+// Guest slots (uses same key as dual left)
+(function qpInitGuestSlots() {
+  const grid = document.getElementById('qp-guest-grid');
+  if (!grid) return;
+  const invitados = cargarDualInvitados();
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'guest-btn' + (invitados[i] ? ' filled' : '');
+    btn.dataset.slot = i;
+    btn.textContent = i;
+    btn.title = invitados[i]
+      ? `${invitados[i].nombre || ''} ${invitados[i].apellido || ''}`
+      : 'Slot vacío — clic der. para guardar';
+    btn.addEventListener('click', () => {
+      const data = invitados[i];
+      if (!data) return;
+      document.getElementById('qpDualNombre').value = data.nombre || '';
+      document.getElementById('qpDualApellido').value = data.apellido || '';
+      document.getElementById('qpDualCargo').value = data.cargo || '';
+      // Also update tab fields
+      ['Nombre', 'Apellido', 'Cargo'].forEach(f => {
+        const el = document.getElementById('dualL' + f);
+        if (el) el.value = data[f.toLowerCase()] || '';
+        const el2 = document.getElementById('dualR' + f);
+        if (el2) el2.value = data[f.toLowerCase()] || '';
+      });
+      document.querySelectorAll('#qp-guest-grid .guest-btn').forEach(b => b.classList.remove('active-slot'));
+      btn.classList.add('active-slot');
+      enviarPreviewDual();
+    });
+    btn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById('qpDualNombre').value.trim();
+      const apellido = document.getElementById('qpDualApellido').value.trim();
+      const cargo = document.getElementById('qpDualCargo').value.trim();
+      if (!nombre && !apellido && !cargo) return;
+      const data = { nombre, apellido, cargo };
+      const existing = cargarDualInvitados();
+      existing[i] = data;
+      guardarDualInvitados(existing);
+      invitados[i] = data;
+      btn.classList.add('filled');
+      btn.title = `${nombre} ${apellido}`;
+      document.querySelectorAll('#qp-guest-grid .guest-btn').forEach(b => b.classList.remove('active-slot'));
+      btn.classList.add('active-slot');
+      enviarPreviewDual();
+    });
+    grid.appendChild(btn);
+  }
+  // Load slot 1 on init if exists
+  if (invitados[1]) {
+    document.getElementById('qpDualNombre').value = invitados[1].nombre || '';
+    document.getElementById('qpDualApellido').value = invitados[1].apellido || '';
+    document.getElementById('qpDualCargo').value = invitados[1].cargo || '';
+    ['Nombre', 'Apellido', 'Cargo'].forEach(f => {
+      const el = document.getElementById('dualL' + f);
+      if (el) el.value = invitados[1][f.toLowerCase()] || '';
+      const el2 = document.getElementById('dualR' + f);
+      if (el2) el2.value = invitados[1][f.toLowerCase()] || '';
+    });
+    const first = grid.querySelector('.guest-btn[data-slot="1"]');
+    if (first) first.classList.add('active-slot');
+    enviarPreviewDual();
+  }
+})();
+
+// Show All / Hide All buttons
+document.getElementById('qpShowAll')?.addEventListener('click', () => {
+  const qp = document.getElementById('qpComboToggle');
+  if (qp && !qp.checked) { qp.checked = true; qp.dispatchEvent(new Event('change')); }
+});
+document.getElementById('qpHideAll')?.addEventListener('click', () => {
+  const qp = document.getElementById('qpComboToggle');
+  if (qp && qp.checked) { qp.checked = false; qp.dispatchEvent(new Event('change')); }
+});
+
+// Initial sync
+setTimeout(qpSyncToggles, 300);
 
 // ─── MEDIA / LOGOS ──────────────────────────────────────────
 
