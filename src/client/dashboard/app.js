@@ -250,10 +250,12 @@ document.getElementById('fontDropdownBtn').addEventListener('click', () => {
   const prev = input.value;
   input.value = '';
   input.showPicker();
-  input.addEventListener('blur', function restore() {
-    if (!input.value) input.value = prev;
-    input.removeEventListener('blur', restore);
-  }, { once: true });
+  requestAnimationFrame(() => {
+    input.addEventListener('blur', function restore() {
+      if (!input.value) input.value = prev;
+      input.removeEventListener('blur', restore);
+    }, { once: true });
+  });
 });
 
 document.querySelector('[data-reset-title]').addEventListener('click', () => {
@@ -425,10 +427,12 @@ document.getElementById('dualFontDropdownBtn')?.addEventListener('click', () => 
   const prev = input.value;
   input.value = '';
   input.showPicker();
-  input.addEventListener('blur', function restore() {
-    if (!input.value) input.value = prev;
-    input.removeEventListener('blur', restore);
-  }, { once: true });
+  requestAnimationFrame(() => {
+    input.addEventListener('blur', function restore() {
+      if (!input.value) input.value = prev;
+      input.removeEventListener('blur', restore);
+    }, { once: true });
+  });
 });
 
 // Dual style resets
@@ -604,10 +608,12 @@ document.getElementById('tkrFontDropdownBtn')?.addEventListener('click', () => {
   const prev = input.value;
   input.value = '';
   input.showPicker();
-  input.addEventListener('blur', function restore() {
-    if (!input.value) input.value = prev;
-    input.removeEventListener('blur', restore);
-  }, { once: true });
+  requestAnimationFrame(() => {
+    input.addEventListener('blur', function restore() {
+      if (!input.value) input.value = prev;
+      input.removeEventListener('blur', restore);
+    }, { once: true });
+  });
 });
 
 // Reset title style
@@ -839,10 +845,12 @@ document.getElementById('spFontDropdownBtn')?.addEventListener('click', () => {
   const prev = input.value;
   input.value = '';
   input.showPicker();
-  input.addEventListener('blur', function restore() {
-    if (!input.value) input.value = prev;
-    input.removeEventListener('blur', restore);
-  }, { once: true });
+  requestAnimationFrame(() => {
+    input.addEventListener('blur', function restore() {
+      if (!input.value) input.value = prev;
+      input.removeEventListener('blur', restore);
+    }, { once: true });
+  });
 });
 
 // ── Sponsor Guest Slots (1-10 presets) ──
