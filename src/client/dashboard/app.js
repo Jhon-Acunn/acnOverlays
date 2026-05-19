@@ -431,6 +431,36 @@ document.getElementById('dualFontDropdownBtn')?.addEventListener('click', () => 
   }, { once: true });
 });
 
+// Dual style resets
+document.querySelector('[data-dual-reset-title]')?.addEventListener('click', () => {
+  document.getElementById('dualTitleSize').value = '3.0';
+  document.getElementById('dualTitleColor').value = '#ffffff';
+  document.getElementById('dualTitleBg').value = '#06155A';
+  actualizarValDual();
+  enviarPreviewDual();
+});
+document.querySelector('[data-dual-reset-sub]')?.addEventListener('click', () => {
+  document.getElementById('dualSubSize').value = '2.5';
+  document.getElementById('dualSubColor').value = '#111111';
+  document.getElementById('dualSubBg').value = '#ffffff';
+  actualizarValDual();
+  enviarPreviewDual();
+});
+document.querySelector('[data-dual-reset-left]')?.addEventListener('click', () => {
+  document.getElementById('dualLScale').value = '1.0';
+  document.getElementById('dualLX').value = '100';
+  document.getElementById('dualLY').value = '90';
+  actualizarValDual();
+  enviarPreviewDual();
+});
+document.querySelector('[data-dual-reset-right]')?.addEventListener('click', () => {
+  document.getElementById('dualRScale').value = '1.0';
+  document.getElementById('dualRX').value = '100';
+  document.getElementById('dualRY').value = '90';
+  actualizarValDual();
+  enviarPreviewDual();
+});
+
 // ── Dual Guest Slots (shared 10 presets, independent left/right assign) ──
 
 const DUAL_GUEST_KEY = 'dual_guests';
@@ -822,6 +852,21 @@ for (const id of ['spBarHeight', 'spRotationSpeed']) {
   if (!el) return;
   const val = document.getElementById('valSp' + id.slice(2));
   if (val) val.textContent = id === 'spRotationSpeed' ? (parseInt(el.value,10)/1000).toFixed(1) + 's' : el.value + 'px';
+});
+
+// Sponsors reset style
+document.getElementById('spResetStyle')?.addEventListener('click', () => {
+  document.getElementById('spBarText').value = 'PATROCINADO POR';
+  document.getElementById('spBarColor').value = '#e53935';
+  document.getElementById('spBarTextColor').value = '#ffffff';
+  document.getElementById('spBarHeight').value = '44';
+  document.getElementById('spBgTop').value = '#3a3a3a';
+  document.getElementById('spBgBottom').value = '#555555';
+  document.getElementById('spRotationSpeed').value = '5000';
+  document.getElementById('spFont').value = 'Inter, sans-serif';
+  document.getElementById('valSpBarHeight').textContent = '44px';
+  document.getElementById('valSpRotationSpeed').textContent = '5.0s';
+  enviarPreviewSponsors();
 });
 
 document.querySelectorAll('.url-row').forEach(row => {
