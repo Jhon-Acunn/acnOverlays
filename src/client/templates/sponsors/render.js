@@ -119,8 +119,8 @@ function iniciarRotacion() {
   rotacionInterval = setInterval(() => {
     const prev = indiceActual;
     indiceActual = (indiceActual + 1) % logos.length;
-    gsap.to(logos[prev], { duration: 0.8, opacity: 0, ease: 'power2.in' });
-    gsap.to(logos[indiceActual], { duration: 0.8, opacity: 1, ease: 'power2.out' });
+    gsap.to(logos[prev], { duration: 0.5, opacity: 0, ease: 'power2.in' });
+    gsap.to(logos[indiceActual], { duration: 0.5, opacity: 1, ease: 'power2.out' });
   }, configActual.rotationSpeed || 5000);
 }
 
