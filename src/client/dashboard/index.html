@@ -308,18 +308,81 @@
 
   <section class="tab-content" data-tab-content="sponsors">
     <h2>Patrocinadores</h2>
-    <div class="preview-scene">
-      <div class="preview-stage">
-        <iframe src="/templates/sponsors/" class="preview-iframe" title="Vista previa Patrocinadores"></iframe>
+    <div class="lower-grid">
+      <div class="lower-left">
+        <div class="preview-scene">
+          <div class="preview-stage">
+            <iframe src="/templates/sponsors/?preview=1" class="preview-iframe" title="Vista previa Patrocinadores"></iframe>
+          </div>
+        </div>
+
+        <div class="row" style="gap:0.4rem;flex-wrap:wrap;" id="sponsor-list"></div>
+
+        <div class="row" style="margin-top:0.5rem;">
+          <button class="primary" id="sponsor-add" style="flex:1;">+ Agregar Patrocinador</button>
+        </div>
+
+        <div class="row" style="margin-top:0.75rem;">
+          <button class="success block" data-sponsors="SHOW">Mostrar</button>
+        </div>
+        <div class="row">
+          <button class="warning block" data-sponsors="HIDE">Ocultar</button>
+        </div>
+        <div class="url-row" data-path="/templates/sponsors/"></div>
+      </div>
+
+      <div class="lower-right">
+        <h3>Estilo</h3>
+
+        <h4>Barra</h4>
+        <div class="row">
+          <span class="row-label">Texto</span>
+          <input type="text" id="spBarText" value="PATROCINADO POR">
+        </div>
+        <div class="row">
+          <span class="row-label">Color barra</span>
+          <input type="color" id="spBarColor" value="#e53935">
+        </div>
+        <div class="row">
+          <span class="row-label">Texto barra</span>
+          <input type="color" id="spBarTextColor" value="#ffffff">
+        </div>
+        <div class="row">
+          <span class="row-label">Altura</span>
+          <input type="range" id="spBarHeight" min="30" max="80" step="2" value="44">
+          <span class="val" id="valSpBarHeight">44px</span>
+        </div>
+
+        <h4>Fondo logos</h4>
+        <div class="row">
+          <span class="row-label">Degr. arriba</span>
+          <input type="color" id="spBgTop" value="#3a3a3a">
+        </div>
+        <div class="row">
+          <span class="row-label">Degr. abajo</span>
+          <input type="color" id="spBgBottom" value="#555555">
+        </div>
+
+        <h4>Rotación</h4>
+        <div class="row">
+          <span class="row-label">Velocidad</span>
+          <input type="range" id="spRotationSpeed" min="2000" max="15000" step="500" value="5000">
+          <span class="val" id="valSpRotationSpeed">5.0s</span>
+        </div>
+
+        <h4>Fuente</h4>
+        <div class="row">
+          <span class="row-label">Fuente</span>
+          <input type="text" id="spFont" value="Inter, sans-serif" placeholder="Nombre de fuente" list="spFontList">
+          <datalist id="spFontList">
+            <option value="Inter, sans-serif">
+            <option value="Montserrat, sans-serif">
+            <option value="Arial, Helvetica, sans-serif">
+            <option value="Impact, sans-serif">
+          </datalist>
+        </div>
       </div>
     </div>
-    <div class="row" style="margin-top: 0.75rem;">
-      <button class="success block" data-sponsors="SHOW">Mostrar Patrocinadores</button>
-    </div>
-    <div class="row">
-      <button class="warning block" data-sponsors="HIDE">Ocultar Patrocinadores</button>
-    </div>
-    <div class="url-row" data-path="/templates/sponsors/"></div>
   </section>
 
   <section class="tab-content" data-tab-content="ticker">

@@ -1,38 +1,16 @@
 import { io } from 'socket.io-client';
 import gsap from 'gsap';
 
-const socket = io({
-  reconnectionDelay: 1000,
-  reconnectionAttempts: 10
-});
+const isPreview = window.location.search.includes('preview=1');
 
-socket.on('connect_error', (err) => {
-  console.error('[SOCKET SPONSORS] Error:', err.message);
-});
-
+/* ---------- state ---------- */
 let rotacionInterval = null;
 let indiceActual = 0;
 let timeline = null;
+let sponsorsData = [];
+let configActual = {};
 
-function iniciarRotacion() {
-  const logos = document.querySelectorAll('.sponsor-logo');
-  if (logos.length === 0) return;
-
-  detenerRotacion();
-
-  gsap.set(logos, { opacity: 0 });
-  gsap.set(logos[0], { opacity: 1 });
-  indiceActual = 0;
-
-  rotacionInterval = setInterval(() => {
-    const prev = indiceActual;
-    indiceActual = (indiceActual + 1) % logos.length;
-
-    gsap.to(logos[prev], { duration: 0.8, opacity: 0, ease: 'power2.in' });
-    gsap.to(logos[indiceActual], { duration: 0.8, opacity: 1, ease: 'power2.out' });
-  }, 5000);
-}
-
+/* ---------- helpers ---------- */
 function detenerRotacion() {
   if (rotacionInterval) {
     clearInterval(rotacionInterval);
@@ -40,68 +18,169 @@ function detenerRotacion() {
   }
 }
 
+function aplicarConfig(cfg) {
+  if (!cfg) return;
+  configActual = cfg;
+  const root = document.documentElement;
+  if (cfg.barColor) root.style.setProperty('--sp-bar-bg', cfg.barColor);
+  if (cfg.barTextColor) root.style.setProperty('--sp-bar-color', cfg.barTextColor);
+  if (cfg.barText) document.getElementById('sponsors-bar').textContent = cfg.barText;
+  if (cfg.fontFamily) document.getElementById('sponsors-container').style.fontFamily = cfg.fontFamily;
+  if (cfg.barHeight) root.style.setProperty('--sp-bar-h', cfg.barHeight + 'px');
+  const logosContainer = document.getElementById('sponsors-logos');
+  if (cfg.bgGradientTop && cfg.bgGradientBottom) {
+    logosContainer.style.background = `linear-gradient(180deg, ${cfg.bgGradientTop} 0%, ${cfg.bgGradientBottom} 100%)`;
+  }
+}
+
+function construirSponsors(lista) {
+  sponsorsData = lista || [];
+  const container = document.getElementById('sponsors-logos-inner');
+  container.innerHTML = '';
+  if (!sponsorsData.length) {
+    const placeholder = document.createElement('div');
+    placeholder.className = 'sp-logo';
+    placeholder.textContent = 'SIN PATROCINADORES';
+    placeholder.style.cssText = 'opacity:1;position:static;transform:none;display:flex;align-items:center;justify-content:center;width:auto;padding:0 2rem;font-weight:700;color:#888;';
+    container.appendChild(placeholder);
+    return;
+  }
+  sponsorsData.forEach((sp, idx) => {
+    const div = document.createElement('div');
+    div.className = 'sp-logo';
+    div.dataset.index = idx;
+    if (sp.logoUrl) {
+      const img = document.createElement('img');
+      img.src = sp.logoUrl;
+      img.alt = sp.name || '';
+      img.style.cssText = 'max-height:80px;max-width:260px;display:block;';
+      div.appendChild(img);
+    } else {
+      div.textContent = sp.name || 'SPONSOR';
+      div.style.cssText = 'display:flex;align-items:center;justify-content:center;min-width:160px;padding:0 1.5rem;font-weight:700;font-size:1.2rem;color:#fff;';
+    }
+    container.appendChild(div);
+  });
+}
+
+function mostrarPreview(data) {
+  if (!data) return;
+  const { sponsors, config } = data;
+  construirSponsors(sponsors || []);
+  aplicarConfig(config);
+  const container = document.getElementById('sponsors-container');
+  container.style.display = 'block';
+  gsap.set('#sponsors-bar', { x: '0%' });
+  gsap.set('#sponsors-logos', { scaleY: 1, transformOrigin: 'top' });
+  gsap.set('.sp-logo', { opacity: 0 });
+  if (document.querySelectorAll('.sp-logo').length > 0) {
+    gsap.set(document.querySelectorAll('.sp-logo')[0], { opacity: 1 });
+  }
+  detenerRotacion();
+  iniciarRotacion();
+}
+
+/* ---------- preview via postMessage ---------- */
+if (isPreview) {
+  window.addEventListener('message', (e) => {
+    if (e.source !== window.parent) return;
+    try {
+      const msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+      if (msg && msg.tipo === 'PREVIEW_SPONSORS') {
+        mostrarPreview(msg.data);
+      }
+    } catch (_) { /* ignore */ }
+  });
+  mostrarPreview({
+    sponsors: [
+      { name: 'Sponsor A', logoUrl: null },
+      { name: 'Sponsor B', logoUrl: null },
+      { name: 'Sponsor C', logoUrl: null }
+    ],
+    config: {
+      barText: 'PATROCINADO POR',
+      barColor: '#e53935',
+      barTextColor: '#ffffff',
+      fontFamily: 'Inter, sans-serif',
+      barHeight: 44,
+      bgGradientTop: '#3a3a3a',
+      bgGradientBottom: '#555',
+      rotationSpeed: 5000
+    }
+  });
+}
+
+/* ---------- animations ---------- */
+function iniciarRotacion() {
+  const logos = document.querySelectorAll('.sp-logo');
+  if (logos.length <= 1) return;
+  detenerRotacion();
+  indiceActual = 0;
+  rotacionInterval = setInterval(() => {
+    const prev = indiceActual;
+    indiceActual = (indiceActual + 1) % logos.length;
+    gsap.to(logos[prev], { duration: 0.8, opacity: 0, ease: 'power2.in' });
+    gsap.to(logos[indiceActual], { duration: 0.8, opacity: 1, ease: 'power2.out' });
+  }, configActual.rotationSpeed || 5000);
+}
+
 function animarEntrada() {
+  detenerRotacion();
   const bar = document.getElementById('sponsors-bar');
   const logosContainer = document.getElementById('sponsors-logos');
-
   if (timeline) timeline.kill();
-
-  timeline = gsap.timeline({
-    onComplete: () => iniciarRotacion()
-  });
-
+  timeline = gsap.timeline({ onComplete: () => iniciarRotacion() });
+  gsap.set('.sp-logo', { opacity: 0 });
+  if (document.querySelectorAll('.sp-logo').length > 0) {
+    gsap.set(document.querySelectorAll('.sp-logo')[0], { opacity: 1 });
+  }
   timeline.to(bar, {
-    duration: 0.6,
-    x: '0%',
-    ease: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    duration: 0.6, x: '0%', ease: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
   });
-
   timeline.to(logosContainer, {
-    duration: 0.4,
-    scaleY: 1,
-    ease: 'power2.out'
+    duration: 0.4, scaleY: 1, ease: 'power2.out'
   }, '-=0.1');
 }
 
 function animarSalida() {
+  detenerRotacion();
   const bar = document.getElementById('sponsors-bar');
   const logosContainer = document.getElementById('sponsors-logos');
-
-  detenerRotacion();
-
   if (timeline) timeline.kill();
-
   timeline = gsap.timeline();
-
-  timeline.to(logosContainer, {
-    duration: 0.3,
-    scaleY: 0,
-    ease: 'power2.in'
-  });
-
-  timeline.to(bar, {
-    duration: 0.3,
-    x: '-110%',
-    ease: 'power2.in'
-  }, '-=0.1');
-
+  timeline.to(logosContainer, { duration: 0.3, scaleY: 0, ease: 'power2.in' });
+  timeline.to(bar, { duration: 0.3, x: '-110%', ease: 'power2.in' }, '-=0.1');
   timeline.set('#sponsors-container', { clearProps: 'all' });
 }
 
-socket.on('render-graphic', (payload) => {
-  try {
-    if (!payload || payload.tipo !== 'SPONSORS') return;
-    if (!payload.data || typeof payload.data !== 'object') return;
+/* ---------- socket ---------- */
+if (!isPreview) {
+  const socket = io({
+    reconnectionDelay: 1000,
+    reconnectionAttempts: 10
+  });
 
-    const { accion } = payload.data;
-    if (accion !== 'SHOW' && accion !== 'HIDE') return;
+  socket.on('connect_error', (err) => {
+    console.error('[SOCKET SPONSORS] Error:', err.message);
+  });
 
-    if (accion === 'SHOW') {
-      animarEntrada();
-    } else if (accion === 'HIDE') {
-      animarSalida();
+  socket.on('render-graphic', (payload) => {
+    try {
+      if (!payload || payload.tipo !== 'SPONSORS') return;
+      if (!payload.data || typeof payload.data !== 'object') return;
+
+      const { accion, sponsors, config } = payload.data;
+      if (!accion) return;
+
+      if (accion === 'SHOW' || accion === 'UPDATE') {
+        if (sponsors) construirSponsors(sponsors);
+        if (config) aplicarConfig(config);
+        animarEntrada();
+      } else if (accion === 'HIDE') {
+        animarSalida();
+      }
+    } catch (err) {
+      console.error('[RENDER SPONSORS] Error:', err);
     }
-  } catch (err) {
-    console.error('[RENDER SPONSORS] Error:', err);
-  }
-});
+  });
+}

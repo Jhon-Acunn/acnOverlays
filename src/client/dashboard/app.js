@@ -190,13 +190,6 @@ document.getElementById('lowerToggle').addEventListener('change', function() {
   document.getElementById('lowerToggleLabel').textContent = this.checked ? 'Encendido' : 'Apagado';
 });
 
-document.querySelectorAll('[data-sponsors]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const accion = btn.dataset.sponsors;
-    socket.emit('update-graphic', { tipo: 'SPONSORS', data: { accion } });
-  });
-});
-
 // ── Dual Lower Third ──────────────────────────────
 
 function leerDualCfg() {
@@ -551,19 +544,190 @@ document.querySelector('[data-tab="ticker"]')?.addEventListener('click', () => {
   setTimeout(cargarTkrLogos, 100);
 });
 
-function mostrarSponsors() {
+// ─── SPONSORS ─────────────────────────────────────────────
+
+let sponsorsList = [];
+
+function leerSponsorsCfg() {
+  return {
+    barText: document.getElementById('spBarText').value || 'PATROCINADO POR',
+    barColor: document.getElementById('spBarColor').value || '#e53935',
+    barTextColor: document.getElementById('spBarTextColor').value || '#ffffff',
+    barHeight: parseInt(document.getElementById('spBarHeight').value, 10) || 44,
+    bgGradientTop: document.getElementById('spBgTop').value || '#3a3a3a',
+    bgGradientBottom: document.getElementById('spBgBottom').value || '#555555',
+    rotationSpeed: parseInt(document.getElementById('spRotationSpeed').value, 10) || 5000,
+    fontFamily: document.getElementById('spFont').value || 'Inter, sans-serif'
+  };
+}
+
+function enviarPreviewSponsors() {
+  const iframe = document.querySelector('[data-tab-content="sponsors"] .preview-iframe');
+  if (!iframe || !iframe.contentWindow) return;
+  const items = document.querySelectorAll('.sponsor-item');
+  const sponsors = [];
+  items.forEach(item => {
+    const name = item.querySelector('.sp-name').value.trim();
+    const logoUrl = item.querySelector('.sp-logo-url').value.trim() || null;
+    if (name || logoUrl) sponsors.push({ name, logoUrl });
+  });
+  sponsorsList = sponsors;
+  iframe.contentWindow.postMessage({
+    tipo: 'PREVIEW_SPONSORS',
+    data: { sponsors, config: leerSponsorsCfg() }
+  }, '*');
+}
+
+function sponsorsEmit(accion) {
+  const items = document.querySelectorAll('.sponsor-item');
+  const sponsors = [];
+  items.forEach(item => {
+    const name = item.querySelector('.sp-name').value.trim();
+    const logoUrl = item.querySelector('.sp-logo-url').value.trim() || null;
+    if (name || logoUrl) sponsors.push({ name, logoUrl });
+  });
+  sponsorsList = sponsors;
   socket.emit('update-graphic', {
     tipo: 'SPONSORS',
-    data: { accion: 'SHOW' }
+    data: { accion, sponsors, config: leerSponsorsCfg() }
   });
 }
 
-function ocultarSponsors() {
-  socket.emit('update-graphic', {
-    tipo: 'SPONSORS',
-    data: { accion: 'HIDE' }
+let spPickerTarget = null;
+
+function sponsorsMostrarLogosPicker(btn) {
+  const item = btn.closest('.sponsor-item');
+  spPickerTarget = item.querySelector('.sp-logo-url');
+  let popup = document.getElementById('sp-logo-picker');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'sp-logo-picker';
+    popup.style.cssText = 'position:fixed;z-index:999;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:0.5rem;max-height:200px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:0.4rem;width:260px;box-shadow:0 8px 24px rgba(0,0,0,0.4);';
+    document.body.appendChild(popup);
+    popup.addEventListener('click', (e) => {
+      const pickBtn = e.target.closest('[data-pick-url]');
+      if (!pickBtn) return;
+      if (spPickerTarget) spPickerTarget.value = pickBtn.dataset.pickUrl;
+      popup.style.display = 'none';
+      enviarPreviewSponsors();
+    });
+    document.addEventListener('click', (e) => {
+      if (!popup.contains(e.target) && !e.target.closest('.sp-pick-logo')) {
+        popup.style.display = 'none';
+      }
+    });
+  }
+  const rect = btn.getBoundingClientRect();
+  popup.style.top = (rect.bottom + 4) + 'px';
+  popup.style.left = Math.max(4, rect.left) + 'px';
+  popup.style.display = 'flex';
+  popup.innerHTML = '<div style="width:100%;font-size:0.7rem;color:var(--text-muted);margin-bottom:0.3rem;">Seleccionar logo:</div>';
+  fetch('/api/media').then(r => r.json()).then(files => {
+    if (!files.length) {
+      popup.innerHTML += '<div style="font-size:0.7rem;color:var(--text-muted);width:100%;">Sube logos en la pestaña Media</div>';
+      return;
+    }
+    const btnNinguno = document.createElement('button');
+    btnNinguno.textContent = 'Sin logo';
+    btnNinguno.style.cssText = 'font-size:0.7rem;padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:var(--btn-bg);color:var(--text);cursor:pointer;';
+    btnNinguno.dataset.pickUrl = '';
+    popup.appendChild(btnNinguno);
+    files.forEach(f => {
+      const b = document.createElement('button');
+      b.style.cssText = 'width:48px;height:36px;border-radius:4px;border:1px solid var(--border);background:var(--input-bg);cursor:pointer;overflow:hidden;padding:0;';
+      b.innerHTML = `<img src="${f.url}" style="width:100%;height:100%;object-fit:contain;">`;
+      b.dataset.pickUrl = f.url;
+      b.title = f.name;
+      popup.appendChild(b);
+    });
+  }).catch(() => {});
+}
+
+function sponsorsAddItem() {
+  const list = document.getElementById('sponsor-list');
+  const item = document.createElement('div');
+  item.className = 'sponsor-item';
+  item.style.cssText = 'display:flex;gap:0.3rem;align-items:center;width:100%;';
+  item.innerHTML = `
+    <input type="text" class="sp-name" placeholder="Nombre" style="flex:1;min-width:80px;font-size:0.8rem;">
+    <input type="text" class="sp-logo-url" placeholder="URL logo (opcional)" style="flex:1.5;min-width:100px;font-size:0.8rem;">
+    <button class="sp-pick-logo small" title="Seleccionar de Media" style="padding:0.3rem 0.4rem;font-size:0.8rem;">📁</button>
+    <button class="sp-remove small danger" style="padding:0.3rem 0.4rem;font-size:0.8rem;">×</button>
+  `;
+  const nameInput = item.querySelector('.sp-name');
+  const logoInput = item.querySelector('.sp-logo-url');
+  nameInput.addEventListener('input', enviarPreviewSponsors);
+  logoInput.addEventListener('input', enviarPreviewSponsors);
+  item.querySelector('.sp-pick-logo').addEventListener('click', function() {
+    sponsorsMostrarLogosPicker(this);
+  });
+  item.querySelector('.sp-remove').addEventListener('click', () => {
+    item.remove();
+    enviarPreviewSponsors();
+  });
+  list.appendChild(item);
+  // Focus the name input
+  setTimeout(() => nameInput.focus(), 50);
+  enviarPreviewSponsors();
+}
+
+// Init sponsors tab: add 3 default items if empty
+(function initSponsors() {
+  const list = document.getElementById('sponsor-list');
+  if (!list) return;
+  // Add 3 default sponsors
+  for (let i = 1; i <= 3; i++) {
+    const item = document.createElement('div');
+    item.className = 'sponsor-item';
+    item.style.cssText = 'display:flex;gap:0.3rem;align-items:center;width:100%;';
+    item.innerHTML = `
+      <input type="text" class="sp-name" placeholder="Nombre" value="Sponsor ${String.fromCharCode(64 + i)}" style="flex:1;min-width:80px;font-size:0.8rem;">
+      <input type="text" class="sp-logo-url" placeholder="URL logo (opcional)" style="flex:1.5;min-width:100px;font-size:0.8rem;">
+      <button class="sp-pick-logo small" title="Seleccionar de Media" style="padding:0.3rem 0.4rem;font-size:0.8rem;">📁</button>
+      <button class="sp-remove small danger" style="padding:0.3rem 0.4rem;font-size:0.8rem;">×</button>
+    `;
+    item.querySelector('.sp-name').addEventListener('input', enviarPreviewSponsors);
+    item.querySelector('.sp-logo-url').addEventListener('input', enviarPreviewSponsors);
+    item.querySelector('.sp-pick-logo').addEventListener('click', function() {
+      sponsorsMostrarLogosPicker(this);
+    });
+    item.querySelector('.sp-remove').addEventListener('click', () => {
+      item.remove();
+      enviarPreviewSponsors();
+    });
+    list.appendChild(item);
+  }
+  setTimeout(enviarPreviewSponsors, 500);
+})();
+
+document.getElementById('sponsor-add')?.addEventListener('click', sponsorsAddItem);
+
+document.querySelectorAll('[data-sponsors]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    sponsorsEmit(btn.dataset.sponsors);
+  });
+});
+
+// Style controls → auto-preview
+for (const id of ['spBarText', 'spBarColor', 'spBarTextColor', 'spBgTop', 'spBgBottom', 'spFont']) {
+  document.getElementById(id)?.addEventListener('input', enviarPreviewSponsors);
+}
+for (const id of ['spBarHeight', 'spRotationSpeed']) {
+  const el = document.getElementById(id);
+  if (!el) continue;
+  el.addEventListener('input', () => {
+    const val = document.getElementById('valSp' + id.slice(2));
+    if (val) val.textContent = id === 'spRotationSpeed' ? (parseInt(el.value,10)/1000).toFixed(1) + 's' : el.value + 'px';
+    enviarPreviewSponsors();
   });
 }
+// Init val displays
+['spBarHeight', 'spRotationSpeed'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const val = document.getElementById('valSp' + id.slice(2));
+  if (val) val.textContent = id === 'spRotationSpeed' ? (parseInt(el.value,10)/1000).toFixed(1) + 's' : el.value + 'px';
+});
 
 document.querySelectorAll('.url-row').forEach(row => {
   const url = window.location.origin + row.dataset.path;
