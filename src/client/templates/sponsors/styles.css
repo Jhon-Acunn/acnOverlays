@@ -25,7 +25,7 @@ body {
 #sponsors-bar {
   background: var(--sp-bar-bg);
   color: var(--sp-bar-color);
-  font-size: 1rem;
+  font-size: 1.4rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.15em;
