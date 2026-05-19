@@ -67,6 +67,58 @@ let { scoreA, scoreB } = cargarScore();
 document.getElementById('displayA').innerText = scoreA;
 document.getElementById('displayB').innerText = scoreB;
 
+/* ── Scoreboard helpers ── */
+
+function leerScoreEstilo() {
+  const bgColor = document.getElementById('scBgColor').value || '#000000';
+  const bgOpacity = parseInt(document.getElementById('scBgOpacity').value, 10) / 100 || 0.75;
+  const teamABg = document.getElementById('scTeamABg').value || '#1e50c8';
+  const teamAOpacity = parseInt(document.getElementById('scTeamAOpacity').value, 10) / 100 || 0.3;
+  const teamBBg = document.getElementById('scTeamBBg').value || '#c83232';
+  const teamBOpacity = parseInt(document.getElementById('scTeamBOpacity').value, 10) / 100 || 0.3;
+  return {
+    fontFamily: 'Inter, sans-serif',
+    scoreSize: document.getElementById('scScoreSize').value + 'rem',
+    teamSize: document.getElementById('scTeamSize').value + 'rem',
+    scoreColor: document.getElementById('scScoreColor').value,
+    teamColor: document.getElementById('scTeamColor').value,
+    bgColor: bgColor.replace(')', ', ' + bgOpacity + ')').replace('rgb', 'rgba'),
+    borderRadius: parseInt(document.getElementById('scRadius').value, 10) || 12,
+    teamABg: teamABg.replace(')', ', ' + teamAOpacity + ')').replace('rgb', 'rgba'),
+    teamBBg: teamBBg.replace(')', ', ' + teamBOpacity + ')').replace('rgb', 'rgba'),
+    dividerColor: document.getElementById('scDividerColor').value,
+    escala: 1.0,
+    posY: parseInt(document.getElementById('scPosY').value, 10) || 40
+  };
+}
+
+function leerScoreData(accion) {
+  return {
+    accion,
+    txtEquipoA: document.getElementById('nameA').value || 'LOCAL',
+    puntosA: scoreA,
+    txtEquipoB: document.getElementById('nameB').value || 'VISITANTE',
+    puntosB: scoreB,
+    estilo: leerScoreEstilo()
+  };
+}
+
+function enviarPreviewScore() {
+  const iframe = document.querySelector('[data-tab-content="scoreboard"] .preview-iframe');
+  if (!iframe || !iframe.contentWindow) return;
+  iframe.contentWindow.postMessage({
+    tipo: 'PREVIEW_SCOREBOARD',
+    data: leerScoreData()
+  }, '*');
+}
+
+function scoreEmit(accion) {
+  socket.emit('update-graphic', {
+    tipo: 'SCOREBOARD',
+    data: leerScoreData(accion)
+  });
+}
+
 function modificarScore(equipo, valor) {
   if (equipo === 'A') {
     scoreA = Math.max(0, scoreA + valor);
@@ -76,18 +128,8 @@ function modificarScore(equipo, valor) {
     scoreB = Math.max(0, scoreB + valor);
     document.getElementById('displayB').innerText = scoreB;
   }
-
   guardarScore();
-
-  socket.emit('update-graphic', {
-    tipo: 'SCOREBOARD',
-    data: {
-      txtEquipoA: document.getElementById('nameA').value || 'EQUIPO A',
-      puntosA: scoreA,
-      txtEquipoB: document.getElementById('nameB').value || 'EQUIPO B',
-      puntosB: scoreB
-    }
-  });
+  scoreEmit();
 }
 
 function resetearScore() {
@@ -95,33 +137,68 @@ function resetearScore() {
   scoreB = 0;
   document.getElementById('displayA').innerText = '0';
   document.getElementById('displayB').innerText = '0';
-
   guardarScore();
-
-  socket.emit('update-graphic', {
-    tipo: 'SCOREBOARD',
-    data: {
-      txtEquipoA: document.getElementById('nameA').value || 'EQUIPO A',
-      puntosA: 0,
-      txtEquipoB: document.getElementById('nameB').value || 'EQUIPO B',
-      puntosB: 0
-    }
-  });
+  scoreEmit();
 }
 
 function enviarScore() {
-  socket.emit('update-graphic', {
-    tipo: 'SCOREBOARD',
-    data: {
-      txtEquipoA: document.getElementById('nameA').value || 'EQUIPO A',
-      puntosA: scoreA,
-      txtEquipoB: document.getElementById('nameB').value || 'EQUIPO B',
-      puntosB: scoreB
-    }
-  });
+  scoreEmit();
 }
+
 document.getElementById('nameA').addEventListener('input', enviarScore);
 document.getElementById('nameB').addEventListener('input', enviarScore);
+
+// Toggle show/hide
+document.getElementById('scoreToggle').addEventListener('change', function() {
+  this.checked ? scoreEmit('SHOW') : scoreEmit('HIDE');
+  document.getElementById('scoreToggleLabel').textContent = this.checked ? 'Encendido' : 'Apagado';
+});
+
+// Style controls → preview
+for (const id of ['scScoreSize', 'scTeamSize', 'scScoreColor', 'scTeamColor', 'scBgColor', 'scRadius', 'scTeamABg', 'scTeamBBg', 'scDividerColor', 'scPosY']) {
+  document.getElementById(id)?.addEventListener('input', () => {
+    actualizarValScore();
+    enviarPreviewScore();
+  });
+}
+
+for (const id of ['scBgOpacity', 'scTeamAOpacity', 'scTeamBOpacity']) {
+  document.getElementById(id)?.addEventListener('input', () => {
+    actualizarValScore();
+    enviarPreviewScore();
+  });
+}
+
+function actualizarValScore() {
+  document.getElementById('valScScoreSize').textContent = document.getElementById('scScoreSize').value + 'rem';
+  document.getElementById('valScTeamSize').textContent = document.getElementById('scTeamSize').value + 'rem';
+  document.getElementById('valScBgOpacity').textContent = document.getElementById('scBgOpacity').value + '%';
+  document.getElementById('valScRadius').textContent = document.getElementById('scRadius').value + 'px';
+  document.getElementById('valScTeamAOpacity').textContent = document.getElementById('scTeamAOpacity').value + '%';
+  document.getElementById('valScTeamBOpacity').textContent = document.getElementById('scTeamBOpacity').value + '%';
+  document.getElementById('valScPosY').textContent = document.getElementById('scPosY').value + 'px';
+}
+
+document.getElementById('scResetStyle')?.addEventListener('click', () => {
+  document.getElementById('scScoreSize').value = '3.5';
+  document.getElementById('scTeamSize').value = '1.0';
+  document.getElementById('scScoreColor').value = '#ffffff';
+  document.getElementById('scTeamColor').value = '#aaaaaa';
+  document.getElementById('scBgColor').value = '#000000';
+  document.getElementById('scBgOpacity').value = '75';
+  document.getElementById('scRadius').value = '12';
+  document.getElementById('scTeamABg').value = '#1e50c8';
+  document.getElementById('scTeamAOpacity').value = '30';
+  document.getElementById('scTeamBBg').value = '#c83232';
+  document.getElementById('scTeamBOpacity').value = '30';
+  document.getElementById('scDividerColor').value = '#555555';
+  document.getElementById('scPosY').value = '40';
+  actualizarValScore();
+  enviarPreviewScore();
+});
+
+actualizarValScore();
+setTimeout(enviarPreviewScore, 500);
 
 for (const id of ['inputTitleSize', 'inputSubtitleSize', 'inputScale', 'inputPosX', 'inputPosY']) {
   const el = document.getElementById(id);

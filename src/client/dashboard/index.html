@@ -29,29 +29,118 @@
 
   <section class="tab-content" data-tab-content="scoreboard">
     <h2>Scoreboard / Marcador</h2>
-    <div class="preview-scene">
-      <div class="preview-stage">
-        <iframe src="/templates/scoreboard/" class="preview-iframe" title="Vista previa Scoreboard"></iframe>
+    <div class="lower-grid">
+      <div class="lower-left">
+        <div class="preview-scene">
+          <div class="preview-stage">
+            <iframe src="/templates/scoreboard/?preview=1" class="preview-iframe" title="Vista previa Scoreboard"></iframe>
+          </div>
+        </div>
+        <div class="row">
+          <span class="row-label">Equipo A</span>
+          <input type="text" id="nameA" value="LOCAL" placeholder="Nombre A">
+          <span class="score-display" id="displayA">0</span>
+          <button class="small" data-score="A" data-val="1">+1</button>
+          <button class="small" data-score="A" data-val="-1">-1</button>
+        </div>
+        <div class="row">
+          <span class="row-label">Equipo B</span>
+          <input type="text" id="nameB" value="VISITANTE" placeholder="Nombre B">
+          <span class="score-display" id="displayB">0</span>
+          <button class="small" data-score="B" data-val="1">+1</button>
+          <button class="small" data-score="B" data-val="-1">-1</button>
+        </div>
+        <div class="row" style="margin-top: 0.75rem;">
+          <button class="danger block" data-reset-score>Resetear Marcador</button>
+        </div>
+        <div class="row" style="margin-top:0.5rem;justify-content:center;">
+          <label class="switch">
+            <input type="checkbox" id="scoreToggle">
+            <span class="switch-slider"></span>
+          </label>
+          <span id="scoreToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
+        </div>
+        <div class="url-row" data-path="/templates/scoreboard/"></div>
+      </div>
+
+      <div class="lower-right">
+        <h3>Personalizar estilo</h3>
+
+        <h4>Puntaje</h4>
+        <div class="row">
+          <span class="row-label">Tamaño</span>
+          <input type="range" id="scScoreSize" min="2.0" max="6.0" step="0.1" value="3.5">
+          <span class="val" id="valScScoreSize">3.5rem</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="scScoreColor" value="#ffffff">
+        </div>
+
+        <h4>Nombre equipo</h4>
+        <div class="row">
+          <span class="row-label">Tamaño</span>
+          <input type="range" id="scTeamSize" min="0.6" max="2.0" step="0.1" value="1.0">
+          <span class="val" id="valScTeamSize">1.0rem</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="scTeamColor" value="#aaaaaa">
+        </div>
+
+        <h4>Fondo global</h4>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="scBgColor" value="#000000">
+        </div>
+        <div class="row">
+          <span class="row-label">Opacidad</span>
+          <input type="range" id="scBgOpacity" min="0" max="100" step="5" value="75">
+          <span class="val" id="valScBgOpacity">75%</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Borde radius</span>
+          <input type="range" id="scRadius" min="0" max="30" step="1" value="12">
+          <span class="val" id="valScRadius">12px</span>
+        </div>
+
+        <h4>Fondo por equipo</h4>
+        <div class="row">
+          <span class="row-label">Equipo A</span>
+          <input type="color" id="scTeamABg" value="#1e50c8">
+        </div>
+        <div class="row">
+          <span class="row-label">Opacidad A</span>
+          <input type="range" id="scTeamAOpacity" min="0" max="100" step="5" value="30">
+          <span class="val" id="valScTeamAOpacity">30%</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Equipo B</span>
+          <input type="color" id="scTeamBBg" value="#c83232">
+        </div>
+        <div class="row">
+          <span class="row-label">Opacidad B</span>
+          <input type="range" id="scTeamBOpacity" min="0" max="100" step="5" value="30">
+          <span class="val" id="valScTeamBOpacity">30%</span>
+        </div>
+
+        <h4>Divisor</h4>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="scDividerColor" value="#555555">
+        </div>
+
+        <h4>Posición</h4>
+        <div class="row">
+          <span class="row-label">Y</span>
+          <input type="range" id="scPosY" min="10" max="200" step="5" value="40">
+          <span class="val" id="valScPosY">40px</span>
+        </div>
+        <div style="margin-top:0.75rem;">
+          <button class="block" id="scResetStyle">↺ Restaurar estilo</button>
+        </div>
       </div>
     </div>
-    <div class="row">
-      <span class="row-label">Equipo A</span>
-      <input type="text" id="nameA" value="LOCAL" placeholder="Nombre A">
-      <span class="score-display" id="displayA">0</span>
-      <button class="small" data-score="A" data-val="1">+1</button>
-      <button class="small" data-score="A" data-val="-1">-1</button>
-    </div>
-    <div class="row">
-      <span class="row-label">Equipo B</span>
-      <input type="text" id="nameB" value="VISITANTE" placeholder="Nombre B">
-      <span class="score-display" id="displayB">0</span>
-      <button class="small" data-score="B" data-val="1">+1</button>
-      <button class="small" data-score="B" data-val="-1">-1</button>
-    </div>
-    <div class="row" style="margin-top: 0.75rem;">
-      <button class="danger block" data-reset-score>Resetear Marcador</button>
-    </div>
-    <div class="url-row" data-path="/templates/scoreboard/"></div>
   </section>
 
   <section class="tab-content active" data-tab-content="lower">

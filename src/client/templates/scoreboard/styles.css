@@ -3,24 +3,40 @@
 body {
   background: transparent !important;
   overflow: hidden;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--sc-font, 'Inter', sans-serif);
   width: 1920px;
   height: 1080px;
   position: relative;
 }
 
+:root {
+  --sc-score-size: 3.5rem;
+  --sc-team-size: 1rem;
+  --sc-score-color: #ffffff;
+  --sc-team-color: #aaaaaa;
+  --sc-bg: rgba(0, 0, 0, 0.75);
+  --sc-radius: 12px;
+  --sc-teamA-bg: rgba(30, 80, 200, 0.3);
+  --sc-teamB-bg: rgba(200, 50, 50, 0.3);
+  --sc-divider-color: #555555;
+  --sc-scale: 1;
+  --sc-posY: 40px;
+}
+
 #scoreboard-container {
   position: absolute;
-  top: 40px;
+  top: var(--sc-posY);
   left: 50%;
-  display: flex;
+  transform: translateX(-50%) scale(var(--sc-scale));
+  display: none;
   align-items: center;
   gap: 0;
-  background: rgba(0, 0, 0, 0.75);
-  border-radius: 12px;
+  background: var(--sc-bg);
+  border-radius: var(--sc-radius);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255,255,255,0.1);
   overflow: hidden;
+  transform-origin: top center;
 }
 
 .team {
@@ -30,25 +46,25 @@ body {
 }
 
 .team.local {
-  background: rgba(30, 80, 200, 0.3);
+  background: var(--sc-teamA-bg);
 }
 
 .team.visitor {
-  background: rgba(200, 50, 50, 0.3);
+  background: var(--sc-teamB-bg);
 }
 
 .team-name {
-  font-size: 1rem;
+  font-size: var(--sc-team-size);
   font-weight: 600;
-  color: #aaa;
+  color: var(--sc-team-color);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
 
 .team-score {
-  font-size: 3.5rem;
+  font-size: var(--sc-score-size);
   font-weight: 800;
-  color: #fff;
+  color: var(--sc-score-color);
   line-height: 1.2;
 }
 
@@ -56,5 +72,5 @@ body {
   padding: 0 20px;
   font-size: 1.5rem;
   font-weight: 800;
-  color: #555;
+  color: var(--sc-divider-color);
 }
