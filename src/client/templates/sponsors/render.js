@@ -126,8 +126,10 @@ function iniciarRotacion() {
 
 function animarEntrada() {
   detenerRotacion();
+  const container = document.getElementById('sponsors-container');
   const bar = document.getElementById('sponsors-bar');
   const logosContainer = document.getElementById('sponsors-logos');
+  container.style.display = 'block';
   if (timeline) timeline.kill();
   timeline = gsap.timeline({ onComplete: () => iniciarRotacion() });
   gsap.set('.sp-logo', { opacity: 0 });
