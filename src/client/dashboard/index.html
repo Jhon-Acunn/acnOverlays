@@ -36,16 +36,20 @@
             <iframe src="/templates/scoreboard/?preview=1" class="preview-iframe" title="Vista previa Scoreboard"></iframe>
           </div>
         </div>
-        <div class="row">
+        <div class="row" style="margin-bottom:0.25rem;">
           <span class="row-label">Equipo A</span>
           <input type="text" id="nameA" value="LOCAL" placeholder="Nombre A">
+        </div>
+        <div class="row" style="margin-bottom:0.75rem;padding-left:60px;">
           <span class="score-display" id="displayA">0</span>
           <button class="small" data-score="A" data-val="1">+1</button>
           <button class="small" data-score="A" data-val="-1">-1</button>
         </div>
-        <div class="row">
+        <div class="row" style="margin-bottom:0.25rem;">
           <span class="row-label">Equipo B</span>
           <input type="text" id="nameB" value="VISITANTE" placeholder="Nombre B">
+        </div>
+        <div class="row" style="margin-bottom:0rem;padding-left:60px;">
           <span class="score-display" id="displayB">0</span>
           <button class="small" data-score="B" data-val="1">+1</button>
           <button class="small" data-score="B" data-val="-1">-1</button>
@@ -411,12 +415,16 @@
           <button class="primary" id="sponsor-add" style="flex:1;">+ Agregar Patrocinador</button>
         </div>
 
-        <div class="row" style="margin-top:0.75rem;">
-          <button class="success block" data-sponsors="SHOW">Mostrar</button>
+        <div class="row" style="margin-top:0.75rem;justify-content:center;">
+          <label class="switch">
+            <input type="checkbox" id="sponsorToggle">
+            <span class="switch-slider"></span>
+          </label>
+          <span id="sponsorToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
-        <div class="row">
-          <button class="warning block" data-sponsors="HIDE">Ocultar</button>
-        </div>
+
+        <div class="row" style="margin-top:0.75rem;gap:0.25rem;" id="sponsor-guest-grid"></div>
+
         <div class="url-row" data-path="/templates/sponsors/"></div>
       </div>
 
@@ -462,7 +470,10 @@
         <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Fuente</h4>
         <div class="row">
           <span class="row-label">Fuente</span>
-          <input type="text" id="spFont" value="Inter, sans-serif" placeholder="Nombre de fuente" list="spFontList">
+          <div style="display:flex;flex:1;gap:0;position:relative;">
+            <input type="text" id="spFont" value="Inter, sans-serif" placeholder="Nombre de fuente" list="spFontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
+            <button id="spFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
+          </div>
           <datalist id="spFontList">
             <option value="Inter, sans-serif">
             <option value="Montserrat, sans-serif">

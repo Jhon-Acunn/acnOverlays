@@ -827,11 +827,142 @@ function sponsorsAddItem() {
 
 document.getElementById('sponsor-add')?.addEventListener('click', sponsorsAddItem);
 
-document.querySelectorAll('[data-sponsors]').forEach(btn => {
-  btn.addEventListener('click', () => {
-    sponsorsEmit(btn.dataset.sponsors);
-  });
+// Toggle show/hide for sponsors
+document.getElementById('sponsorToggle').addEventListener('change', function() {
+  this.checked ? sponsorsEmit('SHOW') : sponsorsEmit('HIDE');
+  document.getElementById('sponsorToggleLabel').textContent = this.checked ? 'Encendido' : 'Apagado';
 });
+
+// Font dropdown for sponsors
+document.getElementById('spFontDropdownBtn')?.addEventListener('click', () => {
+  const input = document.getElementById('spFont');
+  const prev = input.value;
+  input.value = '';
+  input.showPicker();
+  input.addEventListener('blur', function restore() {
+    if (!input.value) input.value = prev;
+    input.removeEventListener('blur', restore);
+  }, { once: true });
+});
+
+// ── Sponsor Guest Slots (1-10 presets) ──
+
+const SPONSOR_GUEST_KEY = 'sponsor_guests';
+function cargarSpInvitados() {
+  try { return JSON.parse(localStorage.getItem(SPONSOR_GUEST_KEY)) || {}; } catch { return {}; }
+}
+function guardarSpInvitados(data) {
+  localStorage.setItem(SPONSOR_GUEST_KEY, JSON.stringify(data));
+}
+
+function sponsorsLeerSlots() {
+  const items = document.querySelectorAll('.sponsor-item');
+  const sponsors = [];
+  items.forEach(item => {
+    const name = item.querySelector('.sp-name').value.trim();
+    const logoUrl = item.querySelector('.sp-logo-url').value.trim() || null;
+    if (name || logoUrl) sponsors.push({ name, logoUrl });
+  });
+  return {
+    sponsors,
+    config: leerSponsorsCfg()
+  };
+}
+
+function sponsorsCargarSlot(data) {
+  if (!data) return;
+  if (data.sponsors) {
+    // Clear existing items
+    const list = document.getElementById('sponsor-list');
+    list.innerHTML = '';
+    data.sponsors.forEach(sp => {
+      const item = document.createElement('div');
+      item.className = 'sponsor-item';
+      item.style.cssText = 'display:flex;gap:0.3rem;align-items:center;width:100%;';
+      item.innerHTML = `
+        <input type="text" class="sp-name" placeholder="Nombre" value="${(sp.name || '').replace(/"/g, '&quot;')}" style="flex:1;min-width:80px;font-size:0.8rem;">
+        <input type="text" class="sp-logo-url" placeholder="URL logo (opcional)" value="${(sp.logoUrl || '').replace(/"/g, '&quot;')}" style="flex:1.5;min-width:100px;font-size:0.8rem;">
+        <button class="sp-pick-logo small" title="Seleccionar de Media" style="padding:0.3rem 0.4rem;font-size:0.8rem;">📁</button>
+        <button class="sp-remove small danger" style="padding:0.3rem 0.4rem;font-size:0.8rem;">×</button>
+      `;
+      item.querySelector('.sp-name').addEventListener('input', enviarPreviewSponsors);
+      item.querySelector('.sp-logo-url').addEventListener('input', enviarPreviewSponsors);
+      item.querySelector('.sp-pick-logo').addEventListener('click', function() {
+        sponsorsMostrarLogosPicker(this);
+      });
+      item.querySelector('.sp-remove').addEventListener('click', () => {
+        item.remove();
+        enviarPreviewSponsors();
+      });
+      list.appendChild(item);
+    });
+  }
+  if (data.config) {
+    if (data.config.barText) document.getElementById('spBarText').value = data.config.barText;
+    if (data.config.barColor) document.getElementById('spBarColor').value = data.config.barColor;
+    if (data.config.barTextColor) document.getElementById('spBarTextColor').value = data.config.barTextColor;
+    if (data.config.barHeight) document.getElementById('spBarHeight').value = data.config.barHeight;
+    if (data.config.bgGradientTop) document.getElementById('spBgTop').value = data.config.bgGradientTop;
+    if (data.config.bgGradientBottom) document.getElementById('spBgBottom').value = data.config.bgGradientBottom;
+    if (data.config.rotationSpeed) document.getElementById('spRotationSpeed').value = data.config.rotationSpeed;
+    if (data.config.fontFamily) document.getElementById('spFont').value = data.config.fontFamily;
+    // Update val displays
+    document.getElementById('valSpBarHeight').textContent = document.getElementById('spBarHeight').value + 'px';
+    document.getElementById('valSpRotationSpeed').textContent = (parseInt(document.getElementById('spRotationSpeed').value,10)/1000).toFixed(1) + 's';
+  }
+  enviarPreviewSponsors();
+}
+
+const spInvitados = cargarSpInvitados();
+let spActiveSlot = null;
+
+const spGuestGrid = document.getElementById('sponsor-guest-grid');
+if (spGuestGrid) {
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'guest-btn' + (spInvitados[i] ? ' filled' : '');
+    btn.dataset.slot = i;
+    btn.textContent = i;
+    btn.title = spInvitados[i]
+      ? `${spInvitados[i].sponsors?.[0]?.name || 'Config #' + i}`
+      : 'Slot vacío — clic der. para guardar';
+
+    btn.addEventListener('click', (e) => {
+      if (e.shiftKey) {
+        delete spInvitados[i];
+        guardarSpInvitados(spInvitados);
+        btn.classList.remove('filled');
+        btn.title = 'Slot vacío — clic der. para guardar';
+        if (spActiveSlot === i) spActiveSlot = null;
+        document.querySelectorAll('#sponsor-guest-grid .guest-btn').forEach(b => b.classList.remove('active-slot'));
+        return;
+      }
+      const data = spInvitados[i];
+      if (!data) return;
+      sponsorsCargarSlot(data);
+      document.querySelectorAll('#sponsor-guest-grid .guest-btn').forEach(b => b.classList.remove('active-slot'));
+      btn.classList.add('active-slot');
+      spActiveSlot = i;
+    });
+
+    btn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const data = sponsorsLeerSlots();
+      if (!data.sponsors.length) return;
+      spInvitados[i] = data;
+      guardarSpInvitados(spInvitados);
+      btn.classList.add('filled');
+      btn.title = data.sponsors[0]?.name || 'Config #' + i;
+      document.querySelectorAll('#sponsor-guest-grid .guest-btn').forEach(b => b.classList.remove('active-slot'));
+      btn.classList.add('active-slot');
+      spActiveSlot = i;
+      enviarPreviewSponsors();
+    });
+
+    spGuestGrid.appendChild(btn);
+  }
+  if (spInvitados[1]) sponsorsCargarSlot(spInvitados[1]);
+}
 
 // Style controls → auto-preview
 for (const id of ['spBarText', 'spBarColor', 'spBarTextColor', 'spBgTop', 'spBgBottom', 'spFont']) {
