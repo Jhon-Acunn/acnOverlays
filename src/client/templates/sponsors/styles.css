@@ -17,8 +17,8 @@ body {
 
 #sponsors-container {
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 3rem;
+  left: 3rem;
   display: none;
 }
 
