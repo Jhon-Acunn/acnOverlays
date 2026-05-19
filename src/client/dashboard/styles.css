@@ -119,6 +119,8 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.8rem; padd
 section.tab-content[data-tab-content="ticker"] { max-width: 820px; }
 section.tab-content[data-tab-content="lower-dual"] { max-width: 920px; }
 [data-tab-content="lower-dual"] .lower-right { width: 330px; }
+section.tab-content[data-tab-content="sponsors"] { max-width: 880px; }
+[data-tab-content="sponsors"] .lower-right { width: 330px; }
 [data-tab-content="lower-dual"] .lower-right h4 { margin-top: 1rem; margin-bottom: 0.35rem; }
 [data-tab-content="lower-dual"] .lower-right h4:first-of-type { margin-top: 0; }
 [data-tab-content="lower-dual"] .lower-right .row { margin-bottom: 0.6rem; }
