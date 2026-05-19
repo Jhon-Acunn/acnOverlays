@@ -19,6 +19,8 @@ body {
   position: absolute;
   top: 3rem;
   left: 3rem;
+  max-width: 340px;
+  width: auto;
   display: none;
 }
 
@@ -28,11 +30,52 @@ body {
   font-size: 1.4rem;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.15em;
-  padding: 0 28px;
+  letter-spacing: 0.12em;
+  padding: 0 24px;
   height: var(--sp-bar-h);
   line-height: var(--sp-bar-h);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: translateX(-110%);
+  will-change: transform;
+}
+
+#sponsors-logos {
+  background: linear-gradient(180deg, #3a3a3a 0%, #555 100%);
+  overflow: hidden;
+  transform: scaleY(0);
+  transform-origin: top;
+  position: relative;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+#sponsors-logos-inner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 80px;
+}
+
+#sponsors-bar {
+  background: var(--sp-bar-bg);
+  color: var(--sp-bar-color);
+  font-size: 1.4rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 0 24px;
+  height: var(--sp-bar-h);
+  line-height: var(--sp-bar-h);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transform: translateX(-110%);
   will-change: transform;
 }
@@ -44,6 +87,7 @@ body {
   transform-origin: top;
   position: relative;
   min-height: 100px;
+  max-width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;

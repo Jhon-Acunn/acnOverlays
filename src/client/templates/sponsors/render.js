@@ -41,7 +41,7 @@ function construirSponsors(lista) {
     const placeholder = document.createElement('div');
     placeholder.className = 'sp-logo';
     placeholder.textContent = 'SIN PATROCINADORES';
-    placeholder.style.cssText = 'opacity:1;position:static;transform:none;display:flex;align-items:center;justify-content:center;width:auto;padding:0 2rem;font-weight:700;color:#888;';
+    placeholder.style.cssText = 'opacity:1;position:static;transform:none;display:flex;align-items:center;justify-content:center;width:100%;padding:0 1rem;font-weight:700;font-size:0.9rem;color:#888;text-align:center;';
     container.appendChild(placeholder);
     return;
   }
@@ -53,11 +53,11 @@ function construirSponsors(lista) {
       const img = document.createElement('img');
       img.src = sp.logoUrl;
       img.alt = sp.name || '';
-      img.style.cssText = 'max-height:80px;max-width:260px;display:block;';
+      img.style.cssText = 'max-height:60px;max-width:280px;display:block;';
       div.appendChild(img);
     } else {
       div.textContent = sp.name || 'SPONSOR';
-      div.style.cssText = 'display:flex;align-items:center;justify-content:center;min-width:160px;padding:0 1.5rem;font-weight:700;font-size:1.2rem;color:#fff;';
+      div.style.cssText = 'display:flex;align-items:center;justify-content:center;min-width:0;padding:0 1rem;font-weight:700;font-size:1rem;color:#fff;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;';
     }
     container.appendChild(div);
   });
