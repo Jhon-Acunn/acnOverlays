@@ -88,6 +88,27 @@ document.getElementById('displayB').innerText = scoreB;
 
 /* ── Scoreboard helpers ── */
 
+// Helper: Convierte color hex (#rrggbb o #rgb) o rgb/rgba a rgba con opacidad
+function hexToRgba(hex, opacity) {
+  hex = hex.replace('#', '');
+  if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return `rgba(0,0,0,${opacity})`;
+  return `rgba(${r},${g},${b},${opacity})`;
+}
+
+function colorWithOpacity(color, opacity) {
+  if (!color) return `rgba(0,0,0,${opacity})`;
+  const trimmed = color.trim();
+  // Already rgb or rgba
+  if (trimmed.startsWith('rgba')) return trimmed.replace(/[\d.]+\)$/, opacity + ')');
+  if (trimmed.startsWith('rgb')) return trimmed.replace('rgb', 'rgba').replace(')', ', ' + opacity + ')');
+  // Hex or any other → convert
+  return hexToRgba(trimmed, opacity);
+}
+
 function leerScoreEstilo() {
   const bgColor = document.getElementById('scBgColor').value || '#000000';
   const bgOpacity = parseInt(document.getElementById('scBgOpacity').value, 10) / 100 || 0.75;
@@ -101,10 +122,10 @@ function leerScoreEstilo() {
     teamSize: document.getElementById('scTeamSize').value + 'rem',
     scoreColor: document.getElementById('scScoreColor').value,
     teamColor: document.getElementById('scTeamColor').value,
-    bgColor: bgColor.replace(')', ', ' + bgOpacity + ')').replace('rgb', 'rgba'),
+    bgColor: colorWithOpacity(bgColor, bgOpacity),
     borderRadius: parseInt(document.getElementById('scRadius').value, 10) || 12,
-    teamABg: teamABg.replace(')', ', ' + teamAOpacity + ')').replace('rgb', 'rgba'),
-    teamBBg: teamBBg.replace(')', ', ' + teamBOpacity + ')').replace('rgb', 'rgba'),
+    teamABg: colorWithOpacity(teamABg, teamAOpacity),
+    teamBBg: colorWithOpacity(teamBBg, teamBOpacity),
     dividerColor: document.getElementById('scDividerColor').value,
     escala: 1.0,
     posY: parseInt(document.getElementById('scPosY').value, 10) || 40
@@ -245,6 +266,13 @@ document.querySelectorAll('[data-score]').forEach(btn => {
 });
 
 document.querySelector('[data-reset-score]').addEventListener('click', resetearScore);
+
+// Shared: prevent Enter on any font dropdown input
+document.querySelectorAll('input[list="fontList"], input[list="spFontList"], input[list="tkrFontList"]').forEach(inp => {
+  inp.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+  });
+});
 
 document.getElementById('fontDropdownBtn').addEventListener('click', () => {
   const input = document.getElementById('inputFont');
@@ -1029,6 +1057,14 @@ document.addEventListener('click', (e) => {
     document.execCommand('copy');
     document.body.removeChild(ta);
   }
+  // Visual feedback
+  const origText = btn.textContent;
+  btn.textContent = '✓';
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.textContent = origText;
+    btn.classList.remove('copied');
+  }, 1500);
 });
 
 const GUEST_KEY = 'lower_guests';
@@ -1300,6 +1336,305 @@ document.getElementById('comboToggle').addEventListener('change', function() {
   }
 });
 
+/* ═══════════════════════════════════════════
+   WEATHER
+   ═══════════════════════════════════════════ */
+
+function leerWeatherCfg() {
+  return {
+    city: document.getElementById('weatherCity').value || 'Lima',
+    country: document.getElementById('weatherCountry').value || '',
+    refreshInterval: parseInt(document.getElementById('weatherRefresh').value, 10) * 1000,
+    estilo: {
+      fontFamily: document.getElementById('weatherFont').value || 'Inter, sans-serif',
+      textColor: document.getElementById('weatherTextColor').value,
+      countryColor: document.getElementById('weatherCountryColor').value,
+      bgColor: hexToRgba(document.getElementById('weatherBgColor').value, parseFloat(document.getElementById('weatherOpacity').value) || 0.65),
+      opacity: parseFloat(document.getElementById('weatherOpacity').value) || 0.65,
+      posX: parseInt(document.getElementById('weatherPosX').value, 10) || 32,
+      posY: parseInt(document.getElementById('weatherPosY').value, 10) || 32,
+      fontSizeCountry: document.getElementById('weatherSizeCountry').value + 'rem',
+      fontSizeCity: document.getElementById('weatherSizeCity').value + 'rem',
+      fontSizeTemp: document.getElementById('weatherSizeTemp').value + 'rem',
+      showIcon: document.getElementById('weatherShowIcon').checked,
+      showCountry: document.getElementById('weatherShowCountry').checked,
+    }
+  };
+}
+
+function actualizarValoresWeather() {
+  document.getElementById('valWeatherRefresh').textContent = (parseInt(document.getElementById('weatherRefresh').value,10)/60).toFixed(0) + ' min';
+  document.getElementById('valWeatherOpacity').textContent = document.getElementById('weatherOpacity').value;
+  document.getElementById('valWeatherPosX').textContent = document.getElementById('weatherPosX').value + 'px';
+  document.getElementById('valWeatherPosY').textContent = document.getElementById('weatherPosY').value + 'px';
+  document.getElementById('valWeatherSizeCountry').textContent = document.getElementById('weatherSizeCountry').value + 'rem';
+  document.getElementById('valWeatherSizeCity').textContent = document.getElementById('weatherSizeCity').value + 'rem';
+  document.getElementById('valWeatherSizeTemp').textContent = document.getElementById('weatherSizeTemp').value + 'rem';
+}
+
+function enviarPreviewWeather() {
+  const iframe = document.querySelector('[data-tab-content="weather"] .preview-iframe');
+  if (!iframe || !iframe.contentWindow) return;
+  iframe.contentWindow.postMessage({ tipo: 'PREVIEW_WEATHER', data: leerWeatherCfg() }, '*');
+}
+
+function weatherEmit(accion) {
+  const cfg = leerWeatherCfg();
+  cfg.accion = accion;
+  socket.emit('update-graphic', { tipo: 'WEATHER', data: cfg });
+}
+
+// Weather toggle
+document.getElementById('weatherToggle').addEventListener('change', function() {
+  this.checked ? weatherEmit('SHOW') : weatherEmit('HIDE');
+  document.getElementById('weatherToggleLabel').textContent = this.checked ? 'Encendido' : 'Apagado';
+});
+
+// Weather range/input listeners
+['weatherCity','weatherCountry'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', enviarPreviewWeather);
+});
+['weatherRefresh','weatherOpacity','weatherPosX','weatherPosY','weatherSizeCountry','weatherSizeCity','weatherSizeTemp'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', () => { actualizarValoresWeather(); enviarPreviewWeather(); });
+});
+['weatherTextColor','weatherCountryColor','weatherBgColor','weatherFont','weatherShowIcon','weatherShowCountry'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', enviarPreviewWeather);
+});
+document.getElementById('weatherShowIcon')?.addEventListener('change', enviarPreviewWeather);
+document.getElementById('weatherShowCountry')?.addEventListener('change', enviarPreviewWeather);
+
+// Weather font dropdown
+document.getElementById('weatherFontDropdownBtn')?.addEventListener('click', () => {
+  const input = document.getElementById('weatherFont');
+  const prev = input.value;
+  input.value = '';
+  input.showPicker();
+  requestAnimationFrame(() => {
+    input.addEventListener('blur', function restore() {
+      if (!input.value) input.value = prev;
+      input.removeEventListener('blur', restore);
+    }, { once: true });
+  });
+});
+
+// Weather reset style
+document.getElementById('weatherResetStyle')?.addEventListener('click', () => {
+  document.getElementById('weatherFont').value = 'Inter, sans-serif';
+  document.getElementById('weatherTextColor').value = '#ffffff';
+  document.getElementById('weatherCountryColor').value = '#8ab4f8';
+  document.getElementById('weatherBgColor').value = '#000000';
+  document.getElementById('weatherOpacity').value = '0.65';
+  document.getElementById('weatherPosX').value = '32';
+  document.getElementById('weatherPosY').value = '32';
+  document.getElementById('weatherSizeCountry').value = '0.7';
+  document.getElementById('weatherSizeCity').value = '1.2';
+  document.getElementById('weatherSizeTemp').value = '1.8';
+  document.getElementById('weatherShowIcon').checked = true;
+  document.getElementById('weatherShowCountry').checked = true;
+  actualizarValoresWeather();
+  enviarPreviewWeather();
+});
+
+actualizarValoresWeather();
+setTimeout(enviarPreviewWeather, 500);
+
+/* ═══════════════════════════════════════════
+   COUNTDOWN
+   ═══════════════════════════════════════════ */
+
+function leerCountdownCfg() {
+  return {
+    target: parseInt(document.getElementById('cdDuration').value, 10) || 3600,
+    label: document.getElementById('cdLabel').value || '',
+    mode: document.getElementById('cdMode').value || 'countdown',
+    estilo: {
+      fontFamily: document.getElementById('cdFont').value || 'Inter, sans-serif',
+      labelSize: document.getElementById('cdLabelSize').value + 'rem',
+      labelColor: document.getElementById('cdLabelColor').value,
+      displaySize: document.getElementById('cdDisplaySize').value + 'rem',
+      displayColor: document.getElementById('cdDisplayColor').value,
+      displayFont: 'Bebas Neue, Inter, sans-serif',
+      bgColor: hexToRgba(document.getElementById('cdBgColor').value, parseFloat(document.getElementById('cdOpacity').value) || 0.6),
+      opacity: parseFloat(document.getElementById('cdOpacity').value) || 0.6,
+      posX: parseInt(document.getElementById('cdPosX').value, 10) || 32,
+      posY: parseInt(document.getElementById('cdPosY').value, 10) || 96,
+    }
+  };
+}
+
+function actualizarValoresCD() {
+  document.getElementById('valCdOpacity').textContent = document.getElementById('cdOpacity').value;
+  document.getElementById('valCdLabelSize').textContent = document.getElementById('cdLabelSize').value + 'rem';
+  document.getElementById('valCdDisplaySize').textContent = document.getElementById('cdDisplaySize').value + 'rem';
+  document.getElementById('valCdPosX').textContent = document.getElementById('cdPosX').value + 'px';
+  document.getElementById('valCdPosY').textContent = document.getElementById('cdPosY').value + 'px';
+}
+
+function enviarPreviewCountdown() {
+  const iframe = document.querySelector('[data-tab-content="countdown"] .preview-iframe');
+  if (!iframe || !iframe.contentWindow) return;
+  iframe.contentWindow.postMessage({ tipo: 'PREVIEW_COUNTDOWN', data: leerCountdownCfg() }, '*');
+}
+
+function countdownEmit(accion) {
+  const cfg = leerCountdownCfg();
+  cfg.accion = accion;
+  socket.emit('update-graphic', { tipo: 'COUNTDOWN', data: cfg });
+}
+
+// Countdown toggle
+document.getElementById('countdownToggle').addEventListener('change', function() {
+  this.checked ? countdownEmit('SHOW') : countdownEmit('HIDE');
+  document.getElementById('countdownToggleLabel').textContent = this.checked ? 'Encendido' : 'Apagado';
+});
+
+// Countdown range/input listeners
+['cdDuration','cdLabel','cdMode'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', enviarPreviewCountdown);
+});
+document.getElementById('cdMode')?.addEventListener('change', enviarPreviewCountdown);
+['cdOpacity','cdLabelSize','cdDisplaySize','cdPosX','cdPosY'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', () => { actualizarValoresCD(); enviarPreviewCountdown(); });
+});
+['cdLabelColor','cdDisplayColor','cdBgColor','cdFont'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', enviarPreviewCountdown);
+});
+
+// Countdown font dropdown
+document.getElementById('cdFontDropdownBtn')?.addEventListener('click', () => {
+  const input = document.getElementById('cdFont');
+  const prev = input.value;
+  input.value = '';
+  input.showPicker();
+  requestAnimationFrame(() => {
+    input.addEventListener('blur', function restore() {
+      if (!input.value) input.value = prev;
+      input.removeEventListener('blur', restore);
+    }, { once: true });
+  });
+});
+
+// Countdown reset
+document.getElementById('cdReset')?.addEventListener('click', () => {
+  countdownEmit('SHOW');
+});
+
+// Countdown reset style
+document.getElementById('cdResetStyle')?.addEventListener('click', () => {
+  document.getElementById('cdFont').value = 'Inter, sans-serif';
+  document.getElementById('cdLabelSize').value = '0.6';
+  document.getElementById('cdDisplaySize').value = '2.8';
+  document.getElementById('cdLabelColor').value = '#aaaaaa';
+  document.getElementById('cdDisplayColor').value = '#ffffff';
+  document.getElementById('cdBgColor').value = '#000000';
+  document.getElementById('cdOpacity').value = '0.6';
+  document.getElementById('cdPosX').value = '32';
+  document.getElementById('cdPosY').value = '96';
+  actualizarValoresCD();
+  enviarPreviewCountdown();
+});
+
+actualizarValoresCD();
+setTimeout(enviarPreviewCountdown, 500);
+
+/* ═══════════════════════════════════════════
+   NOW PLAYING
+   ═══════════════════════════════════════════ */
+
+function leerNowPlayingCfg() {
+  return {
+    song: document.getElementById('npSong').value || '',
+    artist: document.getElementById('npArtist').value || '',
+    coverUrl: document.getElementById('npCoverUrl').value || null,
+    estilo: {
+      fontFamily: document.getElementById('npFont').value || 'Inter, sans-serif',
+      barText: document.getElementById('npBarText').value || 'NOW PLAYING',
+      barBg: document.getElementById('npBarBg').value,
+      barColor: document.getElementById('npBarColor').value,
+      songSize: document.getElementById('npSongSize').value + 'rem',
+      songColor: document.getElementById('npSongColor').value,
+      artistSize: document.getElementById('npArtistSize').value + 'rem',
+      artistColor: document.getElementById('npArtistColor').value,
+      bgColor: hexToRgba(document.getElementById('npBgColor').value, parseFloat(document.getElementById('npOpacity').value) || 0.65),
+      opacity: parseFloat(document.getElementById('npOpacity').value) || 0.65,
+      posX: parseInt(document.getElementById('npPosX').value, 10) || 32,
+      posY: parseInt(document.getElementById('npPosY').value, 10) || 96,
+    }
+  };
+}
+
+function actualizarValoresNP() {
+  document.getElementById('valNpOpacity').textContent = document.getElementById('npOpacity').value;
+  document.getElementById('valNpSongSize').textContent = document.getElementById('npSongSize').value + 'rem';
+  document.getElementById('valNpArtistSize').textContent = document.getElementById('npArtistSize').value + 'rem';
+  document.getElementById('valNpPosX').textContent = document.getElementById('npPosX').value + 'px';
+  document.getElementById('valNpPosY').textContent = document.getElementById('npPosY').value + 'px';
+}
+
+function enviarPreviewNowPlaying() {
+  const iframe = document.querySelector('[data-tab-content="nowplaying"] .preview-iframe');
+  if (!iframe || !iframe.contentWindow) return;
+  iframe.contentWindow.postMessage({ tipo: 'PREVIEW_NOWPLAYING', data: leerNowPlayingCfg() }, '*');
+}
+
+function nowPlayingEmit(accion) {
+  const cfg = leerNowPlayingCfg();
+  cfg.accion = accion;
+  socket.emit('update-graphic', { tipo: 'NOWPLAYING', data: cfg });
+}
+
+// Now Playing toggle
+document.getElementById('nowplayingToggle').addEventListener('change', function() {
+  this.checked ? nowPlayingEmit('SHOW') : nowPlayingEmit('HIDE');
+  document.getElementById('nowplayingToggleLabel').textContent = this.checked ? 'Encendido' : 'Apagado';
+});
+
+// Now Playing input listeners
+['npSong','npArtist','npCoverUrl','npBarText'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', enviarPreviewNowPlaying);
+});
+['npOpacity','npSongSize','npArtistSize','npPosX','npPosY'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', () => { actualizarValoresNP(); enviarPreviewNowPlaying(); });
+});
+['npBarBg','npBarColor','npSongColor','npArtistColor','npBgColor','npFont'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', enviarPreviewNowPlaying);
+});
+
+// Now Playing font dropdown
+document.getElementById('npFontDropdownBtn')?.addEventListener('click', () => {
+  const input = document.getElementById('npFont');
+  const prev = input.value;
+  input.value = '';
+  input.showPicker();
+  requestAnimationFrame(() => {
+    input.addEventListener('blur', function restore() {
+      if (!input.value) input.value = prev;
+      input.removeEventListener('blur', restore);
+    }, { once: true });
+  });
+});
+
+// Now Playing reset style
+document.getElementById('npResetStyle')?.addEventListener('click', () => {
+  document.getElementById('npFont').value = 'Inter, sans-serif';
+  document.getElementById('npBarText').value = 'NOW PLAYING';
+  document.getElementById('npBarBg').value = '#1db954';
+  document.getElementById('npBarColor').value = '#ffffff';
+  document.getElementById('npSongSize').value = '1.0';
+  document.getElementById('npArtistSize').value = '0.75';
+  document.getElementById('npSongColor').value = '#ffffff';
+  document.getElementById('npArtistColor').value = '#aaaaaa';
+  document.getElementById('npBgColor').value = '#000000';
+  document.getElementById('npOpacity').value = '0.65';
+  document.getElementById('npPosX').value = '32';
+  document.getElementById('npPosY').value = '96';
+  actualizarValoresNP();
+  enviarPreviewNowPlaying();
+});
+
+actualizarValoresNP();
+setTimeout(enviarPreviewNowPlaying, 500);
+
 // ─── QUICK PANEL SIDEBAR ─────────────────────────────────────
 
 // Map sidebar toggle IDs → tab toggle IDs
@@ -1310,7 +1645,11 @@ const QP_MAP = {
   qpDualRToggle: 'dualRToggle',
   qpSponsorToggle: 'sponsorToggle',
   qpToggle: 'tkrToggle',
-  qpComboToggle: 'comboToggle'
+  qpWeatherToggle: 'weatherToggle',
+  qpCountdownToggle: 'countdownToggle',
+  qpNowPlayingToggle: 'nowplayingToggle',
+  qpComboToggle: 'comboToggle',
+  qpResultadosToggle: 'resultadosToggle'
 };
 
 function qpSyncToggles() {
@@ -1333,7 +1672,7 @@ for (const [qpId, tabId] of Object.entries(QP_MAP)) {
 }
 
 // Whenever ANY tab toggle changes (user click OR dispatchEvent), sync sidebar to match
-const ALL_TAB_TOGGLES = ['scoreToggle','lowerToggle','dualLToggle','dualRToggle','sponsorToggle','tkrToggle','comboToggle'];
+const ALL_TAB_TOGGLES = ['scoreToggle','lowerToggle','dualLToggle','dualRToggle','sponsorToggle','tkrToggle','weatherToggle','countdownToggle','nowplayingToggle','comboToggle','resultadosToggle'];
 document.addEventListener('change', (e) => {
   if (e.target && e.target.type === 'checkbox' && ALL_TAB_TOGGLES.includes(e.target.id)) {
     qpSyncToggles();
@@ -1435,6 +1774,138 @@ document.getElementById('qpHideAll')?.addEventListener('click', () => {
 
 // Initial sync
 setTimeout(qpSyncToggles, 300);
+
+// ─── RESULTADOS ────────────────────────────────────────────
+
+let resFotoAUrl = null;
+let resFotoBUrl = null;
+let resLogoUrl = null;
+
+function leerResultadosData() {
+  return {
+    candidateA: {
+      name: document.getElementById('resNombreA').value,
+      party: document.getElementById('resPartidoA').value,
+      color: document.getElementById('resColorA').value,
+      photo: resFotoAUrl,
+      percent: parseFloat(document.getElementById('resPercentA').value) || 0,
+      totalVotes: parseInt(document.getElementById('resVotosA').value, 10) || 0
+    },
+    candidateB: {
+      name: document.getElementById('resNombreB').value,
+      party: document.getElementById('resPartidoB').value,
+      color: document.getElementById('resColorB').value,
+      photo: resFotoBUrl,
+      percent: parseFloat(document.getElementById('resPercentB').value) || 0,
+      totalVotes: parseInt(document.getElementById('resVotosB').value, 10) || 0
+    },
+    center: {
+      participation: parseFloat(document.getElementById('resParticipacion').value) || 0,
+      topDepartment: document.getElementById('resTopDept').value,
+      tendency: document.getElementById('resTendencia').value,
+      difference: parseFloat(document.getElementById('resDiferencia').value) || 0
+    },
+    header: {
+      logo: resLogoUrl,
+      date: document.getElementById('resFecha').value,
+      escrutinio: parseFloat(document.getElementById('resEscrutinio').value) || 0
+    },
+    ticker: {
+      messages: document.getElementById('resTickerMsgs').value.split('\n').filter(l => l.trim())
+    }
+  };
+}
+
+function enviarPreviewResultados() {
+  const data = leerResultadosData();
+  const iframe = document.querySelector('[data-tab-content="resultados"] .preview-iframe');
+  if (iframe?.contentWindow) {
+    iframe.contentWindow.postMessage({ tipo: 'PREVIEW_RESULTADOS', data }, '*');
+  }
+  if (document.getElementById('resultadosToggle')?.checked) {
+    socket.emit('update-graphic', {
+      tipo: 'RESULTADOS',
+      data: { accion: 'UPDATE', data }
+    });
+  }
+}
+
+function resultadosEmit(accion) {
+  socket.emit('update-graphic', {
+    tipo: 'RESULTADOS',
+    data: { accion, data: leerResultadosData() }
+  });
+}
+
+function getResCurrentUrl(setter) {
+  if (setter === 'A') return resFotoAUrl;
+  if (setter === 'B') return resFotoBUrl;
+  return resLogoUrl;
+}
+
+function setResUrl(setter, url) {
+  if (setter === 'A') resFotoAUrl = url;
+  else if (setter === 'B') resFotoBUrl = url;
+  else resLogoUrl = url;
+}
+
+async function cargarResPhotoPicker(containerId, setter) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  try {
+    const res = await fetch('/api/media');
+    const files = await res.json();
+    container.innerHTML = '';
+    const currentUrl = getResCurrentUrl(setter);
+    const btnNinguno = document.createElement('button');
+    btnNinguno.textContent = 'Ninguna';
+    btnNinguno.style.cssText = 'font-size:0.65rem;padding:2px 5px;border-radius:4px;border:2px solid #2a2a36;background:#1a1a24;color:#888;cursor:pointer;';
+    if (!currentUrl) btnNinguno.style.borderColor = '#6af';
+    btnNinguno.addEventListener('click', () => {
+      document.querySelectorAll(`#${containerId} button`).forEach(b => b.style.borderColor = '#2a2a36');
+      btnNinguno.style.borderColor = '#6af';
+      setResUrl(setter, null);
+      enviarPreviewResultados();
+    });
+    container.appendChild(btnNinguno);
+    for (const f of files) {
+      const btn = document.createElement('button');
+      btn.style.cssText = 'width:36px;height:28px;border-radius:4px;border:2px solid #2a2a36;background:#0f0f13;cursor:pointer;overflow:hidden;padding:0;';
+      btn.innerHTML = `<img src="${f.url}" style="width:100%;height:100%;object-fit:contain;">`;
+      btn.dataset.url = f.url;
+      btn.title = f.name;
+      if (currentUrl === f.url) btn.style.borderColor = '#6af';
+      btn.addEventListener('click', () => {
+        document.querySelectorAll(`#${containerId} button`).forEach(b => b.style.borderColor = '#2a2a36');
+        btn.style.borderColor = '#6af';
+        setResUrl(setter, f.url);
+        enviarPreviewResultados();
+      });
+      container.appendChild(btn);
+    }
+  } catch (_) { /* ignore */ }
+}
+
+document.querySelector('[data-tab="resultados"]')?.addEventListener('click', () => {
+  setTimeout(() => {
+    cargarResPhotoPicker('res-fotoA-picker', 'A');
+    cargarResPhotoPicker('res-fotoB-picker', 'B');
+    cargarResPhotoPicker('res-logo-picker', 'logo');
+    enviarPreviewResultados();
+  }, 100);
+});
+
+document.getElementById('resultadosToggle')?.addEventListener('change', function() {
+  const label = document.getElementById('resultadosToggleLabel');
+  label.textContent = this.checked ? 'Encendido' : 'Apagado';
+  this.checked ? resultadosEmit('SHOW') : resultadosEmit('HIDE');
+});
+
+for (const id of ['resNombreA', 'resPartidoA', 'resColorA', 'resPercentA', 'resVotosA', 'resNombreB', 'resPartidoB', 'resColorB', 'resPercentB', 'resVotosB', 'resParticipacion', 'resTopDept', 'resTendencia', 'resDiferencia', 'resFecha', 'resEscrutinio', 'resTickerMsgs']) {
+  document.getElementById(id)?.addEventListener('input', enviarPreviewResultados);
+}
+
+setTimeout(enviarPreviewResultados, 500);
 
 // ─── MEDIA / LOGOS ──────────────────────────────────────────
 

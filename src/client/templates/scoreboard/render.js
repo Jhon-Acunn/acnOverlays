@@ -77,7 +77,7 @@ function animarEntrada() {
   if (timeline) timeline.kill();
   gsap.set(container, { xPercent: -50, y: -20, opacity: 0 });
   timeline = gsap.timeline()
-    .to(container, { duration: 0.3, y: 0, opacity: 1, ease: 'power2.out' });
+    .to(container, { duration: 0.3, xPercent: -50, y: 0, opacity: 1, ease: 'power2.out' });
 }
 
 function animarSalida() {
@@ -129,8 +129,11 @@ if (!isPreview) {
           // Brief pulse animation to indicate update
           if (timeline) timeline.kill();
           timeline = gsap.timeline()
-            .to(container, { duration: 0.1, scale: 1.02, ease: 'power1.in', transformOrigin: 'center center' })
-            .to(container, { duration: 0.15, scale: 1.0, ease: 'power1.out' });
+            .to(container, { duration: 0.1, xPercent: -50, scale: 1.02, ease: 'power1.in', transformOrigin: 'center center' })
+            .to(container, { duration: 0.15, xPercent: -50, scale: 1.0, ease: 'power1.out', onComplete: () => {
+              // Ensure centering is preserved after animation
+              gsap.set(container, { xPercent: -50, clearProps: 'scale' });
+            }});
         }
       }
     } catch (err) {

@@ -282,19 +282,27 @@ function tkrReset() {
   }
 }
 
+// Reusable hidden measurer for ticker clone sizing
+const tkrMeasurer = (() => {
+  const el = document.createElement('div');
+  el.style.cssText = 'display:flex;align-items:center;white-space:nowrap;height:100%;position:fixed;visibility:hidden;pointer-events:none;z-index:-1;';
+  document.body.appendChild(el);
+  return el;
+})();
+
 function tkrClonar(contenido) {
+  // Guard: empty content
+  if (!contenido) return { el: null, half: 0 };
+
   // Duplicate content N times until total width >= 2x track width, N always even
   const track = document.getElementById('tkr-track');
   const clone = document.createElement('div');
   clone.style.cssText = 'display:flex;align-items:center;white-space:nowrap;height:100%;';
   clone.innerHTML = contenido;
   const trackW = track.clientWidth || 1920;
-  const single = document.createElement('div');
-  single.style.cssText = 'display:flex;align-items:center;white-space:nowrap;height:100%;';
-  single.innerHTML = contenido;
-  document.body.appendChild(single);
-  const unitW = single.offsetWidth || 400;
-  document.body.removeChild(single);
+  tkrMeasurer.innerHTML = contenido;
+  const unitW = tkrMeasurer.offsetWidth || 400;
+  tkrMeasurer.innerHTML = '';
   let copies = Math.ceil((trackW * 2) / unitW) + 1;
   if (copies % 2 !== 0) copies++;
   let html = '';
@@ -312,6 +320,7 @@ function tkrIniciarAnimacion() {
   if (!raw) return;
   tkrReset();
   const { el, half } = tkrClonar(raw);
+  if (!el) return; // empty content
   tkContenido = el;
   msg.innerHTML = '';
   msg.appendChild(el);

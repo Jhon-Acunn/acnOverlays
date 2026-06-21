@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados Electorales - Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="app">
+    <div id="top-bar">
+      <img id="logo-canal" src="" alt="Logo">
+      <span id="live-badge">EN VIVO</span>
+      <span id="header-date"></span>
+      <span class="sep">|</span>
+      <span id="header-time"></span>
+      <span class="sep">|</span>
+      <span id="header-escrutinio"></span>
+    </div>
+
+    <div id="main-area">
+      <div id="left-zone" class="candidate-zone">
+        <div class="candidate-photo-wrap">
+          <div id="candidateA-photo" class="candidate-photo"></div>
+        </div>
+        <div class="stat">
+          <span id="candidateA-name" class="stat-val stat-val-left"></span>
+          <span id="candidateA-party" class="stat-lbl stat-lbl-right"></span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-lbl">Porcentaje</span>
+          <span id="candidateA-percent" class="stat-val"></span>
+        </div>
+        <div class="stat">
+          <span class="stat-lbl">Votos</span>
+          <span id="candidateA-votes" class="stat-val"></span>
+        </div>
+        <div id="candidateA-bar" class="bar-fill"></div>
+      </div>
+
+      <div id="center-zone">
+        <div id="center-title">
+          <div id="ct-title">ELECCIONES COLOMBIA 2026</div>
+          <div id="ct-sub">RESULTADOS EN TIEMPO REAL</div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-l">Porcentaje</span>
+          <div class="comp-bars">
+            <div class="comp-bar-track"><div id="comp-bar-A" class="comp-bar-fill"></div></div>
+            <div class="comp-bar-track"><div id="comp-bar-B" class="comp-bar-fill"></div></div>
+          </div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-l">Total votos</span>
+          <span id="comp-total-votes" class="comp-v"></span>
+        </div>
+        <div class="comp-row">
+          <span class="comp-l">Participación</span>
+          <span id="comp-participation" class="comp-v"></span>
+        </div>
+        <div class="comp-row">
+          <span class="comp-l">Dpto. mayor</span>
+          <span id="comp-top-dept" class="comp-v"></span>
+        </div>
+        <div class="comp-row">
+          <span class="comp-l">Tendencia</span>
+          <span id="comp-tendency" class="comp-v"></span>
+        </div>
+        <div class="comp-row diff">
+          <span class="comp-l">Diferencia</span>
+          <span id="comp-diff" class="comp-v"></span>
+        </div>
+      </div>
+
+      <div id="right-zone" class="candidate-zone">
+        <div class="candidate-photo-wrap">
+          <div id="candidateB-photo" class="candidate-photo"></div>
+        </div>
+        <div class="stat">
+          <span id="candidateB-name" class="stat-val stat-val-left"></span>
+          <span id="candidateB-party" class="stat-lbl stat-lbl-right"></span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <span class="stat-lbl">Porcentaje</span>
+          <span id="candidateB-percent" class="stat-val"></span>
+        </div>
+        <div class="stat">
+          <span class="stat-lbl">Votos</span>
+          <span id="candidateB-votes" class="stat-val"></span>
+        </div>
+        <div id="candidateB-bar" class="bar-fill"></div>
+      </div>
+    </div>
+
+    <div id="bottom-ticker">
+      <div id="ticker-track">
+        <div id="ticker-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./render.js"></script>
+</body>
+</html>

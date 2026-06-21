@@ -5,6 +5,7 @@ const isPreview = window.location.search.includes('preview=1');
 
 let tkrTimeline = null;
 let animTimeline = null;
+let tkrRunning = false;
 
 function armarContenido(message, logoUrl, logoWidth) {
   const msgEl = document.getElementById('tkr-message');
@@ -75,6 +76,7 @@ function aplicarConfig(cfg) {
 }
 
 function iniciarTicker(speed) {
+  if (tkrRunning) return; // guard: prevent double-start
   if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 
   // Force layout before measuring
@@ -82,6 +84,7 @@ function iniciarTicker(speed) {
 
   const msgEl = document.getElementById('tkr-message');
   const track = document.getElementById('tkr-track');
+  if (!msgEl || !track) return;
 
   const trackWidth = track.clientWidth;
   const totalWidth = msgEl.scrollWidth;
@@ -92,7 +95,8 @@ function iniciarTicker(speed) {
 
   gsap.set(msgEl, { x: trackWidth });
 
-  tkrTimeline = gsap.timeline({ repeat: -1, paused: false });
+  tkrRunning = true;
+  tkrTimeline = gsap.timeline({ repeat: -1 });
   tkrTimeline.to(msgEl, {
     x: trackWidth - half,
     duration: half / pps,
@@ -103,7 +107,8 @@ function iniciarTicker(speed) {
 function mostrar(cfg) {
   const container = document.getElementById('tkr-container');
 
-  // Kill any ongoing exit animation
+  // Kill any ongoing exit animation and release ticker guard
+  tkrRunning = false;
   if (animTimeline) { animTimeline.kill(); animTimeline = null; }
   if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 
@@ -136,6 +141,7 @@ function mostrar(cfg) {
 
 function ocultar() {
   const container = document.getElementById('tkr-container');
+  tkrRunning = false;
   if (animTimeline) { animTimeline.kill(); animTimeline = null; }
   if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 

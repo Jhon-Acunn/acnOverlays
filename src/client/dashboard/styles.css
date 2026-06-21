@@ -98,6 +98,7 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.8rem; padd
 .url-text { flex: 1; background: var(--input-bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.8rem; color: var(--url-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; user-select: all; }
 .url-copy { background: var(--btn-bg); border: none; border-radius: 6px; cursor: pointer; padding: 0.3rem 0.5rem; font-size: 1rem; line-height: 1; transition: background 0.15s; }
 .url-copy:hover { background: var(--btn-hover); }
+.url-copy.copied { background: #1a7a2e; color: #fff; transform: scale(1.1); }
 .guest-btn { flex: 1; aspect-ratio: 1; border-radius: 6px; font-size: 0.8rem; font-weight: 700; background: var(--btn-bg); border: 2px solid transparent; transition: background 0.15s, border-color 0.15s; cursor: pointer; color: var(--text); display: flex; align-items: center; justify-content: center; padding: 0; }
 .guest-btn:hover { background: var(--btn-hover); border-color: var(--accent); }
 .guest-btn.filled { border-color: var(--success); background: var(--filled-bg); color: var(--filled-text); }
@@ -125,11 +126,24 @@ section.tab-content[data-tab-content="sponsors"] { max-width: 880px; }
 [data-tab-content="sponsors"] .lower-right { width: 330px; }
 section.tab-content[data-tab-content="scoreboard"] { max-width: 820px; }
 section.tab-content[data-tab-content="combo"] { max-width: 820px; }
+section.tab-content[data-tab-content="weather"] { max-width: 880px; }
+section.tab-content[data-tab-content="countdown"] { max-width: 880px; }
+section.tab-content[data-tab-content="nowplaying"] { max-width: 880px; }
 [data-tab-content="lower-dual"] .lower-right h4 { margin-top: 1rem; margin-bottom: 0.35rem; }
+.section-label { margin: 0.75rem 0 0.25rem; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); }
 [data-tab-content="lower-dual"] .lower-right h4:first-of-type { margin-top: 0; }
 [data-tab-content="lower-dual"] .lower-right .row { margin-bottom: 0.6rem; }
 [data-tab-content="lower-dual"] .dual-grid { gap: 1.25rem; margin-top: 1rem; }
 [data-tab-content="lower-dual"] .dual-heading { margin-bottom: 0.65rem; }
+
+section.tab-content[data-tab-content="resultados"] { max-width: 920px; }
+[data-tab-content="resultados"] .lower-right { width: 330px; }
+[data-tab-content="resultados"] .lower-right h4 { margin-top: 1.2rem; margin-bottom: 0.35rem; }
+[data-tab-content="resultados"] .lower-right h4:first-of-type { margin-top: 0; }
+[data-tab-content="resultados"] .lower-right .row { margin-bottom: 0.5rem; }
+[data-tab-content="resultados"] .dual-grid { gap: 1.25rem; margin-top: 1rem; }
+[data-tab-content="resultados"] .dual-side .row { margin-bottom: 0.4rem; }
+[data-tab-content="resultados"] .preview-scene { margin-bottom: 0.5rem; }
 
 .preview-scene { position: relative; width: 100%; aspect-ratio: 16/9; overflow: hidden; background: var(--preview-bg); border-radius: 8px; border: 1px solid var(--border); margin-bottom: 1rem; }
 .preview-stage { position: absolute; width: 1920px; height: 1080px; transform-origin: top left; }

@@ -16,6 +16,10 @@ export default defineConfig({
         sponsors: resolve(__dirname, 'src/client/templates/sponsors/index.html'),
         ticker: resolve(__dirname, 'src/client/templates/ticker/index.html'),
         combo: resolve(__dirname, 'src/client/templates/combo/index.html'),
+        weather: resolve(__dirname, 'src/client/templates/weather/index.html'),
+        countdown: resolve(__dirname, 'src/client/templates/countdown/index.html'),
+        nowplaying: resolve(__dirname, 'src/client/templates/nowplaying/index.html'),
+        resultados: resolve(__dirname, 'src/client/templates/resultados/index.html'),
       }
     }
   },
