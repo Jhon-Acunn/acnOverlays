@@ -34,6 +34,7 @@ body {
   background: var(--sc-bg);
   border-radius: var(--sc-radius);
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255,255,255,0.1);
   overflow: hidden;
   transform-origin: top center;
