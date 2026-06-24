@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
+import { getAuthToken } from '../../shared/auth-token.js';
+import { SOCKET_OPTIONS } from '../../shared/socket-options.js';
 import gsap from 'gsap';
-
-const isPreview = window.location.search.includes('preview=1');
 
 /* ---------- state ---------- */
 let rotacionInterval = null;
@@ -9,6 +9,7 @@ let indiceActual = 0;
 let timeline = null;
 let sponsorsData = [];
 let configActual = {};
+let visible = false;
 
 /* ---------- helpers ---------- */
 function detenerRotacion() {
@@ -22,9 +23,10 @@ function aplicarConfig(cfg) {
   if (!cfg) return;
   configActual = cfg;
   const root = document.documentElement;
+  const bar = document.getElementById('sponsors-bar');
   if (cfg.barColor) root.style.setProperty('--sp-bar-bg', cfg.barColor);
   if (cfg.barTextColor) root.style.setProperty('--sp-bar-color', cfg.barTextColor);
-  if (cfg.barText) document.getElementById('sponsors-bar').textContent = cfg.barText;
+  if (bar) bar.textContent = cfg.barText || 'PATROCINADO POR';
   if (cfg.fontFamily) document.getElementById('sponsors-container').style.fontFamily = cfg.fontFamily;
   if (cfg.barHeight) root.style.setProperty('--sp-bar-h', cfg.barHeight + 'px');
   const logosContainer = document.getElementById('sponsors-logos');
@@ -63,54 +65,6 @@ function construirSponsors(lista) {
   });
 }
 
-function mostrarPreview(data) {
-  if (!data) return;
-  const { sponsors, config } = data;
-  construirSponsors(sponsors || []);
-  aplicarConfig(config);
-  const container = document.getElementById('sponsors-container');
-  container.style.display = 'block';
-  gsap.set('#sponsors-bar', { x: '0%' });
-  gsap.set('#sponsors-logos', { scaleY: 1, transformOrigin: 'top' });
-  gsap.set('.sp-logo', { opacity: 0 });
-  if (document.querySelectorAll('.sp-logo').length > 0) {
-    gsap.set(document.querySelectorAll('.sp-logo')[0], { opacity: 1 });
-  }
-  detenerRotacion();
-  iniciarRotacion();
-}
-
-/* ---------- preview via postMessage ---------- */
-if (isPreview) {
-  window.addEventListener('message', (e) => {
-    if (e.source !== window.parent) return;
-    try {
-      const msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-      if (msg && msg.tipo === 'PREVIEW_SPONSORS') {
-        mostrarPreview(msg.data);
-      }
-    } catch (_) { /* ignore */ }
-  });
-  mostrarPreview({
-    sponsors: [
-      { name: 'Sponsor A', logoUrl: null },
-      { name: 'Sponsor B', logoUrl: null },
-      { name: 'Sponsor C', logoUrl: null }
-    ],
-    config: {
-      barText: 'PATROCINADO POR',
-      barColor: '#e53935',
-      barTextColor: '#ffffff',
-      fontFamily: 'Inter, sans-serif',
-      barHeight: 44,
-      bgGradientTop: '#3a3a3a',
-      bgGradientBottom: '#555',
-      rotationSpeed: 5000
-    }
-  });
-}
-
-/* ---------- animations ---------- */
 function iniciarRotacion() {
   const logos = document.querySelectorAll('.sp-logo');
   if (logos.length <= 1) return;
@@ -130,17 +84,20 @@ function animarEntrada() {
   const bar = document.getElementById('sponsors-bar');
   const logosContainer = document.getElementById('sponsors-logos');
   container.style.display = 'block';
+  visible = true;
   if (timeline) timeline.kill();
   timeline = gsap.timeline({ onComplete: () => iniciarRotacion() });
   gsap.set('.sp-logo', { opacity: 0 });
   if (document.querySelectorAll('.sp-logo').length > 0) {
     gsap.set(document.querySelectorAll('.sp-logo')[0], { opacity: 1 });
   }
+  gsap.set(bar, { x: '-110%' });
+  gsap.set(logosContainer, { scaleY: 0, transformOrigin: 'top' });
   timeline.to(bar, {
-    duration: 0.6, x: '0%', ease: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    duration: 0.6, x: '0%', ease: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   });
   timeline.to(logosContainer, {
-    duration: 0.4, scaleY: 1, ease: 'power2.out'
+    duration: 0.4, scaleY: 1, ease: 'power2.out',
   }, '-=0.1');
 }
 
@@ -149,40 +106,94 @@ function animarSalida() {
   const bar = document.getElementById('sponsors-bar');
   const logosContainer = document.getElementById('sponsors-logos');
   if (timeline) timeline.kill();
-  timeline = gsap.timeline();
+  timeline = gsap.timeline({
+    onComplete: () => {
+      visible = false;
+      const container = document.getElementById('sponsors-container');
+      container.style.display = 'none';
+    },
+  });
   timeline.to(logosContainer, { duration: 0.3, scaleY: 0, ease: 'power2.in' });
   timeline.to(bar, { duration: 0.3, x: '-110%', ease: 'power2.in' }, '-=0.1');
-  timeline.set('#sponsors-container', { clearProps: 'all' });
 }
 
-/* ---------- socket ---------- */
-if (!isPreview) {
-  const socket = io({
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 10
-  });
+function mostrarPreview(data) {
+  if (!data) return;
+  const { sponsors, config } = data;
+  construirSponsors(sponsors || []);
+  aplicarConfig(config);
+  const container = document.getElementById('sponsors-container');
+  container.style.display = 'block';
+  visible = true;
+  gsap.set('#sponsors-bar', { x: '0%' });
+  gsap.set('#sponsors-logos', { scaleY: 1, transformOrigin: 'top' });
+  gsap.set('.sp-logo', { opacity: 0 });
+  if (document.querySelectorAll('.sp-logo').length > 0) {
+    gsap.set(document.querySelectorAll('.sp-logo')[0], { opacity: 1 });
+  }
+  detenerRotacion();
+  iniciarRotacion();
+}
 
+function showDefault() {
+  mostrarPreview({
+    sponsors: [
+      { name: 'Sponsor A', logoUrl: null },
+      { name: 'Sponsor B', logoUrl: null },
+      { name: 'Sponsor C', logoUrl: null },
+    ],
+    config: {
+      barText: 'PATROCINADO POR',
+      barColor: '#e53935',
+      barTextColor: '#ffffff',
+      fontFamily: 'Inter, sans-serif',
+      barHeight: 44,
+      bgGradientTop: '#3a3a3a',
+      bgGradientBottom: '#555',
+      rotationSpeed: 5000,
+    },
+  });
+}
+
+function handlePayload(payload) {
+  try {
+    if (!payload || payload.tipo !== 'SPONSORS') return;
+    if (!payload.data || typeof payload.data !== 'object') return;
+
+    const { accion, sponsors, config } = payload.data;
+
+      if (accion === 'SHOW') {
+        if (sponsors) construirSponsors(sponsors);
+        if (config) aplicarConfig(config);
+        if (visible) {
+          detenerRotacion();
+          iniciarRotacion();
+        } else {
+          animarEntrada();
+        }
+      } else if (accion === 'UPDATE') {
+      if (!visible) return;
+      if (sponsors) construirSponsors(sponsors);
+      if (config) aplicarConfig(config);
+      detenerRotacion();
+      iniciarRotacion();
+    } else if (accion === 'HIDE') {
+      animarSalida();
+    }
+  } catch (err) {
+    console.error('[RENDER SPONSORS] Error:', err);
+  }
+}
+
+// Demo state on load
+showDefault();
+
+// Always connect via Socket.IO
+getAuthToken().then((token) => {
+  const socket = io({ ...SOCKET_OPTIONS, auth: { token } });
   socket.on('connect_error', (err) => {
     console.error('[SOCKET SPONSORS] Error:', err.message);
   });
 
-  socket.on('render-graphic', (payload) => {
-    try {
-      if (!payload || payload.tipo !== 'SPONSORS') return;
-      if (!payload.data || typeof payload.data !== 'object') return;
-
-      const { accion, sponsors, config } = payload.data;
-      if (!accion) return;
-
-      if (accion === 'SHOW' || accion === 'UPDATE') {
-        if (sponsors) construirSponsors(sponsors);
-        if (config) aplicarConfig(config);
-        animarEntrada();
-      } else if (accion === 'HIDE') {
-        animarSalida();
-      }
-    } catch (err) {
-      console.error('[RENDER SPONSORS] Error:', err);
-    }
-  });
-}
+  socket.on('render-graphic', handlePayload);
+});

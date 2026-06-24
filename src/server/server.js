@@ -1,141 +1,96 @@
+'use strict';
+
 require('dotenv').config();
+
 const express = require('express');
 const helmet = require('helmet');
 const compression = require('compression');
-const fs = require('fs');
-const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const config = require('./config');
+const logger = require('./logger');
+const media = require('./media');
+const socket = require('./socket');
+
+// ── Process-level crash protection ────────────────────────────
+// After an uncaught error the process is in an unknown state; let the
+// orchestrator (Docker / PM2) restart it. Exit with failure code.
+function fatal(err, type) {
+  logger.fatal({ err, type }, 'unhandled error - exiting');
+  // Give the logger a moment to flush.
+  setTimeout(() => process.exit(1), 100).unref();
+}
+process.on('uncaughtException', (err) => fatal(err, 'uncaughtException'));
+process.on('unhandledRejection', (reason) => fatal(reason, 'unhandledRejection'));
+
 const app = express();
-const http = require('http').createServer(app);
-const io = require('socket.io')(http, {
-  cors: { origin: "*" }
-});
+const httpServer = http.createServer(app);
 
-const PORT = process.env.PORT || 3000;
-const ASSETS_DIR = path.resolve(__dirname, '../client/assets');
-const LOGOS_DIR = path.join(ASSETS_DIR, 'logos');
-const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB por archivo
-
-// ── Process-level crash protection ──
-process.on('uncaughtException', (err) => {
-  console.error('[FATAL] Uncaught exception:', err);
+// ── Socket.IO ────────────────────────────────────────────────
+const io = new Server(httpServer, {
+  cors: {
+    origin: config.corsOrigins.length ? config.corsOrigins : false,
+    methods: ['GET', 'POST'],
+  },
 });
-process.on('unhandledRejection', (reason) => {
-  console.error('[FATAL] Unhandled rejection:', reason);
-});
+socket.attach(io);
 
-app.use(helmet({ contentSecurityPolicy: false }));
+// ── HTTP middleware ──────────────────────────────────────────
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
 app.use(compression());
+app.use(express.json({ limit: config.limits.jsonBody }));
 
-app.use('/assets', express.static(ASSETS_DIR));
-app.use(express.json({ limit: '50mb' }));
-
-// Helper: ensure logos dir exists
-function ensureLogosDir() {
-  if (!fs.existsSync(LOGOS_DIR)) fs.mkdirSync(LOGOS_DIR, { recursive: true });
-}
-
-// Helper: validate file stays within logos dir (prevents path traversal)
-function safeDest(filename) {
-  const safe = path.basename(filename).replace(/[^a-zA-Z0-9._-]/g, '_');
-  const dest = path.join(LOGOS_DIR, safe);
-  if (!dest.startsWith(LOGOS_DIR + path.sep)) return null; // safety check
-  return dest;
-}
-
-// Health check
-app.get('/api/health', (_req, res) => res.json({ status: 'ok', uptime: process.uptime() }));
-
-// API: listar archivos en /assets/logos/
-app.get('/api/media', (_req, res) => {
-  try {
-    if (!fs.existsSync(LOGOS_DIR)) return res.json([]);
-    const files = fs.readdirSync(LOGOS_DIR)
-      .filter(f => /\.(png|jpg|jpeg|gif|svg|webp)$/i.test(f))
-      .map(f => ({ name: f, url: '/assets/logos/' + f }));
-    res.json(files);
-  } catch (err) {
-    console.error('[API/media] Error listing:', err);
-    res.status(500).json({ error: 'Error al listar archivos' });
-  }
-});
-
-// API: subir archivos (base64 via JSON)
-app.post('/api/media/upload', (req, res) => {
-  try {
-    const { name, data } = req.body;
-    if (!name || !data) return res.status(400).json({ error: 'name y data requeridos' });
-
-    // Validate file size (base64 is ~37% larger than binary)
-    const approxBytes = Buffer.byteLength(data, 'utf8') * 0.75;
-    if (approxBytes > MAX_FILE_SIZE_BYTES) {
-      return res.status(413).json({ error: `Archivo demasiado grande (máx ${MAX_FILE_SIZE_BYTES / 1024 / 1024}MB)` });
+// CORS for dev (Vite on a different port)
+if (!config.isProd && config.corsOrigins.length) {
+  app.use((req, res, next) => {
+    const origin = req.get('origin');
+    if (origin && config.corsOrigins.includes(origin)) {
+      res.set('Access-Control-Allow-Origin', origin);
+      res.set('Vary', 'Origin');
     }
-
-    const dest = safeDest(name);
-    if (!dest) return res.status(400).json({ error: 'Nombre de archivo inválido' });
-
-    ensureLogosDir();
-    const buffer = Buffer.from(data, 'base64');
-    fs.writeFileSync(dest, buffer);
-    res.json({ name: path.basename(dest), url: '/assets/logos/' + path.basename(dest) });
-  } catch (err) {
-    console.error('[API/media] Error uploading:', err);
-    res.status(500).json({ error: 'Error al subir archivo' });
-  }
-});
-
-// API: eliminar archivo
-app.delete('/api/media/:name', (req, res) => {
-  try {
-    const dest = safeDest(req.params.name);
-    if (!dest) return res.status(400).json({ error: 'Nombre de archivo inválido' });
-    if (fs.existsSync(dest)) fs.unlinkSync(dest);
-    res.json({ ok: true });
-  } catch (err) {
-    console.error('[API/media] Error deleting:', err);
-    res.status(500).json({ error: 'Error al eliminar archivo' });
-  }
-});
-
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static('dist/client'));
-
-  app.get('/', (req, res) => {
-    res.redirect('/dashboard/');
+    next();
   });
 }
 
-// ── Socket.IO with basic rate limiting ──
-const EMIT_INTERVAL_MS = 150; // minimum ms between emits per socket
-const socketLastEmit = new Map();
+app.use('/assets', express.static(config.paths.assets));
+app.use('/api/media', media.router);
 
-io.on('connection', (socket) => {
-  console.log(`[SOCKET] Conexión establecida id: ${socket.id}`);
+// Health
+app.get('/api/health', (_req, res) =>
+  res.json({ status: 'ok', uptime: process.uptime(), env: config.env })
+);
 
-  socket.on('update-graphic', (payload) => {
-    const now = Date.now();
-    const last = socketLastEmit.get(socket.id) || 0;
-    if (now - last < EMIT_INTERVAL_MS) return; // rate limit
-    socketLastEmit.set(socket.id, now);
-    io.emit('render-graphic', payload);
-  });
-
-  socket.on('disconnect', () => {
-    socketLastEmit.delete(socket.id);
-    console.log(`[SOCKET] Cliente desconectado id: ${socket.id}`);
-  });
+// Expose the auth token to the dashboard so it can self-authenticate when
+// loaded from the same origin. The token is short and the dashboard is served
+// from the same server. In dev (no AUTH_TOKEN) this returns empty string.
+app.get('/api/config', (_req, res) => {
+  res.json({ authToken: config.authToken });
 });
 
-http.listen(PORT, '0.0.0.0', () => {
-  console.log(`====================================================`);
-  console.log(` SERVIDOR DE OVERLAYS LOCAL ACTIVO EN PUERTO: ${PORT}`);
+// Production: serve built static files
+if (config.isProd) {
+  app.use(express.static(config.paths.dist));
+  app.get('/', (_req, res) => res.redirect('/dashboard/'));
+  // SPA-ish: send index.html for unknown routes under /templates/* and /dashboard/*
+  app.get(/^\/(dashboard|templates)\/.*$/, (_req, res) =>
+    res.sendFile(require('path').join(config.paths.dist, 'index.html'))
+  );
+}
 
-  if (process.env.NODE_ENV === 'production') {
-    console.log(` Abrir http://localhost:${PORT}`);
-  } else {
-    console.log(` Abrir http://localhost:5173 (Vite dev server)`);
-    console.log(` Servidor Socket.IO en http://localhost:${PORT}`);
+httpServer.listen(config.port, '0.0.0.0', () => {
+  logger.info(
+    {
+      port: config.port,
+      env: config.env,
+      auth: !!config.authToken,
+      cors: config.corsOrigins,
+    },
+    `Overlays server listening on :${config.port}`
+  );
+  if (!config.isProd) {
+    logger.info('Dev dashboard: http://localhost:5173/dashboard/');
   }
-
-  console.log(`====================================================`);
 });
+
+module.exports = { app, io, httpServer };

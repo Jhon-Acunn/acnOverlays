@@ -1,11 +1,12 @@
 import { io } from 'socket.io-client';
+import { getAuthToken } from '../../shared/auth-token.js';
+import { SOCKET_OPTIONS } from '../../shared/socket-options.js';
 import gsap from 'gsap';
-
-const isPreview = window.location.search.includes('preview=1');
 
 let tkrTimeline = null;
 let animTimeline = null;
 let tkrRunning = false;
+let visible = false;
 
 function armarContenido(message, logoUrl, logoWidth) {
   const msgEl = document.getElementById('tkr-message');
@@ -67,7 +68,6 @@ function aplicarEstilo(cfg) {
 function aplicarConfig(cfg) {
   const titleEl = document.getElementById('tkr-title');
   if (cfg.title !== undefined) titleEl.textContent = cfg.title;
-  const speed = cfg.speed || 80;
   const fontSize = cfg.fontSize || 33;
   const logoWidth = cfg.logoWidth || 4;
   document.getElementById('tkr-message').style.fontSize = fontSize + 'px';
@@ -93,14 +93,15 @@ function iniciarTicker(speed) {
   const half = totalWidth / 2;
   const pps = speed || 80;
 
-  gsap.set(msgEl, { x: trackWidth });
+  // Start at the right edge of the visible track and scroll left
+  gsap.set(msgEl, { x: 0 });
 
   tkrRunning = true;
   tkrTimeline = gsap.timeline({ repeat: -1 });
   tkrTimeline.to(msgEl, {
-    x: trackWidth - half,
+    x: -half,
     duration: half / pps,
-    ease: 'none'
+    ease: 'none',
   });
 }
 
@@ -113,14 +114,15 @@ function mostrar(cfg) {
   if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 
   container.style.display = 'flex';
+  visible = true;
   aplicarConfig(cfg);
 
   // Reset transforms before entry
   gsap.set('#tkr-title', { x: '0%' });
   gsap.set('#tkr-track', { x: '0%' });
 
-  // Start container off-screen to the left
-  gsap.set(container, { x: '-100%' });
+  // Start container off-screen to the right
+  gsap.set(container, { x: '100%' });
 
   const speed = cfg.speed || 80;
 
@@ -128,20 +130,32 @@ function mostrar(cfg) {
     onComplete: () => {
       animTimeline = null;
       iniciarTicker(speed);
-    }
+    },
   });
 
-  // Slide the whole bar in from the left with easing
+  // Slide the whole bar in from the right with easing
   animTimeline.to(container, {
     x: '0%',
     duration: 0.6,
-    ease: 'power3.out'
+    ease: 'power3.out',
   });
+}
+
+function updateWhileVisible(cfg) {
+  const container = document.getElementById('tkr-container');
+  if (container.style.display === 'none' || container.style.display === '') return;
+
+  tkrRunning = false;
+  if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
+
+  aplicarConfig(cfg);
+  iniciarTicker(cfg.speed || 80);
 }
 
 function ocultar() {
   const container = document.getElementById('tkr-container');
   tkrRunning = false;
+  visible = false;
   if (animTimeline) { animTimeline.kill(); animTimeline = null; }
   if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 
@@ -150,44 +164,18 @@ function ocultar() {
       animTimeline = null;
       container.style.display = 'none';
       gsap.set(container, { clearProps: 'x' });
-    }
+    },
   });
 
   // Slide the whole bar out to the left with easing
   animTimeline.to(container, {
     x: '-100%',
     duration: 0.45,
-    ease: 'power2.in'
+    ease: 'power2.in',
   });
 }
 
-function handlePayload(payload) {
-  try {
-    if (!payload || payload.tipo !== 'TICKER') return;
-    if (!payload.data || typeof payload.data !== 'object') return;
-
-    const { accion, title, message, logoUrl, speed, logoWidth, fontSize, fontFamily, titleSize, titleColor, titleBg, msgColor, msgBg } = payload.data;
-    if (accion === 'SHOW' && !isPreview) mostrar({ title, message, logoUrl, speed, logoWidth, fontSize, fontFamily, titleSize, titleColor, titleBg, msgColor, msgBg });
-    else if (accion === 'HIDE' && !isPreview) ocultar();
-  } catch (err) {
-    console.error('[RENDER TICKER] Error:', err);
-  }
-}
-
-if (isPreview) {
-  window.addEventListener('message', (e) => {
-    if (e.source !== window.parent) return;
-    try {
-      const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-      if (data && data.tipo === 'PREVIEW_TICKER') {
-        if (animTimeline) { animTimeline.kill(); animTimeline = null; }
-        if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
-        document.getElementById('tkr-container').style.display = 'none';
-        gsap.set(document.getElementById('tkr-container'), { clearProps: 'x' });
-        mostrar(data.data);
-      }
-    } catch (_) { /* ignore */ }
-  });
+function showDefault() {
   mostrar({
     title: 'LIVE',
     message: 'ticker de prueba — masterización profesional',
@@ -200,17 +188,44 @@ if (isPreview) {
     titleColor: '#ffffff',
     titleBg: '#071041',
     msgColor: '#111111',
-    msgBg: '#ffffff'
+    msgBg: '#ffffff',
   });
-} else {
-  const socket = io({
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 10
-  });
+}
 
+function handlePayload(payload) {
+  try {
+    if (!payload || payload.tipo !== 'TICKER') return;
+    if (!payload.data || typeof payload.data !== 'object') return;
+
+    const { accion, title, message, logoUrl, speed, logoWidth, fontSize, fontFamily, titleSize, titleColor, titleBg, msgColor, msgBg } = payload.data;
+    const cfg = { title, message, logoUrl, speed, logoWidth, fontSize, fontFamily, titleSize, titleColor, titleBg, msgColor, msgBg };
+
+      if (accion === 'SHOW') {
+        if (visible) {
+          updateWhileVisible(cfg);
+        } else {
+          mostrar(cfg);
+        }
+      } else if (accion === 'HIDE') {
+      ocultar();
+    } else if (accion === 'UPDATE') {
+      if (!visible) return;
+      updateWhileVisible(cfg);
+    }
+  } catch (err) {
+    console.error('[RENDER TICKER] Error:', err);
+  }
+}
+
+// Demo state on load
+showDefault();
+
+// Always connect via Socket.IO
+getAuthToken().then((token) => {
+  const socket = io({ ...SOCKET_OPTIONS, auth: { token } });
   socket.on('connect_error', (err) => {
     console.error('[SOCKET TICKER] Error:', err.message);
   });
 
   socket.on('render-graphic', handlePayload);
-}
+});

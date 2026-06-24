@@ -1,0 +1,284 @@
+import { setVal, bindFontPicker } from './utils.js';
+import { createGuestSlots } from './guest-slots.js';
+import { emitGraphic, emitGraphicNow } from './socket.js';
+
+const TIPO = 'SPONSORS';
+const TAB = 'sponsors';
+const PREVIEW_TIPO = 'PREVIEW_SPONSORS';
+const TOGGLE_ID = 'sponsorToggle';
+
+function leerSponsorsCfg() {
+  return {
+    barText: document.getElementById('spBarText').value || 'PATROCINADO POR',
+    barColor: document.getElementById('spBarColor').value || '#e53935',
+    barTextColor: document.getElementById('spBarTextColor').value || '#ffffff',
+    barHeight: parseInt(document.getElementById('spBarHeight').value, 10) || 44,
+    bgGradientTop: document.getElementById('spBgTop').value || '#3a3a3a',
+    bgGradientBottom: document.getElementById('spBgBottom').value || '#555555',
+    rotationSpeed: parseInt(document.getElementById('spRotationSpeed').value, 10) || 5000,
+    fontFamily: document.getElementById('spFont').value || 'Inter, sans-serif',
+  };
+}
+
+function leerSponsors() {
+  const items = document.querySelectorAll('.sponsor-item');
+  const sponsors = [];
+  items.forEach((item) => {
+    const name = item.querySelector('.sp-name').value.trim();
+    const logoUrl = item.querySelector('.sp-logo-url').value.trim() || null;
+    if (name || logoUrl) sponsors.push({ name, logoUrl });
+  });
+  return sponsors;
+}
+
+function leerSponsorsData() {
+  return { sponsors: leerSponsors(), config: leerSponsorsCfg() };
+}
+
+function sponsorsUpdate() {
+  emitGraphic({
+    tipo: TIPO,
+    tab: TAB,
+    previewTipo: PREVIEW_TIPO,
+    getData: leerSponsorsData,
+    toggleId: TOGGLE_ID,
+  });
+}
+
+function sponsorsEmit(accion) {
+  emitGraphicNow({
+    tipo: TIPO,
+    tab: TAB,
+    previewTipo: PREVIEW_TIPO,
+    getData: leerSponsorsData,
+    toggleId: TOGGLE_ID,
+    accion,
+  });
+}
+
+let spPickerTarget = null;
+let spPickerPopup = null;
+
+function ensurePickerPopup() {
+  if (spPickerPopup) return spPickerPopup;
+  const popup = document.createElement('div');
+  popup.id = 'sp-logo-picker';
+  popup.style.cssText =
+    'position:fixed;z-index:999;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;padding:0.5rem;max-height:200px;overflow-y:auto;display:flex;flex-wrap:wrap;gap:0.4rem;width:260px;box-shadow:0 8px 24px rgba(0,0,0,0.4);';
+  document.body.appendChild(popup);
+  popup.addEventListener('click', (e) => {
+    const pickBtn = e.target.closest('[data-pick-url]');
+    if (!pickBtn) return;
+    if (spPickerTarget) spPickerTarget.value = pickBtn.dataset.pickUrl;
+    popup.style.display = 'none';
+    sponsorsUpdate();
+  });
+  document.addEventListener('click', (e) => {
+    if (!popup.contains(e.target) && !e.target.closest('.sp-pick-logo')) {
+      popup.style.display = 'none';
+    }
+  });
+  spPickerPopup = popup;
+  return popup;
+}
+
+async function mostrarPicker(btn) {
+  const item = btn.closest('.sponsor-item');
+  spPickerTarget = item.querySelector('.sp-logo-url');
+  const popup = ensurePickerPopup();
+  const rect = btn.getBoundingClientRect();
+  popup.style.top = rect.bottom + 4 + 'px';
+  popup.style.left = Math.max(4, rect.left) + 'px';
+  popup.style.display = 'flex';
+  popup.innerHTML =
+    '<div style="width:100%;font-size:0.7rem;color:var(--text-muted);margin-bottom:0.3rem;">Seleccionar logo:</div>';
+  try {
+    const res = await fetch('/api/media');
+    const files = await res.json();
+    if (!files.length) {
+      popup.innerHTML +=
+        '<div style="font-size:0.7rem;color:var(--text-muted);width:100%;">Sube logos en la pestaña Media</div>';
+      return;
+    }
+    const btnNinguno = document.createElement('button');
+    btnNinguno.textContent = 'Sin logo';
+    btnNinguno.style.cssText =
+      'font-size:0.7rem;padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:var(--btn-bg);color:var(--text);cursor:pointer;';
+    btnNinguno.dataset.pickUrl = '';
+    popup.appendChild(btnNinguno);
+    files.forEach((f) => {
+      const b = document.createElement('button');
+      b.style.cssText =
+        'width:48px;height:36px;border-radius:4px;border:1px solid var(--border);background:var(--input-bg);cursor:pointer;overflow:hidden;padding:0;';
+      b.innerHTML = `<img src="${f.url}" style="width:100%;height:100%;object-fit:contain;">`;
+      b.dataset.pickUrl = f.url;
+      b.title = f.name;
+      popup.appendChild(b);
+    });
+  } catch {
+    /* noop */
+  }
+}
+
+function crearSponsorItem(sp) {
+  const item = document.createElement('div');
+  item.className = 'sponsor-item';
+  item.style.cssText = 'display:flex;gap:0.3rem;align-items:center;width:100%;';
+  const nameVal = sp?.name || '';
+  const logoVal = sp?.logoUrl || '';
+  item.innerHTML = `
+    <input type="text" class="sp-name" placeholder="Nombre" value="${nameVal.replace(/"/g, '&quot;')}" style="flex:1;min-width:80px;font-size:0.8rem;">
+    <input type="text" class="sp-logo-url" placeholder="URL logo (opcional)" value="${logoVal.replace(/"/g, '&quot;')}" style="flex:1.5;min-width:100px;font-size:0.8rem;">
+    <button class="sp-pick-logo small" title="Seleccionar de Media" style="padding:0.3rem 0.4rem;font-size:0.8rem;">📁</button>
+    <button class="sp-remove small danger" style="padding:0.3rem 0.4rem;font-size:0.8rem;">×</button>
+  `;
+  const nameInput = item.querySelector('.sp-name');
+  const logoInput = item.querySelector('.sp-logo-url');
+  nameInput.addEventListener('input', sponsorsUpdate);
+  logoInput.addEventListener('input', sponsorsUpdate);
+  item.querySelector('.sp-pick-logo').addEventListener('click', function () {
+    mostrarPicker(this);
+  });
+  item.querySelector('.sp-remove').addEventListener('click', () => {
+    item.remove();
+    sponsorsUpdate();
+  });
+  return item;
+}
+
+function sponsorsAddItem() {
+  const list = document.getElementById('sponsor-list');
+  const item = crearSponsorItem();
+  list.appendChild(item);
+  setTimeout(() => item.querySelector('.sp-name').focus(), 50);
+  sponsorsUpdate();
+}
+
+export function initSponsors() {
+  const list = document.getElementById('sponsor-list');
+  if (list && !list.children.length) {
+    for (let i = 1; i <= 3; i++) {
+      const item = document.createElement('div');
+      item.className = 'sponsor-item';
+      item.style.cssText = 'display:flex;gap:0.3rem;align-items:center;width:100%;';
+      item.innerHTML = `
+        <input type="text" class="sp-name" placeholder="Nombre" value="Sponsor ${String.fromCharCode(64 + i)}" style="flex:1;min-width:80px;font-size:0.8rem;">
+        <input type="text" class="sp-logo-url" placeholder="URL logo (opcional)" style="flex:1.5;min-width:100px;font-size:0.8rem;">
+        <button class="sp-pick-logo small" title="Seleccionar de Media" style="padding:0.3rem 0.4rem;font-size:0.8rem;">📁</button>
+        <button class="sp-remove small danger" style="padding:0.3rem 0.4rem;font-size:0.8rem;">×</button>
+      `;
+      item.querySelector('.sp-name').addEventListener('input', sponsorsUpdate);
+      item.querySelector('.sp-logo-url').addEventListener('input', sponsorsUpdate);
+      item.querySelector('.sp-pick-logo').addEventListener('click', function () {
+        mostrarPicker(this);
+      });
+      item.querySelector('.sp-remove').addEventListener('click', () => {
+        item.remove();
+        sponsorsUpdate();
+      });
+      list.appendChild(item);
+    }
+    setTimeout(() => {
+      if (document.getElementById(TOGGLE_ID)?.checked) sponsorsUpdate();
+    }, 500);
+  }
+
+  document.getElementById('sponsor-add')?.addEventListener('click', sponsorsAddItem);
+
+  document.getElementById('sponsorToggle')?.addEventListener('change', function () {
+    sponsorsEmit(this.checked ? 'SHOW' : 'HIDE');
+  });
+
+  bindFontPicker('spFontDropdownBtn', 'spFont');
+
+  for (const id of [
+    'spBarText',
+    'spBarColor',
+    'spBarTextColor',
+    'spBgTop',
+    'spBgBottom',
+    'spFont',
+  ]) {
+    document.getElementById(id)?.addEventListener('input', sponsorsUpdate);
+  }
+  for (const id of ['spBarHeight', 'spRotationSpeed']) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.addEventListener('input', () => {
+      const val = document.getElementById('valSp' + id.slice(2));
+      if (val) {
+        val.textContent =
+          id === 'spRotationSpeed'
+            ? (parseInt(el.value, 10) / 1000).toFixed(1) + 's'
+            : el.value + 'px';
+      }
+      sponsorsUpdate();
+    });
+  }
+  ['spBarHeight', 'spRotationSpeed'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = document.getElementById('valSp' + id.slice(2));
+    if (val) {
+      val.textContent =
+        id === 'spRotationSpeed'
+          ? (parseInt(el.value, 10) / 1000).toFixed(1) + 's'
+          : el.value + 'px';
+    }
+  });
+
+  document.getElementById('spResetStyle')?.addEventListener('click', () => {
+    document.getElementById('spBarText').value = 'PATROCINADO POR';
+    document.getElementById('spBarColor').value = '#e53935';
+    document.getElementById('spBarTextColor').value = '#ffffff';
+    document.getElementById('spBarHeight').value = '44';
+    document.getElementById('spBgTop').value = '#3a3a3a';
+    document.getElementById('spBgBottom').value = '#555555';
+    document.getElementById('spRotationSpeed').value = '5000';
+    document.getElementById('spFont').value = 'Inter, sans-serif';
+    setVal('valSpBarHeight', '44px');
+    setVal('valSpRotationSpeed', '5.0s');
+    sponsorsUpdate();
+  });
+
+  createGuestSlots({
+    gridId: 'sponsor-guest-grid',
+    storageKey: 'sponsor_guests',
+    getCurrent: () => {
+      const sponsors = leerSponsors();
+      if (!sponsors.length) return null;
+      return { sponsors, config: leerSponsorsCfg() };
+    },
+    applyData: (data) => {
+      const list = document.getElementById('sponsor-list');
+      if (!list) return;
+      list.innerHTML = '';
+      if (data.sponsors) {
+        data.sponsors.forEach((sp) => list.appendChild(crearSponsorItem(sp)));
+      }
+      if (data.config) {
+        if (data.config.barText) document.getElementById('spBarText').value = data.config.barText;
+        if (data.config.barColor) document.getElementById('spBarColor').value = data.config.barColor;
+        if (data.config.barTextColor)
+          document.getElementById('spBarTextColor').value = data.config.barTextColor;
+        if (data.config.barHeight)
+          document.getElementById('spBarHeight').value = data.config.barHeight;
+        if (data.config.bgGradientTop)
+          document.getElementById('spBgTop').value = data.config.bgGradientTop;
+        if (data.config.bgGradientBottom)
+          document.getElementById('spBgBottom').value = data.config.bgGradientBottom;
+        if (data.config.rotationSpeed)
+          document.getElementById('spRotationSpeed').value = data.config.rotationSpeed;
+        if (data.config.fontFamily)
+          document.getElementById('spFont').value = data.config.fontFamily;
+        setVal('valSpBarHeight', document.getElementById('spBarHeight').value + 'px');
+        setVal(
+          'valSpRotationSpeed',
+          (parseInt(document.getElementById('spRotationSpeed').value, 10) / 1000).toFixed(1) + 's'
+        );
+      }
+    },
+    formatTitle: (d) => d.sponsors?.[0]?.name || 'Config',
+    applyPreview: sponsorsUpdate,
+  })?.loadInitial(1);
+}

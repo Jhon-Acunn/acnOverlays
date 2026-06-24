@@ -1,68 +1,69 @@
 import { io } from 'socket.io-client';
+import { getAuthToken } from '../../shared/auth-token.js';
+import { SOCKET_OPTIONS } from '../../shared/socket-options.js';
 import gsap from 'gsap';
 
-const isPreview = window.location.search.includes('preview=1');
-
-let lastLStyle = {};
-let lastRStyle = {};
 let timeline = null;
 let leftVisible = false;
 let rightVisible = false;
 
 function setTexts(data) {
   if (data.left) {
-    document.getElementById('ltl-nombre').textContent = data.left.nombre || '';
-    document.getElementById('ltl-apellido').textContent = data.left.apellido || '';
-    document.getElementById('ltl-cargo').textContent = (data.left.cargo || '').toUpperCase();
+    if (data.left.nombre !== undefined) document.getElementById('ltl-nombre').textContent = data.left.nombre || '';
+    if (data.left.apellido !== undefined) document.getElementById('ltl-apellido').textContent = data.left.apellido || '';
+    if (data.left.cargo !== undefined) document.getElementById('ltl-cargo').textContent = (data.left.cargo || '').toUpperCase();
     if (data.left.estilo) aplicarEstilo('ltl', data.left.estilo);
   }
   if (data.right) {
-    document.getElementById('ltr-nombre').textContent = data.right.nombre || '';
-    document.getElementById('ltr-apellido').textContent = data.right.apellido || '';
-    document.getElementById('ltr-cargo').textContent = (data.right.cargo || '').toUpperCase();
+    if (data.right.nombre !== undefined) document.getElementById('ltr-nombre').textContent = data.right.nombre || '';
+    if (data.right.apellido !== undefined) document.getElementById('ltr-apellido').textContent = data.right.apellido || '';
+    if (data.right.cargo !== undefined) document.getElementById('ltr-cargo').textContent = (data.right.cargo || '').toUpperCase();
     if (data.right.estilo) aplicarEstilo('ltr', data.right.estilo);
   }
 }
 
-function mostrarPreview(data) {
-  if (!data) return;
-  setTexts(data);
-  const leftC = document.getElementById('ltl-container');
-  const rightC = document.getElementById('ltr-container');
-  if (data.left) {
-    leftC.style.display = 'block';
-    gsap.set('#ltl-name-group', { xPercent: 0 });
-    gsap.set('#ltl-name-text', { opacity: 1 });
-    gsap.set('#ltl-title-box', { scaleY: 1, transformOrigin: 'top' });
-  }
-  if (data.right) {
-    rightC.style.display = 'block';
-    gsap.set('#ltr-name-group', { xPercent: 0 });
-    gsap.set('#ltr-name-text', { opacity: 1 });
-    gsap.set('#ltr-title-box', { scaleY: 1, transformOrigin: 'top' });
-  }
-}
-
-if (isPreview) {
-  window.addEventListener('message', (e) => {
-    if (e.source !== window.parent) return;
-    try {
-      const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-      if (data && data.tipo === 'PREVIEW_LOWER_DUAL') {
-        mostrarPreview(data.data);
-      }
-    } catch (_) { /* ignore */ }
-  });
-  mostrarPreview({
-    left: { nombre: 'ANA', apellido: 'GARCÍA', cargo: 'CEO', estilo: null },
-    right: { nombre: 'LUIS', apellido: 'MARTÍNEZ', cargo: 'CTO', estilo: null }
+function showDefault() {
+  setTexts({
+    left: {
+      nombre: 'ANA',
+      apellido: 'GARCÍA',
+      cargo: 'CEO',
+      estilo: {
+        fontFamily: 'Montserrat, sans-serif',
+        titleFontSize: '3.0rem',
+        subtitleFontSize: '2.5rem',
+        titleColor: '#ffffff',
+        titleBg: '#06155A',
+        subtitleColor: '#111111',
+        subtitleBg: '#ffffff',
+        escala: 1.0,
+        posX: 100,
+        posY: 90,
+      },
+    },
+    right: {
+      nombre: 'LUIS',
+      apellido: 'MARTÍNEZ',
+      cargo: 'CTO',
+      estilo: {
+        fontFamily: 'Montserrat, sans-serif',
+        titleFontSize: '3.0rem',
+        subtitleFontSize: '2.5rem',
+        titleColor: '#ffffff',
+        titleBg: '#06155A',
+        subtitleColor: '#111111',
+        subtitleBg: '#ffffff',
+        escala: 1.0,
+        posX: 100,
+        posY: 90,
+      },
+    },
   });
 }
 
 function aplicarEstilo(side, estilo) {
   if (!estilo) return;
   const isLeft = side === 'ltl';
-  if (isLeft) lastLStyle = estilo; else lastRStyle = estilo;
 
   const body = document.body;
   const nombreEl = document.getElementById(side + '-nombre');
@@ -162,16 +163,6 @@ function exitRight(onDone) {
   return tl;
 }
 
-function animarEntrada() {
-  if (timeline) timeline.kill();
-  timeline = gsap.timeline({ onComplete: () => { leftVisible = true; rightVisible = true; } });
-  entryLeft();
-  entryRight();
-  // Combine into one timeline for compatibility
-  timeline.add(entryLeft(), 0);
-  timeline.add(entryRight(), 0);
-}
-
 function animarSalida() {
   if (timeline) timeline.kill();
   timeline = gsap.timeline({ onComplete: () => { leftVisible = false; rightVisible = false; } });
@@ -179,79 +170,75 @@ function animarSalida() {
   timeline.add(exitRight(), 0);
 }
 
-if (!isPreview) {
-  const socket = io({
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 10
-  });
+function updateVisibleSides(data) {
+  if (data.left && leftVisible) setTexts({ left: data.left });
+  if (data.right && rightVisible) setTexts({ right: data.right });
+}
 
+function handlePayload(payload) {
+  try {
+    if (!payload || payload.tipo !== 'LOWER_DUAL') return;
+    if (!payload.data || typeof payload.data !== 'object') return;
+
+    const { accion, left, right } = payload.data;
+
+    switch (accion) {
+      case 'SHOW':
+        if (left) setTexts({ left });
+        if (right) setTexts({ right });
+        if (timeline) timeline.kill();
+        timeline = gsap.timeline();
+        if (!leftVisible) timeline.add(entryLeft(), 0);
+        if (!rightVisible) timeline.add(entryRight(), 0);
+        if (leftVisible && rightVisible) { leftVisible = true; rightVisible = true; }
+        break;
+
+      case 'SHOW_LEFT':
+        if (left) setTexts({ left });
+        if (timeline) timeline.kill();
+        if (!leftVisible) {
+          timeline = entryLeft();
+        }
+        break;
+
+      case 'SHOW_RIGHT':
+        if (right) setTexts({ right });
+        if (timeline) timeline.kill();
+        if (!rightVisible) {
+          timeline = entryRight();
+        }
+        break;
+
+      case 'HIDE':
+        animarSalida();
+        break;
+
+      case 'HIDE_LEFT':
+        if (leftVisible) { if (timeline) timeline.kill(); timeline = exitLeft(); }
+        break;
+
+      case 'HIDE_RIGHT':
+        if (rightVisible) { if (timeline) timeline.kill(); timeline = exitRight(); }
+        break;
+
+      case 'UPDATE':
+        updateVisibleSides({ left, right });
+        break;
+    }
+  } catch (err) {
+    console.error('[RENDER DUAL LOWER] Error:', err);
+  }
+}
+
+// Demo state on load
+showDefault();
+
+// Always connect via Socket.IO
+getAuthToken().then((token) => {
+  const socket = io({ ...SOCKET_OPTIONS, auth: { token } });
   socket.on('connect_error', (err) => {
     console.error('[SOCKET DUAL LOWER] Error:', err.message);
   });
 
-  socket.on('render-graphic', (payload) => {
-    try {
-      if (!payload || payload.tipo !== 'LOWER_DUAL') return;
-      if (!payload.data || typeof payload.data !== 'object') return;
-
-      const { accion, left, right } = payload.data;
-
-      switch (accion) {
-        case 'SHOW':
-          if (left) {
-            document.getElementById('ltl-nombre').textContent = left.nombre || '';
-            document.getElementById('ltl-apellido').textContent = left.apellido || '';
-            document.getElementById('ltl-cargo').textContent = (left.cargo || '').toUpperCase();
-            if (left.estilo) aplicarEstilo('ltl', left.estilo);
-          }
-          if (right) {
-            document.getElementById('ltr-nombre').textContent = right.nombre || '';
-            document.getElementById('ltr-apellido').textContent = right.apellido || '';
-            document.getElementById('ltr-cargo').textContent = (right.cargo || '').toUpperCase();
-            if (right.estilo) aplicarEstilo('ltr', right.estilo);
-          }
-          if (timeline) timeline.kill();
-          timeline = gsap.timeline();
-          if (!leftVisible) timeline.add(entryLeft(), 0);
-          if (!rightVisible) timeline.add(entryRight(), 0);
-          // If both already visible, mark as such after timeline
-          if (leftVisible && rightVisible) { leftVisible = true; rightVisible = true; }
-          break;
-
-        case 'SHOW_LEFT':
-          if (!left) break;
-          document.getElementById('ltl-nombre').textContent = left.nombre || '';
-          document.getElementById('ltl-apellido').textContent = left.apellido || '';
-          document.getElementById('ltl-cargo').textContent = (left.cargo || '').toUpperCase();
-          if (left.estilo) aplicarEstilo('ltl', left.estilo);
-          if (timeline) timeline.kill();
-          timeline = entryLeft();
-          break;
-
-        case 'SHOW_RIGHT':
-          if (!right) break;
-          document.getElementById('ltr-nombre').textContent = right.nombre || '';
-          document.getElementById('ltr-apellido').textContent = right.apellido || '';
-          document.getElementById('ltr-cargo').textContent = (right.cargo || '').toUpperCase();
-          if (right.estilo) aplicarEstilo('ltr', right.estilo);
-          if (timeline) timeline.kill();
-          timeline = entryRight();
-          break;
-
-        case 'HIDE':
-          animarSalida();
-          break;
-
-        case 'HIDE_LEFT':
-          if (leftVisible) { if (timeline) timeline.kill(); timeline = exitLeft(); }
-          break;
-
-        case 'HIDE_RIGHT':
-          if (rightVisible) { if (timeline) timeline.kill(); timeline = exitRight(); }
-          break;
-      }
-    } catch (err) {
-      console.error('[RENDER DUAL LOWER] Error:', err);
-    }
-  });
-}
+  socket.on('render-graphic', handlePayload);
+});

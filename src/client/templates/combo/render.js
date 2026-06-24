@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
+import { getAuthToken } from '../../shared/auth-token.js';
+import { SOCKET_OPTIONS } from '../../shared/socket-options.js';
 import gsap from 'gsap';
-
-const isPreview = window.location.search.includes('preview=1');
 
 /* ═══════════════════════════════════════════
    SPONSORS
@@ -11,6 +11,7 @@ let spIndiceActual = 0;
 let spTimeline = null;
 let spSponsorsData = [];
 let spConfigActual = {};
+let spVisible = false;
 
 function spDetenerRotacion() {
   if (spRotacionInterval) {
@@ -23,9 +24,10 @@ function spAplicarConfig(cfg) {
   if (!cfg) return;
   spConfigActual = cfg;
   const root = document.documentElement;
+  const bar = document.getElementById('sponsors-bar');
   if (cfg.barColor) root.style.setProperty('--sp-bar-bg', cfg.barColor);
   if (cfg.barTextColor) root.style.setProperty('--sp-bar-color', cfg.barTextColor);
-  if (cfg.barText) document.getElementById('sponsors-bar').textContent = cfg.barText;
+  if (bar) bar.textContent = cfg.barText || 'PATROCINADO POR';
   if (cfg.fontFamily) document.getElementById('sponsors-container').style.fontFamily = cfg.fontFamily;
   if (cfg.barHeight) root.style.setProperty('--sp-bar-h', cfg.barHeight + 'px');
   const logosContainer = document.getElementById('sponsors-logos');
@@ -83,17 +85,20 @@ function spAnimEntrada() {
   const bar = document.getElementById('sponsors-bar');
   const logosContainer = document.getElementById('sponsors-logos');
   container.style.display = 'block';
+  spVisible = true;
   if (spTimeline) spTimeline.kill();
   spTimeline = gsap.timeline({ onComplete: () => spIniciarRotacion() });
   gsap.set('.sp-logo', { opacity: 0 });
   if (document.querySelectorAll('.sp-logo').length > 0) {
     gsap.set(document.querySelectorAll('.sp-logo')[0], { opacity: 1 });
   }
+  gsap.set(bar, { x: '-110%' });
+  gsap.set(logosContainer, { scaleY: 0, transformOrigin: 'top' });
   spTimeline.to(bar, {
-    duration: 0.6, x: '0%', ease: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+    duration: 0.6, x: '0%', ease: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
   });
   spTimeline.to(logosContainer, {
-    duration: 0.4, scaleY: 1, ease: 'power2.out'
+    duration: 0.4, scaleY: 1, ease: 'power2.out',
   }, '-=0.1');
 }
 
@@ -102,25 +107,30 @@ function spAnimSalida() {
   const bar = document.getElementById('sponsors-bar');
   const logosContainer = document.getElementById('sponsors-logos');
   if (spTimeline) spTimeline.kill();
-  spTimeline = gsap.timeline();
+  spTimeline = gsap.timeline({
+    onComplete: () => {
+      spVisible = false;
+      const container = document.getElementById('sponsors-container');
+      container.style.display = 'none';
+    },
+  });
   spTimeline.to(logosContainer, { duration: 0.3, scaleY: 0, ease: 'power2.in' });
   spTimeline.to(bar, { duration: 0.3, x: '-110%', ease: 'power2.in' }, '-=0.1');
-  spTimeline.set('#sponsors-container', { clearProps: 'all' });
 }
 
-function spMostrarPreview(data) {
+function spMostrar(data) {
   if (!data) return;
   const { sponsors, config } = data;
   spConstruirSponsors(sponsors || []);
   spAplicarConfig(config);
-  const container = document.getElementById('sponsors-container');
-  container.style.display = 'block';
-  gsap.set('#sponsors-bar', { x: '0%' });
-  gsap.set('#sponsors-logos', { scaleY: 1, transformOrigin: 'top' });
-  gsap.set('.sp-logo', { opacity: 0 });
-  if (document.querySelectorAll('.sp-logo').length > 0) {
-    gsap.set(document.querySelectorAll('.sp-logo')[0], { opacity: 1 });
-  }
+  spAnimEntrada();
+}
+
+function spUpdate(data) {
+  if (!spVisible || !data) return;
+  const { sponsors, config } = data;
+  if (sponsors) spConstruirSponsors(sponsors);
+  if (config) spAplicarConfig(config);
   spDetenerRotacion();
   spIniciarRotacion();
 }
@@ -131,7 +141,6 @@ function spMostrarPreview(data) {
 let ltTimeline = null;
 let ltLeftVisible = false;
 let ltRightVisible = false;
-let ltLastStyle = {};
 
 function ltAplicarEstilo(prefix, estilo) {
   if (!estilo || !prefix) return;
@@ -164,6 +173,14 @@ function ltAplicarEstilo(prefix, estilo) {
     else container.style.right = estilo.posX + 'px';
   }
   if (estilo.posY !== undefined) container.style.bottom = estilo.posY + 'px';
+}
+
+function ltSetTexts(prefix, data) {
+  if (!data) return;
+  if (data.nombre !== undefined) document.getElementById(prefix + '-nombre').textContent = data.nombre || '';
+  if (data.apellido !== undefined) document.getElementById(prefix + '-apellido').textContent = data.apellido || '';
+  if (data.cargo !== undefined) document.getElementById(prefix + '-cargo').textContent = (data.cargo || '').toUpperCase();
+  if (data.estilo) ltAplicarEstilo(prefix, data.estilo);
 }
 
 function ltEntryLeft() {
@@ -206,7 +223,7 @@ function ltExitLeft() {
       gsap.set('#ltl-title-box', { clearProps: 'transform' });
       gsap.set('#ltl-name-text', { opacity: 0 });
       ltLeftVisible = false;
-    }
+    },
   });
   tl.to('#ltl-title-box', { duration: 0.2, scaleY: 0, ease: 'power2.in', transformOrigin: 'top' });
   tl.to('#ltl-name-text', { duration: 0.15, opacity: 0, ease: 'power2.in' }, '-=0.1');
@@ -224,7 +241,7 @@ function ltExitRight() {
       gsap.set('#ltr-title-box', { clearProps: 'transform' });
       gsap.set('#ltr-name-text', { opacity: 0 });
       ltRightVisible = false;
-    }
+    },
   });
   tl.to('#ltr-title-box', { duration: 0.2, scaleY: 0, ease: 'power2.in', transformOrigin: 'top' });
   tl.to('#ltr-name-text', { duration: 0.15, opacity: 0, ease: 'power2.in' }, '-=0.1');
@@ -232,29 +249,23 @@ function ltExitRight() {
   return tl;
 }
 
-function ltMostrarPreview(left, right) {
+function ltMostrar(left, right) {
+  if (ltTimeline) ltTimeline.kill();
+  ltTimeline = gsap.timeline();
   if (left) {
-    const container = document.getElementById('ltl-container');
-    container.style.display = 'block';
-    document.getElementById('ltl-nombre').textContent = left.nombre || '';
-    document.getElementById('ltl-apellido').textContent = left.apellido || '';
-    document.getElementById('ltl-cargo').textContent = (left.cargo || '').toUpperCase();
-    if (left.estilo) ltAplicarEstilo('ltl', left.estilo);
-    gsap.set('#ltl-name-group', { xPercent: 0 });
-    gsap.set('#ltl-name-text', { opacity: 1 });
-    gsap.set('#ltl-title-box', { scaleY: 1, transformOrigin: 'top' });
+    ltSetTexts('ltl', left);
+    if (!ltLeftVisible) ltTimeline.add(ltEntryLeft(), 0);
   }
   if (right) {
-    const container = document.getElementById('ltr-container');
-    container.style.display = 'block';
-    document.getElementById('ltr-nombre').textContent = right.nombre || '';
-    document.getElementById('ltr-apellido').textContent = right.apellido || '';
-    document.getElementById('ltr-cargo').textContent = (right.cargo || '').toUpperCase();
-    if (right.estilo) ltAplicarEstilo('ltr', right.estilo);
-    gsap.set('#ltr-name-group', { xPercent: 0 });
-    gsap.set('#ltr-name-text', { opacity: 1 });
-    gsap.set('#ltr-title-box', { scaleY: 1, transformOrigin: 'top' });
+    ltSetTexts('ltr', right);
+    if (!ltRightVisible) ltTimeline.add(ltEntryRight(), 0);
   }
+  if (ltLeftVisible && ltRightVisible) { ltLeftVisible = true; ltRightVisible = true; }
+}
+
+function ltUpdate(left, right) {
+  if (left && ltLeftVisible) ltSetTexts('ltl', left);
+  if (right && ltRightVisible) ltSetTexts('ltr', right);
 }
 
 /* ═══════════════════════════════════════════
@@ -262,8 +273,8 @@ function ltMostrarPreview(left, right) {
    ═══════════════════════════════════════════ */
 let tkAnimacion = null;
 let tkSpeed = 80;
-let tkContenido = null;
 let tkTimeline = null;
+let tkVisible = false;
 
 function tkrReset() {
   if (tkAnimacion) {
@@ -321,7 +332,6 @@ function tkrIniciarAnimacion() {
   tkrReset();
   const { el, half } = tkrClonar(raw);
   if (!el) return; // empty content
-  tkContenido = el;
   msg.innerHTML = '';
   msg.appendChild(el);
   msg.style.transform = 'translateX(0px)';
@@ -334,8 +344,7 @@ function tkrIniciarAnimacion() {
   tkTimeline.to(msg, { x: endX, duration, ease: 'none' });
 }
 
-function tkrMostrarPreview(data) {
-  if (!data) return;
+function tkrAplicarConfig(data) {
   const container = document.getElementById('tkr-container');
   container.style.display = 'flex';
   const root = document.documentElement;
@@ -358,76 +367,62 @@ function tkrMostrarPreview(data) {
     html += `<span>${data.message}</span>`;
     msg.innerHTML = html;
   }
-  container.style.transform = 'translateY(0)';
-  gsap.set(container, { y: '0%' });
-  setTimeout(() => tkrIniciarAnimacion(), 100);
 }
 
 function tkrAnimSalida() {
   tkrReset();
   const container = document.getElementById('tkr-container');
-  gsap.to(container, { duration: 0.3, y: '100%', ease: 'power2.in', onComplete: () => {
-    container.style.display = 'none';
-    gsap.set(container, { clearProps: 'transform' });
-  }});
+  gsap.to(container, {
+    duration: 0.3, y: '100%', ease: 'power2.in', onComplete: () => {
+      container.style.display = 'none';
+      gsap.set(container, { clearProps: 'transform' });
+      tkVisible = false;
+    },
+  });
 }
 
 function tkrAnimEntrada(data) {
   const container = document.getElementById('tkr-container');
-  container.style.display = 'flex';
-  const root = document.documentElement;
-  if (data.fontFamily) root.style.setProperty('--tkr-font', data.fontFamily);
-  if (data.title) document.getElementById('tkr-title').textContent = data.title;
-  if (data.titleSize) root.style.setProperty('--tkr-title-size', data.titleSize + 'px');
-  if (data.titleColor) root.style.setProperty('--tkr-title-color', data.titleColor);
-  if (data.titleBg) root.style.setProperty('--tkr-bar-bg', data.titleBg);
-  if (data.fontSize) root.style.setProperty('--tkr-font-size', data.fontSize + 'px');
-  if (data.msgColor) root.style.setProperty('--tkr-msg-color', data.msgColor);
-  if (data.msgBg) root.style.setProperty('--tkr-msg-bg', data.msgBg);
-  if (data.speed) root.style.setProperty('--tkr-speed', String(data.speed));
-  if (data.logoWidth) root.style.setProperty('--tkr-logo-w', data.logoWidth + '%');
-  const msg = document.getElementById('tkr-message');
-  if (data.message) {
-    let html = '';
-    if (data.logoUrl) {
-      html += `<img id="tkr-logo-img" src="${data.logoUrl}" alt="" style="height:80%;width:auto;margin-right:16px;flex-shrink:0;object-fit:contain;">`;
-    }
-    html += `<span>${data.message}</span>`;
-    msg.innerHTML = html;
-  }
+  tkVisible = true;
+  tkrAplicarConfig(data);
   if (tkTimeline) tkTimeline.kill();
   tkTimeline = gsap.timeline({ onComplete: () => tkrIniciarAnimacion() });
   gsap.set(container, { y: '100%' });
   tkTimeline.to(container, { duration: 0.4, y: '0%', ease: 'power3.out' });
 }
 
+function tkrUpdate(data) {
+  if (!tkVisible || !data) return;
+  tkrAplicarConfig(data);
+  tkrIniciarAnimacion();
+}
+
 /* ═══════════════════════════════════════════
-   PREVIEW (postMessage)
+   DEFAULT DEMO STATE
    ═══════════════════════════════════════════ */
-if (isPreview) {
-  // Show default demo state
-  spMostrarPreview({
+function showDefault() {
+  spMostrar({
     sponsors: [
       { name: 'Sponsor A', logoUrl: null },
       { name: 'Sponsor B', logoUrl: null },
-      { name: 'Sponsor C', logoUrl: null }
+      { name: 'Sponsor C', logoUrl: null },
     ],
     config: {
       barText: 'PATROCINADO POR', barColor: '#e53935', barTextColor: '#ffffff',
       fontFamily: 'Inter, sans-serif', barHeight: 44,
-      bgGradientTop: '#3a3a3a', bgGradientBottom: '#555', rotationSpeed: 5000
-    }
+      bgGradientTop: '#3a3a3a', bgGradientBottom: '#555', rotationSpeed: 5000,
+    },
   });
 
-  ltMostrarPreview({
+  ltMostrar({
     nombre: 'Juan', apellido: 'Pérez', cargo: 'INVITADO',
     estilo: {
       fontFamily: 'Montserrat, sans-serif',
       titleFontSize: '1.65rem', subtitleFontSize: '2.5rem',
       titleColor: '#ffffff', titleBg: '#06155A',
       subtitleColor: '#111111', subtitleBg: '#ffffff',
-      escala: 1.0, posX: 100, posY: 90
-    }
+      escala: 1.0, posX: 100, posY: 90,
+    },
   }, {
     nombre: 'María', apellido: 'García', cargo: 'CONDUCTORA',
     estilo: {
@@ -435,140 +430,121 @@ if (isPreview) {
       titleFontSize: '1.65rem', subtitleFontSize: '2.5rem',
       titleColor: '#ffffff', titleBg: '#06155A',
       subtitleColor: '#111111', subtitleBg: '#ffffff',
-      escala: 1.0, posX: 100, posY: 90
-    }
+      escala: 1.0, posX: 100, posY: 90,
+    },
   });
 
-  tkrMostrarPreview({
+  tkrAnimEntrada({
     title: 'LIVE', message: 'Bienvenidos a la transmisión • Gracias por acompañarnos',
     titleSize: 44, titleColor: '#ffffff', titleBg: '#071041',
     fontSize: 33, msgColor: '#111111', msgBg: '#ffffff',
-    speed: 80, fontFamily: 'Inter, sans-serif', logoUrl: null, logoWidth: 4
-  });
-
-  // Listen for preview updates from dashboard
-  window.addEventListener('message', (e) => {
-    if (e.source !== window.parent) return;
-    try {
-      const msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-      if (!msg || !msg.tipo) return;
-      switch (msg.tipo) {
-        case 'PREVIEW_SPONSORS': spMostrarPreview(msg.data); break;
-        case 'PREVIEW_LOWER_DUAL':
-          ltMostrarPreview(msg.data?.left, msg.data?.right);
-          break;
-        case 'PREVIEW_TICKER': tkrMostrarPreview(msg.data); break;
-      }
-    } catch (_) { /* ignore */ }
+    speed: 80, fontFamily: 'Inter, sans-serif', logoUrl: null, logoWidth: 4,
   });
 }
 
 /* ═══════════════════════════════════════════
-   SOCKET (OBS mode)
+   SOCKET
    ═══════════════════════════════════════════ */
-if (!isPreview) {
-  const socket = io({
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 10
-  });
+function handlePayload(payload) {
+  try {
+    if (!payload || !payload.tipo || !payload.data) return;
+    const { tipo, data } = payload;
 
+    /* ── SPONSORS ── */
+    if (tipo === 'SPONSORS') {
+      const { accion, sponsors, config } = data;
+      if (!accion) return;
+      if (accion === 'SHOW') {
+        if (spVisible) {
+          spUpdate({ sponsors, config });
+        } else {
+          spMostrar({ sponsors, config });
+        }
+      } else if (accion === 'UPDATE') {
+        spUpdate({ sponsors, config });
+      } else if (accion === 'HIDE') {
+        spAnimSalida();
+      }
+      return;
+    }
+
+    /* ── LOWER DUAL ── */
+    if (tipo === 'LOWER_DUAL') {
+      const { accion, left, right } = data;
+      if (!accion) return;
+      switch (accion) {
+        case 'SHOW':
+          ltMostrar(left, right);
+          break;
+        case 'SHOW_LEFT':
+          if (left) {
+            ltSetTexts('ltl', left);
+            if (!ltLeftVisible) {
+              if (ltTimeline) ltTimeline.kill();
+              ltTimeline = ltEntryLeft();
+            }
+          }
+          break;
+        case 'SHOW_RIGHT':
+          if (right) {
+            ltSetTexts('ltr', right);
+            if (!ltRightVisible) {
+              if (ltTimeline) ltTimeline.kill();
+              ltTimeline = ltEntryRight();
+            }
+          }
+          break;
+        case 'HIDE':
+          if (ltTimeline) ltTimeline.kill();
+          ltTimeline = gsap.timeline();
+          ltTimeline.add(ltExitLeft(), 0);
+          ltTimeline.add(ltExitRight(), 0);
+          break;
+        case 'HIDE_LEFT':
+          if (ltTimeline) ltTimeline.kill();
+          ltTimeline = ltExitLeft();
+          break;
+        case 'HIDE_RIGHT':
+          if (ltTimeline) ltTimeline.kill();
+          ltTimeline = ltExitRight();
+          break;
+        case 'UPDATE':
+          ltUpdate(left, right);
+          break;
+      }
+      return;
+    }
+
+    /* ── TICKER ── */
+    if (tipo === 'TICKER') {
+      const { accion } = data;
+      if (accion === 'SHOW') {
+        if (tkVisible) {
+          tkrUpdate(data);
+        } else {
+          tkrAnimEntrada(data);
+        }
+      } else if (accion === 'UPDATE') {
+        tkrUpdate(data);
+      } else if (accion === 'HIDE') {
+        tkrAnimSalida();
+      }
+      return;
+    }
+  } catch (err) {
+    console.error('[COMBO RENDER] Error:', err);
+  }
+}
+
+// Demo state on load
+showDefault();
+
+// Always connect via Socket.IO
+getAuthToken().then((token) => {
+  const socket = io({ ...SOCKET_OPTIONS, auth: { token } });
   socket.on('connect_error', (err) => {
     console.error('[COMBO SOCKET] Error:', err.message);
   });
 
-  socket.on('render-graphic', (payload) => {
-    try {
-      if (!payload || !payload.tipo || !payload.data) return;
-      const { tipo, data } = payload;
-
-      /* ── SPONSORS ── */
-      if (tipo === 'SPONSORS') {
-        const { accion, sponsors, config } = data;
-        if (!accion) return;
-        if (accion === 'SHOW' || accion === 'UPDATE') {
-          if (sponsors) spConstruirSponsors(sponsors);
-          if (config) spAplicarConfig(config);
-          spAnimEntrada();
-        } else if (accion === 'HIDE') {
-          spAnimSalida();
-        }
-        return;
-      }
-
-      /* ── LOWER DUAL ── */
-      if (tipo === 'LOWER_DUAL') {
-        const { accion, left, right } = data;
-        if (!accion) return;
-        switch (accion) {
-          case 'SHOW':
-            if (left) {
-              document.getElementById('ltl-nombre').textContent = left.nombre || '';
-              document.getElementById('ltl-apellido').textContent = left.apellido || '';
-              document.getElementById('ltl-cargo').textContent = (left.cargo || '').toUpperCase();
-              if (left.estilo) ltAplicarEstilo('ltl', left.estilo);
-            }
-            if (right) {
-              document.getElementById('ltr-nombre').textContent = right.nombre || '';
-              document.getElementById('ltr-apellido').textContent = right.apellido || '';
-              document.getElementById('ltr-cargo').textContent = (right.cargo || '').toUpperCase();
-              if (right.estilo) ltAplicarEstilo('ltr', right.estilo);
-            }
-            if (ltTimeline) ltTimeline.kill();
-            ltTimeline = gsap.timeline();
-            if (!ltLeftVisible) ltTimeline.add(ltEntryLeft(), 0);
-            if (!ltRightVisible) ltTimeline.add(ltEntryRight(), 0);
-            if (ltLeftVisible && ltRightVisible) { ltLeftVisible = true; ltRightVisible = true; }
-            break;
-          case 'SHOW_LEFT':
-            if (!left) break;
-            document.getElementById('ltl-nombre').textContent = left.nombre || '';
-            document.getElementById('ltl-apellido').textContent = left.apellido || '';
-            document.getElementById('ltl-cargo').textContent = (left.cargo || '').toUpperCase();
-            if (left.estilo) ltAplicarEstilo('ltl', left.estilo);
-            if (ltTimeline) ltTimeline.kill();
-            ltTimeline = ltEntryLeft();
-            ltLeftVisible = true;
-            break;
-          case 'SHOW_RIGHT':
-            if (!right) break;
-            document.getElementById('ltr-nombre').textContent = right.nombre || '';
-            document.getElementById('ltr-apellido').textContent = right.apellido || '';
-            document.getElementById('ltr-cargo').textContent = (right.cargo || '').toUpperCase();
-            if (right.estilo) ltAplicarEstilo('ltr', right.estilo);
-            if (ltTimeline) ltTimeline.kill();
-            ltTimeline = ltEntryRight();
-            ltRightVisible = true;
-            break;
-          case 'HIDE':
-            if (ltTimeline) ltTimeline.kill();
-            ltTimeline = gsap.timeline();
-            ltTimeline.add(ltExitLeft(), 0);
-            ltTimeline.add(ltExitRight(), 0);
-            break;
-          case 'HIDE_LEFT':
-            if (ltTimeline) ltTimeline.kill();
-            ltTimeline = ltExitLeft();
-            break;
-          case 'HIDE_RIGHT':
-            if (ltTimeline) ltTimeline.kill();
-            ltTimeline = ltExitRight();
-            break;
-        }
-        return;
-      }
-
-      /* ── TICKER ── */
-      if (tipo === 'TICKER') {
-        const { accion } = data;
-        if (accion === 'SHOW') {
-          tkrAnimEntrada(data);
-        } else if (accion === 'HIDE') {
-          tkrAnimSalida();
-        }
-        return;
-      }
-    } catch (err) {
-      console.error('[COMBO RENDER] Error:', err);
-    }
-  });
-}
+  socket.on('render-graphic', handlePayload);
+});

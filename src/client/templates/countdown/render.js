@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
+import { getAuthToken } from '../../shared/auth-token.js';
+import { SOCKET_OPTIONS } from '../../shared/socket-options.js';
 import gsap from 'gsap';
-
-const isPreview = window.location.search.includes('preview=1');
 
 let cdTimeline = null;
 let cdInterval = null;
@@ -17,15 +17,6 @@ function formatTime(diff) {
   const m = Math.floor((diff % 3600) / 60);
   const s = Math.floor(diff % 60);
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
-function formatTimeMs(diff) {
-  if (diff <= 0) return '00:00:00.0';
-  const h = Math.floor(diff / 3600);
-  const m = Math.floor((diff % 3600) / 60);
-  const s = Math.floor(diff % 60);
-  const ms = Math.floor((diff % 1) * 10);
-  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${ms}`;
 }
 
 // ── Tick update ──
@@ -99,9 +90,6 @@ function aplicarEstiloCD(estilo) {
   if (estilo.opacity !== undefined) container.style.opacity = estilo.opacity;
   if (estilo.posX !== undefined) container.style.right = estilo.posX + 'px';
   if (estilo.posY !== undefined) container.style.bottom = estilo.posY + 'px';
-  if (estilo.showMs) {
-    // dynamic format with ms would need a faster interval
-  }
 }
 
 // ── Animations ──
@@ -109,11 +97,11 @@ function aplicarEstiloCD(estilo) {
 function animEntradaCD() {
   const container = document.getElementById('countdown-container');
   container.style.display = 'flex';
+  cdVisible = true;
   if (cdTimeline) cdTimeline.kill();
   gsap.set(container, { opacity: 0, y: 20 });
   cdTimeline = gsap.timeline()
     .to(container, { duration: 0.4, opacity: 1, y: 0, ease: 'power3.out' });
-  cdVisible = true;
 }
 
 function animSalidaCD() {
@@ -124,20 +112,24 @@ function animSalidaCD() {
       container.style.display = 'none';
       gsap.set(container, { clearProps: 'opacity,y' });
       cdVisible = false;
-    }
+    },
   })
     .to(container, { duration: 0.3, opacity: 0, y: 20, ease: 'power2.in' });
 }
 
 // ── Main ──
 
-function mostrarCountdown(cfg) {
+function updateCountdown(cfg) {
   const { target, label, mode, estilo } = cfg;
   cdMode = mode || 'countdown';
   cdTargetTime = parseTarget(target);
   if (label !== undefined) document.getElementById('countdown-label').textContent = label || '';
   aplicarEstiloCD(estilo);
   iniciarTick();
+}
+
+function mostrarCountdown(cfg) {
+  updateCountdown(cfg);
   animEntradaCD();
 }
 
@@ -147,22 +139,7 @@ function ocultarCountdown() {
   animSalidaCD();
 }
 
-// ── Preview ──
-
-if (isPreview) {
-  window.addEventListener('message', (e) => {
-    if (e.source !== window.parent) return;
-    try {
-      const msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-      if (!msg || !msg.tipo) return;
-      if (msg.tipo === 'PREVIEW_COUNTDOWN') {
-        document.getElementById('countdown-container').style.display = 'none';
-        gsap.set(document.getElementById('countdown-container'), { clearProps: 'all' });
-        mostrarCountdown(msg.data);
-      }
-    } catch (_) { /* ignore */ }
-  });
-
+function showDefault() {
   mostrarCountdown({
     target: 3600, // 1 hour from now
     label: 'PRÓXIMO INICIO',
@@ -179,33 +156,37 @@ if (isPreview) {
       opacity: 1,
       posX: 32,
       posY: 96,
-    }
+    },
   });
 }
 
-// ── Socket ──
+function handlePayload(payload) {
+  try {
+    if (!payload || payload.tipo !== 'COUNTDOWN') return;
+    const { accion, target, label, mode, estilo } = payload.data || {};
+      if (accion === 'SHOW') {
+        updateCountdown({ target, label, mode, estilo });
+        if (!cdVisible) animEntradaCD();
+      } else if (accion === 'HIDE') {
+      ocultarCountdown();
+    } else if (accion === 'UPDATE') {
+      if (!cdVisible) return;
+      updateCountdown({ target, label, mode, estilo });
+    }
+  } catch (err) {
+    console.error('[RENDER CD] Error:', err);
+  }
+}
 
-if (!isPreview) {
-  const socket = io({
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 10
-  });
+// Demo state on load
+showDefault();
 
+// Always connect via Socket.IO
+getAuthToken().then((token) => {
+  const socket = io({ ...SOCKET_OPTIONS, auth: { token } });
   socket.on('connect_error', (err) => {
     console.error('[SOCKET CD] Error:', err.message);
   });
 
-  socket.on('render-graphic', (payload) => {
-    try {
-      if (!payload || payload.tipo !== 'COUNTDOWN') return;
-      const { accion, target, label, mode, estilo } = payload.data || {};
-      if (accion === 'SHOW') {
-        mostrarCountdown({ target, label, mode, estilo });
-      } else if (accion === 'HIDE') {
-        ocultarCountdown();
-      }
-    } catch (err) {
-      console.error('[RENDER CD] Error:', err);
-    }
-  });
-}
+  socket.on('render-graphic', handlePayload);
+});

@@ -1,13 +1,13 @@
 import { io } from 'socket.io-client';
+import { getAuthToken } from '../../shared/auth-token.js';
+import { SOCKET_OPTIONS } from '../../shared/socket-options.js';
 import gsap from 'gsap';
 
-const isPreview = window.location.search.includes('preview=1');
 const WEATHER_API = 'https://wttr.in';
 
 let weatherInterval = null;
 let weatherTimeline = null;
 let weatherVisible = false;
-let weatherCurrentData = {};
 
 // ── Weather data fetch ──
 
@@ -58,7 +58,6 @@ function weatherEmoji(code) {
 
 function aplicarEstiloWeather(estilo) {
   if (!estilo) return;
-  const root = document.documentElement;
   const container = document.getElementById('weather-container');
   if (estilo.fontFamily) container.style.fontFamily = estilo.fontFamily;
   if (estilo.fontSizeCountry) document.getElementById('weather-country').style.fontSize = estilo.fontSizeCountry;
@@ -87,7 +86,6 @@ function aplicarEstiloWeather(estilo) {
 
 function actualizarWeatherUI(data, estilo) {
   if (!data) return;
-  weatherCurrentData = data;
   document.getElementById('weather-country').textContent = data.country || '';
   document.getElementById('weather-city').textContent = data.city || '--';
   document.getElementById('weather-temp').textContent = data.temp ? `${data.temp}°C` : '--';
@@ -118,11 +116,11 @@ function detenerRefreshWeather() {
 function animEntradaWeather() {
   const container = document.getElementById('weather-container');
   container.style.display = 'flex';
+  weatherVisible = true;
   if (weatherTimeline) weatherTimeline.kill();
   gsap.set(container, { opacity: 0, scale: 0.9 });
   weatherTimeline = gsap.timeline()
     .to(container, { duration: 0.4, opacity: 1, scale: 1, ease: 'power3.out' });
-  weatherVisible = true;
 }
 
 function animSalidaWeather() {
@@ -133,14 +131,14 @@ function animSalidaWeather() {
       container.style.display = 'none';
       gsap.set(container, { clearProps: 'opacity,transform' });
       weatherVisible = false;
-    }
+    },
   })
     .to(container, { duration: 0.3, opacity: 0, scale: 0.9, ease: 'power2.in' });
 }
 
 // ── Main show/handle ──
 
-async function mostrarWeather(cfg) {
+async function updateWeather(cfg) {
   const { city, country, refreshInterval, estilo } = cfg;
   if (!city) return;
   detenerRefreshWeather();
@@ -154,8 +152,12 @@ async function mostrarWeather(cfg) {
     document.getElementById('weather-icon').textContent = '🌡️';
     if (estilo) aplicarEstiloWeather(estilo);
   }
-  animEntradaWeather();
   iniciarRefreshWeather(city, country, refreshInterval, estilo);
+}
+
+async function mostrarWeather(cfg) {
+  await updateWeather(cfg);
+  animEntradaWeather();
 }
 
 function ocultarWeather() {
@@ -163,24 +165,7 @@ function ocultarWeather() {
   animSalidaWeather();
 }
 
-// ── Preview via postMessage ──
-
-if (isPreview) {
-  window.addEventListener('message', (e) => {
-    if (e.source !== window.parent) return;
-    try {
-      const msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-      if (!msg || !msg.tipo) return;
-      if (msg.tipo === 'PREVIEW_WEATHER') {
-        const { city, country, refreshInterval, estilo } = msg.data || {};
-        document.getElementById('weather-container').style.display = 'none';
-        gsap.set(document.getElementById('weather-container'), { clearProps: 'all' });
-        mostrarWeather({ city, country, refreshInterval, estilo });
-      }
-    } catch (_) { /* ignore */ }
-  });
-
-  // Demo preview on load
+function showDefault() {
   mostrarWeather({
     city: 'Lima',
     country: 'Perú',
@@ -199,39 +184,39 @@ if (isPreview) {
       posY: 32,
       showIcon: true,
       showCountry: true,
-    }
+    },
   });
 }
 
-// ── Socket (OBS mode) ──
-
-if (!isPreview) {
-  const socket = io({
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 10
-  });
-
-  socket.on('connect_error', (err) => {
-    console.error('[SOCKET WEATHER] Error:', err.message);
-  });
-
-  socket.on('render-graphic', async (payload) => {
+function handlePayload(payload) {
+  return (async () => {
     try {
       if (!payload || payload.tipo !== 'WEATHER') return;
       const { accion, city, country, refreshInterval, estilo } = payload.data || {};
       if (accion === 'SHOW') {
-        await mostrarWeather({ city, country, refreshInterval, estilo });
+        await updateWeather({ city, country, refreshInterval, estilo });
+        if (!weatherVisible) animEntradaWeather();
       } else if (accion === 'HIDE') {
         ocultarWeather();
-      } else if (accion === 'UPDATE' && weatherVisible) {
-        const data = await fetchWeather(city, country);
-        if (data) actualizarWeatherUI(data, estilo);
-        if (refreshInterval) {
-          iniciarRefreshWeather(city, country, refreshInterval, estilo);
-        }
+      } else if (accion === 'UPDATE') {
+        if (!weatherVisible) return;
+        await updateWeather({ city, country, refreshInterval, estilo });
       }
     } catch (err) {
       console.error('[RENDER WEATHER] Error:', err);
     }
-  });
+  })();
 }
+
+// Demo state on load
+showDefault();
+
+// Always connect via Socket.IO
+getAuthToken().then((token) => {
+  const socket = io({ ...SOCKET_OPTIONS, auth: { token } });
+  socket.on('connect_error', (err) => {
+    console.error('[SOCKET WEATHER] Error:', err.message);
+  });
+
+  socket.on('render-graphic', handlePayload);
+});

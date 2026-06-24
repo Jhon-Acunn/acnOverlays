@@ -114,7 +114,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/scoreboard/?preview=1" class="preview-iframe" title="Vista previa Scoreboard"></iframe>
+            <iframe src="/templates/scoreboard/" class="preview-iframe" title="Vista previa Scoreboard"></iframe>
           </div>
         </div>
         <div class="dual-grid" style="margin-top:0.75rem;">
@@ -150,7 +150,6 @@
             <input type="checkbox" id="scoreToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="scoreToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
         <div class="url-row" data-path="/templates/scoreboard/"></div>
       </div>
@@ -158,10 +157,12 @@
       <div class="lower-right">
         <h3>Personalizar estilo</h3>
 
-        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Puntaje</h4>
+        <h4 class="section-label">Puntaje</h4>
         <div class="row">
           <span class="row-label">Tamaño</span>
-          <input type="range" id="scScoreSize" min="2.0" max="6.0" step="0.1" value="3.5">
+          <input type="number" id="scScoreSize" class="spin-input" min="2.0" max="6.0" step="0.1" value="3.5">
+          <button type="button" class="spin-btn" data-spin="scScoreSize" data-dir="up">▲</button>
+          <button type="button" class="spin-btn" data-spin="scScoreSize" data-dir="down">▼</button>
           <span class="val" id="valScScoreSize">3.5rem</span>
         </div>
         <div class="row">
@@ -169,10 +170,12 @@
           <input type="color" id="scScoreColor" value="#ffffff">
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Nombre equipo</h4>
+        <h4 class="section-label">Nombre equipo</h4>
         <div class="row">
           <span class="row-label">Tamaño</span>
-          <input type="range" id="scTeamSize" min="0.6" max="2.0" step="0.1" value="1.0">
+          <input type="number" id="scTeamSize" class="spin-input" min="0.6" max="2.0" step="0.1" value="1.0">
+          <button type="button" class="spin-btn" data-spin="scTeamSize" data-dir="up">▲</button>
+          <button type="button" class="spin-btn" data-spin="scTeamSize" data-dir="down">▼</button>
           <span class="val" id="valScTeamSize">1.0rem</span>
         </div>
         <div class="row">
@@ -180,30 +183,36 @@
           <input type="color" id="scTeamColor" value="#aaaaaa">
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Fondo global</h4>
+        <h4 class="section-label">Fondo global</h4>
         <div class="row">
           <span class="row-label">Color</span>
           <input type="color" id="scBgColor" value="#000000">
         </div>
         <div class="row">
           <span class="row-label">Opacidad</span>
-          <input type="range" id="scBgOpacity" min="0" max="100" step="5" value="75">
+          <input type="number" id="scBgOpacity" class="spin-input" min="0" max="100" step="5" value="75">
+          <button type="button" class="spin-btn" data-spin="scBgOpacity" data-dir="up">▲</button>
+          <button type="button" class="spin-btn" data-spin="scBgOpacity" data-dir="down">▼</button>
           <span class="val" id="valScBgOpacity">75%</span>
         </div>
         <div class="row">
-          <span class="row-label">Borde radius</span>
-          <input type="range" id="scRadius" min="0" max="30" step="1" value="12">
+          <span class="row-label">Radius</span>
+          <input type="number" id="scRadius" class="spin-input" min="0" max="30" step="1" value="12">
+          <button type="button" class="spin-btn" data-spin="scRadius" data-dir="up">▲</button>
+          <button type="button" class="spin-btn" data-spin="scRadius" data-dir="down">▼</button>
           <span class="val" id="valScRadius">12px</span>
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Fondo por equipo</h4>
+        <h4 class="section-label">Fondo por equipo</h4>
         <div class="row">
           <span class="row-label">Equipo A</span>
           <input type="color" id="scTeamABg" value="#1e50c8">
         </div>
         <div class="row">
-          <span class="row-label">Opacidad A</span>
-          <input type="range" id="scTeamAOpacity" min="0" max="100" step="5" value="30">
+          <span class="row-label">Opac. A</span>
+          <input type="number" id="scTeamAOpacity" class="spin-input" min="0" max="100" step="5" value="30">
+          <button type="button" class="spin-btn" data-spin="scTeamAOpacity" data-dir="up">▲</button>
+          <button type="button" class="spin-btn" data-spin="scTeamAOpacity" data-dir="down">▼</button>
           <span class="val" id="valScTeamAOpacity">30%</span>
         </div>
         <div class="row">
@@ -211,21 +220,25 @@
           <input type="color" id="scTeamBBg" value="#c83232">
         </div>
         <div class="row">
-          <span class="row-label">Opacidad B</span>
-          <input type="range" id="scTeamBOpacity" min="0" max="100" step="5" value="30">
+          <span class="row-label">Opac. B</span>
+          <input type="number" id="scTeamBOpacity" class="spin-input" min="0" max="100" step="5" value="30">
+          <button type="button" class="spin-btn" data-spin="scTeamBOpacity" data-dir="up">▲</button>
+          <button type="button" class="spin-btn" data-spin="scTeamBOpacity" data-dir="down">▼</button>
           <span class="val" id="valScTeamBOpacity">30%</span>
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Divisor</h4>
+        <h4 class="section-label">Divisor</h4>
         <div class="row">
           <span class="row-label">Color</span>
           <input type="color" id="scDividerColor" value="#555555">
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Posición</h4>
+        <h4 class="section-label">Posición</h4>
         <div class="row">
           <span class="row-label">Y</span>
-          <input type="range" id="scPosY" min="10" max="200" step="5" value="40">
+          <input type="number" id="scPosY" class="spin-input" min="10" max="200" step="5" value="40">
+          <button type="button" class="spin-btn" data-spin="scPosY" data-dir="up">▲</button>
+          <button type="button" class="spin-btn" data-spin="scPosY" data-dir="down">▼</button>
           <span class="val" id="valScPosY">40px</span>
         </div>
         <div style="margin-top:1rem;">
@@ -241,7 +254,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/lower-third/?preview=1" class="preview-iframe" title="Vista previa Lower Third"></iframe>
+            <iframe src="/templates/lower-third/" class="preview-iframe" title="Vista previa Lower Third"></iframe>
           </div>
         </div>
         <div class="row">
@@ -258,7 +271,6 @@
             <input type="checkbox" id="lowerToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="lowerToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
         <div class="row" style="margin-top:0.75rem; gap:0.25rem;" id="guest-grid"></div>
         <div class="url-row" data-path="/templates/lower-third/"></div>
@@ -286,10 +298,10 @@
           </datalist>
         </div>
 
-        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Título <button data-reset-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <h4 class="section-label">Título <button data-reset-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
         <div class="row">
           <span class="row-label">Tamaño</span>
-          <input type="range" id="inputTitleSize" min="1.0" max="4.0" step="0.1" value="3.0">
+          <input type="number" id="inputTitleSize" class="spin-input" min="1.0" max="4.0" step="0.1" value="3.0"><button type="button" class="spin-btn" data-spin="inputTitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputTitleSize" data-dir="down">▼</button>
           <span class="val" id="valTitleSize">2.5rem</span>
         </div>
         <div class="row">
@@ -301,10 +313,10 @@
           <input type="color" id="inputTitleBg" value="#06155A">
         </div>
 
-        <h4 style="margin:1.5rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Subtítulo <button data-reset-sub style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <h4 class="section-label">Subtítulo <button data-reset-sub style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
         <div class="row">
           <span class="row-label">Tamaño</span>
-          <input type="range" id="inputSubtitleSize" min="0.8" max="4.0" step="0.1" value="2.5">
+          <input type="number" id="inputSubtitleSize" class="spin-input" min="0.8" max="4.0" step="0.1" value="2.5"><button type="button" class="spin-btn" data-spin="inputSubtitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputSubtitleSize" data-dir="down">▼</button>
           <span class="val" id="valSubtitleSize">2.5rem</span>
         </div>
         <div class="row">
@@ -316,20 +328,20 @@
           <input type="color" id="inputSubtitleBg" value="#ffffff">
         </div>
 
-        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Posición <button data-reset-pos title="Restaurar valores por defecto" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <h4 class="section-label">Posición <button data-reset-pos title="Restaurar valores por defecto" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
         <div class="row">
           <span class="row-label">Escala</span>
-          <input type="range" id="inputScale" min="0.5" max="2.0" step="0.1" value="1.0">
+          <input type="number" id="inputScale" class="spin-input" min="0.5" max="2.0" step="0.1" value="1.0"><button type="button" class="spin-btn" data-spin="inputScale" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputScale" data-dir="down">▼</button>
           <span class="val" id="valScale">1.0x</span>
         </div>
         <div class="row">
           <span class="row-label">X</span>
-          <input type="range" id="inputPosX" min="0" max="1800" step="5" value="100">
+          <input type="number" id="inputPosX" class="spin-input" min="0" max="1800" step="5" value="100"><button type="button" class="spin-btn" data-spin="inputPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputPosX" data-dir="down">▼</button>
           <span class="val" id="valPosX">100px</span>
         </div>
         <div class="row">
           <span class="row-label">Y</span>
-          <input type="range" id="inputPosY" min="0" max="1000" step="5" value="90">
+          <input type="number" id="inputPosY" class="spin-input" min="0" max="1000" step="5" value="90"><button type="button" class="spin-btn" data-spin="inputPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputPosY" data-dir="down">▼</button>
           <span class="val" id="valPosY">90px</span>
         </div>
       </div>
@@ -342,7 +354,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/lower-third-dual/?preview=1" class="preview-iframe" title="Vista previa Lower Dual"></iframe>
+            <iframe src="/templates/lower-third-dual/" class="preview-iframe" title="Vista previa Lower Dual"></iframe>
           </div>
         </div>
         <div class="row" style="margin-top:0.5rem; justify-content:center;">
@@ -350,7 +362,6 @@
             <input type="checkbox" id="dualBothToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="dualBothToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Ambos</span>
         </div>
         <div class="dual-grid">
           <div class="dual-side">
@@ -369,7 +380,6 @@
                 <input type="checkbox" id="dualLToggle">
                 <span class="switch-slider"></span>
               </label>
-              <span id="dualLToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
             </div>
             <div class="row" style="margin-top:0.5rem; gap:0.25rem;" id="dualL-guest-grid"></div>
           </div>
@@ -390,7 +400,6 @@
                 <input type="checkbox" id="dualRToggle">
                 <span class="switch-slider"></span>
               </label>
-              <span id="dualRToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
             </div>
             <div class="row" style="margin-top:0.5rem; gap:0.25rem;" id="dualR-guest-grid"></div>
           </div>
@@ -420,10 +429,10 @@
           </datalist>
         </div>
 
-        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Título <button data-dual-reset-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <h4 class="section-label">Título <button data-dual-reset-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
         <div class="row">
           <span class="row-label">Tamaño</span>
-          <input type="range" id="dualTitleSize" min="1.0" max="4.0" step="0.1" value="3.0">
+          <input type="number" id="dualTitleSize" class="spin-input" min="1.0" max="4.0" step="0.1" value="3.0"><button type="button" class="spin-btn" data-spin="dualTitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualTitleSize" data-dir="down">▼</button>
           <span class="val" id="valDualTitleSize">2.5rem</span>
         </div>
         <div class="row">
@@ -435,10 +444,10 @@
           <input type="color" id="dualTitleBg" value="#06155A">
         </div>
 
-        <h4 style="margin:1.5rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Subtítulo <button data-dual-reset-sub style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <h4 class="section-label">Subtítulo <button data-dual-reset-sub style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
         <div class="row">
           <span class="row-label">Tamaño</span>
-          <input type="range" id="dualSubSize" min="0.8" max="4.0" step="0.1" value="2.5">
+          <input type="number" id="dualSubSize" class="spin-input" min="0.8" max="4.0" step="0.1" value="2.5"><button type="button" class="spin-btn" data-spin="dualSubSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualSubSize" data-dir="down">▼</button>
           <span class="val" id="valDualSubSize">2.5rem</span>
         </div>
         <div class="row">
@@ -450,37 +459,37 @@
           <input type="color" id="dualSubBg" value="#ffffff">
         </div>
 
-        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Lado izquierdo <button data-dual-reset-left style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <h4 class="section-label">Lado izquierdo <button data-dual-reset-left style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
         <div class="row">
           <span class="row-label">Escala</span>
-          <input type="range" id="dualLScale" min="0.5" max="2.0" step="0.1" value="1.0">
+          <input type="number" id="dualLScale" class="spin-input" min="0.5" max="2.0" step="0.1" value="1.0"><button type="button" class="spin-btn" data-spin="dualLScale" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualLScale" data-dir="down">▼</button>
           <span class="val" id="valDualLScale">1.0x</span>
         </div>
         <div class="row">
           <span class="row-label">X</span>
-          <input type="range" id="dualLX" min="0" max="1800" step="5" value="100">
+          <input type="number" id="dualLX" class="spin-input" min="0" max="1800" step="5" value="100"><button type="button" class="spin-btn" data-spin="dualLX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualLX" data-dir="down">▼</button>
           <span class="val" id="valDualLX">100px</span>
         </div>
         <div class="row">
           <span class="row-label">Y</span>
-          <input type="range" id="dualLY" min="0" max="1000" step="5" value="90">
+          <input type="number" id="dualLY" class="spin-input" min="0" max="1000" step="5" value="90"><button type="button" class="spin-btn" data-spin="dualLY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualLY" data-dir="down">▼</button>
           <span class="val" id="valDualLY">90px</span>
         </div>
 
-        <h4 style="margin:1.5rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Lado derecho <button data-dual-reset-right style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <h4 class="section-label">Lado derecho <button data-dual-reset-right style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
         <div class="row">
           <span class="row-label">Escala</span>
-          <input type="range" id="dualRScale" min="0.5" max="2.0" step="0.1" value="1.0">
+          <input type="number" id="dualRScale" class="spin-input" min="0.5" max="2.0" step="0.1" value="1.0"><button type="button" class="spin-btn" data-spin="dualRScale" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualRScale" data-dir="down">▼</button>
           <span class="val" id="valDualRScale">1.0x</span>
         </div>
         <div class="row">
           <span class="row-label">X</span>
-          <input type="range" id="dualRX" min="0" max="1800" step="5" value="100">
+          <input type="number" id="dualRX" class="spin-input" min="0" max="1800" step="5" value="100"><button type="button" class="spin-btn" data-spin="dualRX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualRX" data-dir="down">▼</button>
           <span class="val" id="valDualRX">100px</span>
         </div>
         <div class="row">
           <span class="row-label">Y</span>
-          <input type="range" id="dualRY" min="0" max="1000" step="5" value="90">
+          <input type="number" id="dualRY" class="spin-input" min="0" max="1000" step="5" value="90"><button type="button" class="spin-btn" data-spin="dualRY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualRY" data-dir="down">▼</button>
           <span class="val" id="valDualRY">90px</span>
         </div>
       </div>
@@ -493,7 +502,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/sponsors/?preview=1" class="preview-iframe" title="Vista previa Patrocinadores"></iframe>
+            <iframe src="/templates/sponsors/" class="preview-iframe" title="Vista previa Patrocinadores"></iframe>
           </div>
         </div>
 
@@ -508,7 +517,6 @@
             <input type="checkbox" id="sponsorToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="sponsorToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
 
         <div class="row" style="margin-top:0.75rem;gap:0.25rem;" id="sponsor-guest-grid"></div>
@@ -519,7 +527,7 @@
       <div class="lower-right">
         <h3>Personalizar estilo</h3>
 
-        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Barra</h4>
+        <h4 class="section-label">Barra</h4>
         <div class="row">
           <span class="row-label">Texto</span>
           <input type="text" id="spBarText" value="PATROCINADO POR">
@@ -534,11 +542,11 @@
         </div>
         <div class="row">
           <span class="row-label">Altura</span>
-          <input type="range" id="spBarHeight" min="30" max="80" step="2" value="44">
+          <input type="number" id="spBarHeight" class="spin-input" min="30" max="80" step="2" value="44"><button type="button" class="spin-btn" data-spin="spBarHeight" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="spBarHeight" data-dir="down">▼</button>
           <span class="val" id="valSpBarHeight">44px</span>
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Fondo logos</h4>
+        <h4 class="section-label">Fondo logos</h4>
         <div class="row">
           <span class="row-label">Degr. arriba</span>
           <input type="color" id="spBgTop" value="#3a3a3a">
@@ -548,14 +556,14 @@
           <input type="color" id="spBgBottom" value="#555555">
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Rotación</h4>
+        <h4 class="section-label">Rotación</h4>
         <div class="row">
           <span class="row-label">Velocidad</span>
-          <input type="range" id="spRotationSpeed" min="2000" max="15000" step="500" value="5000">
+          <input type="number" id="spRotationSpeed" class="spin-input" min="2000" max="15000" step="500" value="5000"><button type="button" class="spin-btn" data-spin="spRotationSpeed" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="spRotationSpeed" data-dir="down">▼</button>
           <span class="val" id="valSpRotationSpeed">5.0s</span>
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Fuente</h4>
+        <h4 class="section-label">Fuente</h4>
         <div class="row">
           <span class="row-label">Fuente</span>
           <div style="display:flex;flex:1;gap:0;position:relative;">
@@ -582,7 +590,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/ticker/?preview=1" class="preview-iframe" title="Vista previa Ticker"></iframe>
+            <iframe src="/templates/ticker/" class="preview-iframe" title="Vista previa Ticker"></iframe>
           </div>
         </div>
         <div class="row">
@@ -598,7 +606,6 @@
             <input type="checkbox" id="tkrToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="tkrToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
         <div class="row">
           <span class="row-label">Logo final</span>
@@ -631,18 +638,18 @@
         </div>
         <div class="row">
           <span class="row-label">Velocidad</span>
-          <input type="range" id="tkrSpeed" min="30" max="200" step="5" value="80">
+          <input type="number" id="tkrSpeed" class="spin-input" min="30" max="200" step="5" value="80"><button type="button" class="spin-btn" data-spin="tkrSpeed" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="tkrSpeed" data-dir="down">▼</button>
           <span class="val" id="valTkrSpeed">80px/s</span>
         </div>
         <div class="row">
           <span class="row-label">Ancho logo</span>
-          <input type="range" id="tkrLogoWidth" min="1" max="15" step="0.5" value="4">
+          <input type="number" id="tkrLogoWidth" class="spin-input" min="1" max="15" step="0.5" value="4"><button type="button" class="spin-btn" data-spin="tkrLogoWidth" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="tkrLogoWidth" data-dir="down">▼</button>
           <span class="val" id="valTkrLogoWidth">4%</span>
         </div>
-        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Título <button data-reset-tkr-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <h4 class="section-label">Título <button data-reset-tkr-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
         <div class="row">
           <span class="row-label">Tamaño</span>
-          <input type="range" id="tkrTitleSize" min="16" max="60" step="1" value="44">
+          <input type="number" id="tkrTitleSize" class="spin-input" min="16" max="60" step="1" value="44"><button type="button" class="spin-btn" data-spin="tkrTitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="tkrTitleSize" data-dir="down">▼</button>
           <span class="val" id="valTkrTitleSize">44px</span>
         </div>
         <div class="row">
@@ -653,10 +660,10 @@
           <span class="row-label">Fondo</span>
           <input type="color" id="tkrTitleBg" value="#071041">
         </div>
-        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#888;">Mensaje <button data-reset-tkr-msg style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <h4 class="section-label">Mensaje <button data-reset-tkr-msg style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
         <div class="row">
           <span class="row-label">Tamaño</span>
-          <input type="range" id="tkrFontSize" min="16" max="60" step="1" value="33">
+          <input type="number" id="tkrFontSize" class="spin-input" min="16" max="60" step="1" value="33"><button type="button" class="spin-btn" data-spin="tkrFontSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="tkrFontSize" data-dir="down">▼</button>
           <span class="val" id="valTkrFontSize">33px</span>
         </div>
         <div class="row">
@@ -677,7 +684,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/combo/?preview=1" class="preview-iframe" title="Vista previa Combo"></iframe>
+            <iframe src="/templates/combo/" class="preview-iframe" title="Vista previa Combo"></iframe>
           </div>
         </div>
         <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;line-height:1.5;">
@@ -689,7 +696,6 @@
             <input type="checkbox" id="comboToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="comboToggleLabel" style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
         <div class="url-row" data-path="/templates/combo/"></div>
       </div>
@@ -727,7 +733,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/weather/?preview=1" class="preview-iframe" title="Vista previa Clima"></iframe>
+            <iframe src="/templates/weather/" class="preview-iframe" title="Vista previa Clima"></iframe>
           </div>
         </div>
 
@@ -742,7 +748,7 @@
 
         <div class="row" style="margin-top:0.75rem;">
           <span class="row-label" style="min-width:50px;">Refrescar</span>
-          <input type="range" id="weatherRefresh" min="60" max="3600" step="30" value="600">
+          <input type="number" id="weatherRefresh" class="spin-input" min="60" max="3600" step="30" value="600"><button type="button" class="spin-btn" data-spin="weatherRefresh" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherRefresh" data-dir="down">▼</button>
           <span class="val" id="valWeatherRefresh">10 min</span>
         </div>
 
@@ -751,7 +757,6 @@
             <input type="checkbox" id="weatherToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="weatherToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
 
         <div class="url-row" data-path="/templates/weather/"></div>
@@ -773,16 +778,16 @@
         <div class="row"><span class="row-label">Texto</span><input type="color" id="weatherTextColor" value="#ffffff"></div>
         <div class="row"><span class="row-label">País</span><input type="color" id="weatherCountryColor" value="#8ab4f8"></div>
         <div class="row"><span class="row-label">Fondo</span><input type="color" id="weatherBgColor" value="#000000"></div>
-        <div class="row"><span class="row-label">Opacidad</span><input type="range" id="weatherOpacity" min="0.2" max="1" step="0.05" value="0.65"><span class="val" id="valWeatherOpacity">0.65</span></div>
+        <div class="row"><span class="row-label">Opacidad</span><input type="number" id="weatherOpacity" class="spin-input" min="0.2" max="1" step="0.05" value="0.65"><button type="button" class="spin-btn" data-spin="weatherOpacity" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherOpacity" data-dir="down">▼</button><span class="val" id="valWeatherOpacity">0.65</span></div>
 
         <h4 class="section-label">Posición</h4>
-        <div class="row"><span class="row-label">X</span><input type="range" id="weatherPosX" min="10" max="200" step="5" value="32"><span class="val" id="valWeatherPosX">32px</span></div>
-        <div class="row"><span class="row-label">Y</span><input type="range" id="weatherPosY" min="10" max="200" step="5" value="32"><span class="val" id="valWeatherPosY">32px</span></div>
+        <div class="row"><span class="row-label">X</span><input type="number" id="weatherPosX" class="spin-input" min="10" max="200" step="5" value="32"><button type="button" class="spin-btn" data-spin="weatherPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherPosX" data-dir="down">▼</button><span class="val" id="valWeatherPosX">32px</span></div>
+        <div class="row"><span class="row-label">Y</span><input type="number" id="weatherPosY" class="spin-input" min="10" max="200" step="5" value="32"><button type="button" class="spin-btn" data-spin="weatherPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherPosY" data-dir="down">▼</button><span class="val" id="valWeatherPosY">32px</span></div>
 
         <h4 class="section-label">Tamaños</h4>
-        <div class="row"><span class="row-label">País</span><input type="range" id="weatherSizeCountry" min="0.5" max="1.2" step="0.05" value="0.7"><span class="val" id="valWeatherSizeCountry">0.7rem</span></div>
-        <div class="row"><span class="row-label">Ciudad</span><input type="range" id="weatherSizeCity" min="0.8" max="2.0" step="0.1" value="1.2"><span class="val" id="valWeatherSizeCity">1.2rem</span></div>
-        <div class="row"><span class="row-label">Temp.</span><input type="range" id="weatherSizeTemp" min="1.2" max="3.0" step="0.1" value="1.8"><span class="val" id="valWeatherSizeTemp">1.8rem</span></div>
+        <div class="row"><span class="row-label">País</span><input type="number" id="weatherSizeCountry" class="spin-input" min="0.5" max="1.2" step="0.05" value="0.7"><button type="button" class="spin-btn" data-spin="weatherSizeCountry" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherSizeCountry" data-dir="down">▼</button><span class="val" id="valWeatherSizeCountry">0.7rem</span></div>
+        <div class="row"><span class="row-label">Ciudad</span><input type="number" id="weatherSizeCity" class="spin-input" min="0.8" max="2.0" step="0.1" value="1.2"><button type="button" class="spin-btn" data-spin="weatherSizeCity" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherSizeCity" data-dir="down">▼</button><span class="val" id="valWeatherSizeCity">1.2rem</span></div>
+        <div class="row"><span class="row-label">Temp.</span><input type="number" id="weatherSizeTemp" class="spin-input" min="1.2" max="3.0" step="0.1" value="1.8"><button type="button" class="spin-btn" data-spin="weatherSizeTemp" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherSizeTemp" data-dir="down">▼</button><span class="val" id="valWeatherSizeTemp">1.8rem</span></div>
 
         <div class="row" style="margin-top:0.5rem;">
           <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-muted);cursor:pointer;">
@@ -807,7 +812,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/countdown/?preview=1" class="preview-iframe" title="Vista previa Countdown"></iframe>
+            <iframe src="/templates/countdown/" class="preview-iframe" title="Vista previa Countdown"></iframe>
           </div>
         </div>
 
@@ -837,7 +842,6 @@
             <input type="checkbox" id="countdownToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="countdownToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
 
         <div class="url-row" data-path="/templates/countdown/"></div>
@@ -859,15 +863,15 @@
         <div class="row"><span class="row-label">Etiqueta</span><input type="color" id="cdLabelColor" value="#aaaaaa"></div>
         <div class="row"><span class="row-label">Números</span><input type="color" id="cdDisplayColor" value="#ffffff"></div>
         <div class="row"><span class="row-label">Fondo</span><input type="color" id="cdBgColor" value="#000000"></div>
-        <div class="row"><span class="row-label">Opacidad</span><input type="range" id="cdOpacity" min="0.2" max="1" step="0.05" value="0.6"><span class="val" id="valCdOpacity">0.60</span></div>
+        <div class="row"><span class="row-label">Opacidad</span><input type="number" id="cdOpacity" class="spin-input" min="0.2" max="1" step="0.05" value="0.6"><button type="button" class="spin-btn" data-spin="cdOpacity" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdOpacity" data-dir="down">▼</button><span class="val" id="valCdOpacity">0.60</span></div>
 
         <h4 class="section-label">Tamaños</h4>
-        <div class="row"><span class="row-label">Etiqueta</span><input type="range" id="cdLabelSize" min="0.4" max="1.2" step="0.05" value="0.6"><span class="val" id="valCdLabelSize">0.6rem</span></div>
-        <div class="row"><span class="row-label">Números</span><input type="range" id="cdDisplaySize" min="1.5" max="5.0" step="0.1" value="2.8"><span class="val" id="valCdDisplaySize">2.8rem</span></div>
+        <div class="row"><span class="row-label">Etiqueta</span><input type="number" id="cdLabelSize" class="spin-input" min="0.4" max="1.2" step="0.05" value="0.6"><button type="button" class="spin-btn" data-spin="cdLabelSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdLabelSize" data-dir="down">▼</button><span class="val" id="valCdLabelSize">0.6rem</span></div>
+        <div class="row"><span class="row-label">Números</span><input type="number" id="cdDisplaySize" class="spin-input" min="1.5" max="5.0" step="0.1" value="2.8"><button type="button" class="spin-btn" data-spin="cdDisplaySize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdDisplaySize" data-dir="down">▼</button><span class="val" id="valCdDisplaySize">2.8rem</span></div>
 
         <h4 class="section-label">Posición</h4>
-        <div class="row"><span class="row-label">X (der.)</span><input type="range" id="cdPosX" min="10" max="300" step="5" value="32"><span class="val" id="valCdPosX">32px</span></div>
-        <div class="row"><span class="row-label">Y (abajo)</span><input type="range" id="cdPosY" min="20" max="400" step="5" value="96"><span class="val" id="valCdPosY">96px</span></div>
+        <div class="row"><span class="row-label">X (der.)</span><input type="number" id="cdPosX" class="spin-input" min="10" max="300" step="5" value="32"><button type="button" class="spin-btn" data-spin="cdPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdPosX" data-dir="down">▼</button><span class="val" id="valCdPosX">32px</span></div>
+        <div class="row"><span class="row-label">Y (abajo)</span><input type="number" id="cdPosY" class="spin-input" min="20" max="400" step="5" value="96"><button type="button" class="spin-btn" data-spin="cdPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdPosY" data-dir="down">▼</button><span class="val" id="valCdPosY">96px</span></div>
 
         <div style="margin-top:1rem;">
           <button class="block" id="cdResetStyle">↺ Restaurar estilo</button>
@@ -883,7 +887,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/nowplaying/?preview=1" class="preview-iframe" title="Vista previa Now Playing"></iframe>
+            <iframe src="/templates/nowplaying/" class="preview-iframe" title="Vista previa Now Playing"></iframe>
           </div>
         </div>
 
@@ -905,7 +909,6 @@
             <input type="checkbox" id="nowplayingToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="nowplayingToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
 
         <div class="url-row" data-path="/templates/nowplaying/"></div>
@@ -932,15 +935,15 @@
         <div class="row"><span class="row-label">Canción</span><input type="color" id="npSongColor" value="#ffffff"></div>
         <div class="row"><span class="row-label">Artista</span><input type="color" id="npArtistColor" value="#aaaaaa"></div>
         <div class="row"><span class="row-label">Fondo</span><input type="color" id="npBgColor" value="#000000"></div>
-        <div class="row"><span class="row-label">Opacidad</span><input type="range" id="npOpacity" min="0.2" max="1" step="0.05" value="0.65"><span class="val" id="valNpOpacity">0.65</span></div>
+        <div class="row"><span class="row-label">Opacidad</span><input type="number" id="npOpacity" class="spin-input" min="0.2" max="1" step="0.05" value="0.65"><button type="button" class="spin-btn" data-spin="npOpacity" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npOpacity" data-dir="down">▼</button><span class="val" id="valNpOpacity">0.65</span></div>
 
         <h4 class="section-label">Tamaños</h4>
-        <div class="row"><span class="row-label">Canción</span><input type="range" id="npSongSize" min="0.7" max="1.8" step="0.05" value="1.0"><span class="val" id="valNpSongSize">1.0rem</span></div>
-        <div class="row"><span class="row-label">Artista</span><input type="range" id="npArtistSize" min="0.5" max="1.2" step="0.05" value="0.75"><span class="val" id="valNpArtistSize">0.75rem</span></div>
+        <div class="row"><span class="row-label">Canción</span><input type="number" id="npSongSize" class="spin-input" min="0.7" max="1.8" step="0.05" value="1.0"><button type="button" class="spin-btn" data-spin="npSongSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npSongSize" data-dir="down">▼</button><span class="val" id="valNpSongSize">1.0rem</span></div>
+        <div class="row"><span class="row-label">Artista</span><input type="number" id="npArtistSize" class="spin-input" min="0.5" max="1.2" step="0.05" value="0.75"><button type="button" class="spin-btn" data-spin="npArtistSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npArtistSize" data-dir="down">▼</button><span class="val" id="valNpArtistSize">0.75rem</span></div>
 
         <h4 class="section-label">Posición</h4>
-        <div class="row"><span class="row-label">X (izq.)</span><input type="range" id="npPosX" min="10" max="300" step="5" value="32"><span class="val" id="valNpPosX">32px</span></div>
-        <div class="row"><span class="row-label">Y (abajo)</span><input type="range" id="npPosY" min="20" max="400" step="5" value="96"><span class="val" id="valNpPosY">96px</span></div>
+        <div class="row"><span class="row-label">X (izq.)</span><input type="number" id="npPosX" class="spin-input" min="10" max="300" step="5" value="32"><button type="button" class="spin-btn" data-spin="npPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npPosX" data-dir="down">▼</button><span class="val" id="valNpPosX">32px</span></div>
+        <div class="row"><span class="row-label">Y (abajo)</span><input type="number" id="npPosY" class="spin-input" min="20" max="400" step="5" value="96"><button type="button" class="spin-btn" data-spin="npPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npPosY" data-dir="down">▼</button><span class="val" id="valNpPosY">96px</span></div>
 
         <div style="margin-top:1rem;">
           <button class="block" id="npResetStyle">↺ Restaurar estilo</button>
@@ -956,7 +959,7 @@
       <div class="lower-left">
         <div class="preview-scene">
           <div class="preview-stage">
-            <iframe src="/templates/resultados/?preview=1" class="preview-iframe" title="Vista previa Resultados"></iframe>
+            <iframe src="/templates/resultados/" class="preview-iframe" title="Vista previa Resultados"></iframe>
           </div>
         </div>
 
@@ -1005,7 +1008,6 @@
             <input type="checkbox" id="resultadosToggle">
             <span class="switch-slider"></span>
           </label>
-          <span id="resultadosToggleLabel" style="font-size:0.8rem;color:#888;text-transform:uppercase;letter-spacing:0.05em;">Apagado</span>
         </div>
         <div class="url-row" data-path="/templates/resultados/"></div>
       </div>
@@ -1013,7 +1015,7 @@
       <div class="lower-right">
         <h3>Personalizar datos</h3>
 
-        <h4 style="margin:0.75rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Centro</h4>
+        <h4 class="section-label">Centro</h4>
         <div class="row">
           <span class="row-label">Participación</span>
           <input type="number" id="resParticipacion" value="62.5" min="0" max="100" step="0.1" style="flex:1;">
@@ -1033,7 +1035,7 @@
           <span class="val">%</span>
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Header</h4>
+        <h4 class="section-label">Header</h4>
         <div class="row">
           <span class="row-label">Fecha</span>
           <input type="text" id="resFecha" value="21 JUNIO 2026" style="flex:1;">
@@ -1048,7 +1050,7 @@
           <div id="res-logo-picker" style="display:flex;flex-wrap:wrap;gap:2px;flex:1;"></div>
         </div>
 
-        <h4 style="margin:1.2rem 0 0.25rem;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-muted);">Ticker</h4>
+        <h4 class="section-label">Ticker</h4>
         <div class="row">
           <textarea id="resTickerMsgs" rows="3" style="flex:1;font-size:0.75rem;resize:vertical;" placeholder="Un mensaje por línea">Registraduría Nacional actualiza resultados
 Participación nacional supera el 62%

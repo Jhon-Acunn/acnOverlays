@@ -1,15 +1,16 @@
 import { io } from 'socket.io-client';
+import { getAuthToken } from '../../shared/auth-token.js';
+import { SOCKET_OPTIONS } from '../../shared/socket-options.js';
 import gsap from 'gsap';
-
-const isPreview = window.location.search.includes('preview=1');
 
 const COLORS = {
   defA: '#3b82f6',
-  defB: '#ef4444'
+  defB: '#ef4444',
 };
 
 let tickerInterval = null;
 let clockInterval = null;
+let appVisible = false;
 
 function formatNumber(n) {
   if (n == null) return '—';
@@ -122,7 +123,7 @@ function initTicker(messages) {
   const defaultMsgs = [
     'Registraduría Nacional actualiza resultados',
     'Participación nacional supera el 62%',
-    'Boyacá reporta 98% de mesas escrutadas'
+    'Boyacá reporta 98% de mesas escrutadas',
   ];
   const msgs = messages && messages.length ? messages : defaultMsgs;
 
@@ -141,16 +142,15 @@ function initTicker(messages) {
       onComplete: () => {
         gsap.set(track, { x: 1920 });
         updateTicker();
-      }
+      },
     });
   }
 
   updateTicker();
+  tickerInterval = setInterval(updateTicker, 12000);
 }
 
-let appVisible = false;
-
-function mostrarPreview(data) {
+function mostrar(data) {
   if (!data) return;
   aplicarDatos(data);
   if (data.ticker) initTicker(data.ticker.messages);
@@ -165,87 +165,80 @@ function mostrarPreview(data) {
   gsap.fromTo('#center-zone', { opacity: 0, scale: 0.95 }, { duration: 0.5, opacity: 1, scale: 1, ease: 'power2.out' });
 }
 
-if (isPreview) {
-  window.addEventListener('message', (e) => {
-    if (e.source !== window.parent) return;
-    try {
-      const msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-      if (msg && msg.tipo === 'PREVIEW_RESULTADOS') {
-        mostrarPreview(msg.data);
-      }
-    } catch (_) { }
-  });
-
-  mostrarPreview({
+function showDefault() {
+  mostrar({
     candidateA: {
       name: 'Candidato A',
       party: 'Partido Ejemplo',
       color: '#3b82f6',
       percent: 45.2,
-      totalVotes: 1234567
+      totalVotes: 1234567,
     },
     candidateB: {
       name: 'Candidato B',
       party: 'Partido Ejemplo',
       color: '#ef4444',
       percent: 42.8,
-      totalVotes: 1198765
+      totalVotes: 1198765,
     },
     center: {
       participation: 62.5,
       topDepartment: 'Boyacá',
       tendency: '↑ Estable',
-      difference: 2.4
+      difference: 2.4,
     },
     header: {
       date: '21 JUNIO 2026',
-      escrutinio: 94.72
+      escrutinio: 94.72,
     },
     ticker: {
       messages: [
         'Registraduría Nacional actualiza resultados',
         'Participación nacional supera el 62%',
-        'Boyacá reporta 98% de mesas escrutadas'
-      ]
-    }
+        'Boyacá reporta 98% de mesas escrutadas',
+      ],
+    },
   });
+}
+
+function handlePayload(payload) {
+  try {
+    if (!payload || payload.tipo !== 'RESULTADOS') return;
+    if (!payload.data || typeof payload.data !== 'object') return;
+
+    const { accion, data } = payload.data;
+
+    if (accion === 'SHOW') {
+      if (data) aplicarDatos(data);
+      if (data?.ticker) initTicker(data.ticker.messages);
+      mostrar(data);
+    } else if (accion === 'UPDATE') {
+      if (!appVisible) return;
+      if (data) aplicarDatos(data);
+      if (data?.ticker) initTicker(data.ticker.messages);
+    } else if (accion === 'HIDE') {
+      appVisible = false;
+      gsap.to('#app', { duration: 0.3, opacity: 0, ease: 'power2.in' });
+      if (tickerInterval) clearInterval(tickerInterval);
+    }
+  } catch (err) {
+    console.error('[RENDER RESULTADOS] Error:', err);
+  }
 }
 
 if (clockInterval) clearInterval(clockInterval);
 clockInterval = setInterval(updateClock, 1000);
 updateClock();
 
-if (!isPreview) {
-  const socket = io({
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 10
-  });
+// Demo state on load
+showDefault();
 
+// Always connect via Socket.IO
+getAuthToken().then((token) => {
+  const socket = io({ ...SOCKET_OPTIONS, auth: { token } });
   socket.on('connect_error', (err) => {
     console.error('[SOCKET RESULTADOS] Error:', err.message);
   });
 
-  socket.on('render-graphic', (payload) => {
-    try {
-      if (!payload || payload.tipo !== 'RESULTADOS') return;
-      if (!payload.data || typeof payload.data !== 'object') return;
-
-      const { accion, data } = payload.data;
-
-      if (accion === 'SHOW') {
-        if (data) aplicarDatos(data);
-        if (data?.ticker) initTicker(data.ticker.messages);
-        mostrarPreview(data);
-      } else if (accion === 'UPDATE') {
-        if (data) aplicarDatos(data);
-        if (data?.ticker) initTicker(data.ticker.messages);
-      } else if (accion === 'HIDE') {
-        appVisible = false;
-        gsap.to('#app', { duration: 0.3, opacity: 0, ease: 'power2.in' });
-        if (tickerInterval) clearInterval(tickerInterval);
-      }
-    } catch (err) {
-      console.error('[RENDER RESULTADOS] Error:', err);
-    }
-  });
-}
+  socket.on('render-graphic', handlePayload);
+});

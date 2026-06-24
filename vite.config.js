@@ -20,7 +20,7 @@ export default defineConfig({
         countdown: resolve(__dirname, 'src/client/templates/countdown/index.html'),
         nowplaying: resolve(__dirname, 'src/client/templates/nowplaying/index.html'),
         resultados: resolve(__dirname, 'src/client/templates/resultados/index.html'),
-      }
+      },
     }
   },
   server: {

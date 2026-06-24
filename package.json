@@ -3,22 +3,37 @@
   "version": "1.0.0",
   "description": "Sistema de Gráficos Superpuestos Autónomo para OBS Studio / vMix",
   "main": "src/server/server.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "NODE_ENV=production node src/server/server.js",
     "dev": "concurrently -n server,client \"node --watch-path=src/server src/server/server.js\" \"vite\"",
-    "build": "vite build"
+    "build": "vite build",
+    "lint": "eslint \"src/**/*.js\"",
+    "lint:fix": "eslint \"src/**/*.js\" --fix",
+    "format": "prettier --write \"src/**/*.{js,css,html,json}\"",
+    "format:check": "prettier --check \"src/**/*.{js,css,html,json}\"",
+    "test": "node --test \"tests/**/*.test.js\""
   },
   "dependencies": {
     "compression": "^1.8.1",
     "dotenv": "^17.4.2",
     "express": "^4.18.2",
+    "express-rate-limit": "^7.4.1",
     "gsap": "^3.15.0",
     "helmet": "^8.1.0",
+    "pino": "^9.5.0",
+    "pino-pretty": "^11.3.0",
     "socket.io": "^4.7.4",
     "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "concurrently": "^9.2.1",
+    "eslint": "^9.15.0",
+    "globals": "^17.7.0",
+    "prettier": "^3.4.1",
     "vite": "^8.0.13"
   }
 }

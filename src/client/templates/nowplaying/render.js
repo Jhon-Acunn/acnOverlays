@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client';
+import { getAuthToken } from '../../shared/auth-token.js';
+import { SOCKET_OPTIONS } from '../../shared/socket-options.js';
 import gsap from 'gsap';
-
-const isPreview = window.location.search.includes('preview=1');
 
 let npTimeline = null;
 let npVisible = false;
@@ -55,11 +55,11 @@ function actualizarNPUI(data) {
 function animEntradaNP() {
   const container = document.getElementById('np-container');
   container.style.display = 'flex';
+  npVisible = true;
   if (npTimeline) npTimeline.kill();
   gsap.set(container, { opacity: 0, x: -30 });
   npTimeline = gsap.timeline()
     .to(container, { duration: 0.4, opacity: 1, x: 0, ease: 'power3.out' });
-  npVisible = true;
 }
 
 function animSalidaNP() {
@@ -70,17 +70,21 @@ function animSalidaNP() {
       container.style.display = 'none';
       gsap.set(container, { clearProps: 'opacity,x' });
       npVisible = false;
-    }
+    },
   })
     .to(container, { duration: 0.3, opacity: 0, x: -30, ease: 'power2.in' });
 }
 
 // ── Main ──
 
-function mostrarNowPlaying(cfg) {
+function updateNowPlaying(cfg) {
   const { song, artist, coverUrl, estilo } = cfg;
   actualizarNPUI({ song, artist, coverUrl });
   aplicarEstiloNP(estilo);
+}
+
+function mostrarNowPlaying(cfg) {
+  updateNowPlaying(cfg);
   animEntradaNP();
 }
 
@@ -88,22 +92,7 @@ function ocultarNowPlaying() {
   animSalidaNP();
 }
 
-// ── Preview ──
-
-if (isPreview) {
-  window.addEventListener('message', (e) => {
-    if (e.source !== window.parent) return;
-    try {
-      const msg = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-      if (!msg || !msg.tipo) return;
-      if (msg.tipo === 'PREVIEW_NOWPLAYING') {
-        document.getElementById('np-container').style.display = 'none';
-        gsap.set(document.getElementById('np-container'), { clearProps: 'all' });
-        mostrarNowPlaying(msg.data);
-      }
-    } catch (_) { /* ignore */ }
-  });
-
+function showDefault() {
   mostrarNowPlaying({
     song: 'Blinding Lights',
     artist: 'The Weeknd',
@@ -125,36 +114,37 @@ if (isPreview) {
       posY: 96,
       showCover: false,
       maxWidth: '320px',
-    }
+    },
   });
 }
 
-// ── Socket ──
+function handlePayload(payload) {
+  try {
+    if (!payload || payload.tipo !== 'NOWPLAYING') return;
+    const { accion, song, artist, coverUrl, estilo } = payload.data || {};
+      if (accion === 'SHOW') {
+        updateNowPlaying({ song, artist, coverUrl, estilo });
+        if (!npVisible) animEntradaNP();
+      } else if (accion === 'HIDE') {
+      ocultarNowPlaying();
+    } else if (accion === 'UPDATE') {
+      if (!npVisible) return;
+      updateNowPlaying({ song, artist, coverUrl, estilo });
+    }
+  } catch (err) {
+    console.error('[RENDER NP] Error:', err);
+  }
+}
 
-if (!isPreview) {
-  const socket = io({
-    reconnectionDelay: 1000,
-    reconnectionAttempts: 10
-  });
+// Demo state on load
+showDefault();
 
+// Always connect via Socket.IO
+getAuthToken().then((token) => {
+  const socket = io({ ...SOCKET_OPTIONS, auth: { token } });
   socket.on('connect_error', (err) => {
     console.error('[SOCKET NP] Error:', err.message);
   });
 
-  socket.on('render-graphic', (payload) => {
-    try {
-      if (!payload || payload.tipo !== 'NOWPLAYING') return;
-      const { accion, song, artist, coverUrl, estilo } = payload.data || {};
-      if (accion === 'SHOW') {
-        mostrarNowPlaying({ song, artist, coverUrl, estilo });
-      } else if (accion === 'HIDE') {
-        ocultarNowPlaying();
-      } else if (accion === 'UPDATE' && npVisible) {
-        actualizarNPUI({ song, artist, coverUrl });
-        if (estilo) aplicarEstiloNP(estilo);
-      }
-    } catch (err) {
-      console.error('[RENDER NP] Error:', err);
-    }
-  });
-}
+  socket.on('render-graphic', handlePayload);
+});
