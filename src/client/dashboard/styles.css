@@ -47,9 +47,20 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: row; align-items: flex-start; justify-content: center; padding: 1.5rem; min-height: 100vh; gap: 1rem; transition: background 0.2s, color 0.2s; }
+html { height: 100%; }
+body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: row; align-items: flex-start; justify-content: center; padding: 1.5rem; min-height: 100vh; height: 100%; gap: 1rem; transition: background 0.2s, color 0.2s; }
 
-.main-content { flex: 1; max-width: 960px; display: flex; flex-direction: column; align-items: center; }
+.main-content {
+  flex: 1 0 auto;
+  max-width: 960px;
+  min-height: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translateZ(0);
+  will-change: transform;
+}
 
 .theme-toggle {
   position: fixed; top: 1rem; right: 1rem; display: flex; align-items: center; gap: 0.5rem; z-index: 100;
@@ -62,7 +73,7 @@ body { font-family: 'Montserrat', sans-serif; background: var(--bg); color: var(
 h1 { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; font-weight: 400; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 1.25rem; }
 section.tab-content { background: var(--card-bg); border-radius: 10px; padding: 1rem; width: 100%; max-width: 820px; display: none; }
 section.tab-content[data-tab-content="lower"] { max-width: 820px; }
-section.tab-content.active { display: block; animation: tabFadeIn 0.2s ease; }
+section.tab-content.active { display: block; flex-shrink: 0; min-height: 0; animation: tabFadeIn 0.2s ease; }
 @keyframes tabFadeIn { from { opacity: 0; } to { opacity: 1; } }
 h2 { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; font-weight: 400; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.75rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
 .tabs { display: flex; gap: 0.4rem; margin-bottom: 1rem; width: 100%; max-width: 960px; }
@@ -129,12 +140,12 @@ details summary { cursor: pointer; color: var(--accent); font-size: 0.8rem; padd
 .spin-btn:hover { background: var(--btn-hover); color: var(--text); }
 
 /* ── Layout ──────────────────────────── */
-.lower-grid { display: flex; gap: 1rem; }
-.dual-grid { display: flex; gap: 0.6rem; margin-top: 0.4rem; }
-.dual-side { flex: 1; min-width: 0; }
-.dual-divider { width: 1px; background: var(--border); flex-shrink: 0; }
+.lower-grid { display: flex; gap: 1rem; flex-shrink: 0; min-height: 0; }
+.dual-grid { display: flex; gap: 0.6rem; margin-top: 0.4rem; flex-shrink: 0; }
+.dual-side { flex: 1 0 0%; min-width: 0; min-height: 0; }
+.dual-divider { width: 1px; background: var(--border); flex-shrink: 0; align-self: stretch; }
 .dual-heading { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.35rem; }
-.lower-left { flex: 1; min-width: 0; }
+.lower-left { flex: 1 0 0%; min-width: 0; min-height: 0; }
 .lower-right {
   width: 300px; flex-shrink: 0; border-left: 1px solid var(--border); padding-left: 1rem;
   display: flex; flex-direction: column; gap: 0.1rem;
