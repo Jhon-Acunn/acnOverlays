@@ -20,7 +20,7 @@ Sistema de gráficos superpuestos autónomo para OBS Studio / vMix, controlado e
 │       │   ├── app.js         Entry point
 │       │   ├── modules/       Lógica modular por responsabilidad
 │       │   └── styles.css
-│       └── templates/         Overlays para OBS/vMix (10 templates)
+│       └── templates/         Overlays para OBS/vMix (11 templates)
 ├── tests/                     Tests del servidor
 ├── dist/client/               Build de producción (generado)
 ├── .env                       Variables de entorno
@@ -67,6 +67,7 @@ Agregar una **Browser Source** por cada template, todas desde `http://localhost:
 | Patrocinadores       | `/templates/sponsors/`        |
 | Ticker               | `/templates/ticker/`          |
 | Combo                | `/templates/combo/`           |
+| Live Bug             | `/templates/livebug/`         |
 | Clima                | `/templates/weather/`         |
 | Cuenta               | `/templates/countdown/`       |
 | Música               | `/templates/nowplaying/`      |
@@ -77,9 +78,10 @@ Agregar una **Browser Source** por cada template, todas desde `http://localhost:
 - **Scoreboard**: marcador para dos equipos con persistencia en localStorage.
 - **Lower Third**: nombre, apellido y cargo con animaciones GSAP y caja fantasma.
 - **Lower Dual**: dos lower thirds independientes (izq./der.) con toggles individuales.
-- **Patrocinadores**: rotación automática de logos con fade.
-- **Ticker**: barra de texto desplazante con bloque de título y logo final.
-- **Combo**: composición de Lower Dual + Patrocinadores + Ticker.
+- **Patrocinadores**: rotación automática de logos con fade y posición X/Y ajustable.
+- **Ticker**: barra de texto desplazante con bloque de título y logo final. Entrada/salida vertical.
+- **Combo**: composición de Lower Dual + Patrocinadores + Ticker + **Live Bug**. Toggle maestro "Mostrar todo" enciende/apaga los cuatro a la vez. Estado persistente entre sesiones.
+- **Live Bug**: caja azul (lugar) + caja blanca (ciudad + temperatura). Auto-actualiza la temperatura vía `wttr.in` cada 30 min (configurable), con botón de refresh manual. Animación de slide lateral idéntica al lower-third. Persistencia de datos y toggle.
 - **Clima**: datos en tiempo real vía `wttr.in` (ciudad/país configurables).
 - **Cuenta**: cronómetro regresivo o progresivo.
 - **Música**: tarjeta "Now Playing" con canción, artista y portada opcional.
@@ -91,6 +93,24 @@ Cada overlay incluye:
 - Personalización en vivo: fuente, colores, tamaños, posiciones, opacidad.
 - 10 slots de presets (clic para cargar, clic derecho para guardar, shift+clic para borrar).
 - URL de Browser Source con botón "copiar" en cada pestaña.
+
+### Capas del Combo (z-index)
+
+| Capa                | z-index | Posición            | Notas                          |
+|---------------------|---------|---------------------|--------------------------------|
+| Patrocinadores      | 10      | Esquina sup. izq.   | X/Y ajustables desde el panel  |
+| Live Bug            | 15      | Esquina sup. izq.   | X/Y ajustables desde el panel  |
+| Lower Dual          | 20      | Inferior, ambos lados| —                              |
+| Ticker              | 30      | Inferior, 65px altura| —                              |
+
+> Por defecto, Patrocinadores y Live Bug comparten la esquina superior izquierda. Como no se muestran al mismo tiempo en producción, no hay conflicto. Si necesitas ambos visibles a la vez, mueve uno desde la pestaña correspondiente.
+
+### Persistencia entre sesiones
+
+- **Toggles del combo** (sponsor, livebug, lower-dual, ticker) se guardan en `localStorage` con la clave `combo_toggles`.
+- **Datos del Live Bug** (lugar, ciudad, intervalo, estilo) se auto-guardan en `livebug_state` cada vez que cambias un input.
+- **Toggle del Live Bug** se guarda en `livebug_toggle`.
+- Al recargar el dashboard, los toggles se restauran y los que estaban `ON` disparan automáticamente un `SHOW` para que OBS vuelva a renderizar el overlay con los mismos datos.
 
 ## Variables de entorno
 
@@ -137,6 +157,8 @@ npm test             # Tests del servidor (node --test)
 
 - **Backend:** Node.js, Express, Socket.IO, Pino (logs), express-rate-limit
 - **Frontend:** JavaScript vanilla, GSAP, Vite
+- **APIs externas:** wttr.in (clima, sin API key, sin registro)
 - **Seguridad:** Helmet, validación de payload, rate limit
 - **Containerización:** Docker (multi-stage Node 20 Alpine), Docker Compose
 - **CI/CD:** GitHub Actions → Portainer webhook
+
