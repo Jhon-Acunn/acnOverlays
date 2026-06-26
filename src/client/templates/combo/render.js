@@ -260,7 +260,8 @@ function ltMostrar(left, right) {
     ltSetTexts('ltr', right);
     if (!ltRightVisible) ltTimeline.add(ltEntryRight(), 0);
   }
-  if (ltLeftVisible && ltRightVisible) { ltLeftVisible = true; ltRightVisible = true; }
+  if (left) ltLeftVisible = true;
+  if (right) ltRightVisible = true;
 }
 
 function ltUpdate(left, right) {
@@ -398,6 +399,125 @@ function tkrUpdate(data) {
 }
 
 /* ═══════════════════════════════════════════
+   LIVE BUG
+   ═══════════════════════════════════════════ */
+const WEATHER_API = 'https://wttr.in';
+
+let lbTimeline = null;
+let lbVisible = false;
+let lbTempInterval = null;
+let lbCurrentCity = '';
+
+function lbAplicarEstilo(estilo) {
+  if (!estilo) return;
+  const body = document.body;
+  const lugarEl = document.getElementById('lb-lugar');
+  const ciudadTempEl = document.getElementById('lb-ciudad-temp');
+  const inner = document.getElementById('lb-inner');
+  const container = document.getElementById('lb-container');
+  if (estilo.fontFamily) body.style.fontFamily = estilo.fontFamily;
+  if (estilo.titleFontSize) lugarEl.style.fontSize = estilo.titleFontSize;
+  if (estilo.titleColor) lugarEl.style.color = estilo.titleColor;
+  if (estilo.titleBg) document.getElementById('lb-name-box').style.background = estilo.titleBg;
+  if (estilo.subtitleFontSize) ciudadTempEl.style.fontSize = estilo.subtitleFontSize;
+  if (estilo.subtitleColor) ciudadTempEl.style.color = estilo.subtitleColor;
+  if (estilo.subtitleBg) {
+    document.getElementById('lb-title-box').style.background = estilo.subtitleBg;
+    document.getElementById('lb-name-ghost').style.background = estilo.subtitleBg;
+  }
+  if (estilo.escala) inner.style.transform = 'scale(' + estilo.escala + ')';
+  if (estilo.posX !== undefined) container.style.left = estilo.posX + 'px';
+  if (estilo.posY !== undefined) container.style.top = estilo.posY + 'px';
+}
+
+async function lbFetchTemp(ciudad) {
+  if (!ciudad) return null;
+  try {
+    const url = `${WEATHER_API}/${encodeURIComponent(ciudad)}?format=j1`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const json = await res.json();
+    const cc = json.current_condition?.[0];
+    if (!cc) return null;
+    return cc.temp_C || null;
+  } catch {
+    return null;
+  }
+}
+
+function lbRenderCiudadTemp(ciudad, temp) {
+  const t = temp != null ? `${temp}°C` : '--°C';
+  document.getElementById('lb-ciudad-temp').textContent = `${(ciudad || '').toUpperCase()} ${t}`;
+}
+
+function lbUpdateData(data) {
+  if (!data) return;
+  const { lugar, ciudad, refreshInterval, estilo } = data;
+  if (lugar !== undefined)
+    document.getElementById('lb-lugar').textContent = (lugar || '').toUpperCase();
+  if (estilo) lbAplicarEstilo(estilo);
+  if (ciudad !== undefined && ciudad !== lbCurrentCity) {
+    lbCurrentCity = ciudad;
+    if (lbTempInterval) {
+      clearInterval(lbTempInterval);
+      lbTempInterval = null;
+    }
+    if (ciudad) {
+      lbFetchTemp(ciudad).then((t) => lbRenderCiudadTemp(ciudad, t));
+      lbTempInterval = setInterval(() => {
+        lbFetchTemp(lbCurrentCity).then((t) => lbRenderCiudadTemp(lbCurrentCity, t));
+      }, refreshInterval || 1800000);
+    } else {
+      lbRenderCiudadTemp('', null);
+    }
+  } else if (ciudad !== undefined && refreshInterval) {
+    if (lbTempInterval) {
+      clearInterval(lbTempInterval);
+      lbTempInterval = null;
+    }
+    if (lbCurrentCity) {
+      lbTempInterval = setInterval(() => {
+        lbFetchTemp(lbCurrentCity).then((t) => lbRenderCiudadTemp(lbCurrentCity, t));
+      }, refreshInterval);
+    }
+  }
+}
+
+function lbAnimEntrada() {
+  if (lbTimeline) lbTimeline.kill();
+  const container = document.getElementById('lb-container');
+  container.style.display = 'block';
+  lbVisible = true;
+  gsap.set('#lb-name-group', { xPercent: -110 });
+  gsap.set('#lb-name-ghost', { scaleX: 0, transformOrigin: 'left' });
+  gsap.set('#lb-name-text', { opacity: 0 });
+  gsap.set('#lb-title-box', { scaleY: 0, transformOrigin: 'top' });
+  lbTimeline = gsap.timeline();
+  lbTimeline.to('#lb-name-group', { duration: 1.0, xPercent: 0, ease: 'power4.out' });
+  lbTimeline.to('#lb-name-ghost', { duration: 0.4, scaleX: 1, ease: 'power3.out', transformOrigin: 'left' }, '-=0.5');
+  lbTimeline.to('#lb-name-text', { duration: 0.35, opacity: 1, ease: 'power2.out' }, '-=0.35');
+  lbTimeline.to('#lb-title-box', { duration: 0.55, scaleY: 1, ease: 'back.out(1.6)', transformOrigin: 'top' }, '-=0.2');
+}
+
+function lbAnimSalida() {
+  if (lbTimeline) lbTimeline.kill();
+  lbTimeline = gsap.timeline({
+    onComplete: () => {
+      const container = document.getElementById('lb-container');
+      container.style.display = 'none';
+      lbVisible = false;
+      gsap.set('#lb-name-group', { clearProps: 'xPercent' });
+      gsap.set('#lb-name-ghost', { clearProps: 'transform' });
+      gsap.set('#lb-title-box', { clearProps: 'transform' });
+      gsap.set('#lb-name-text', { opacity: 0 });
+    },
+  });
+  lbTimeline.to('#lb-title-box', { duration: 0.25, scaleY: 0, ease: 'power2.in', transformOrigin: 'top' });
+  lbTimeline.to('#lb-name-text', { duration: 0.2, opacity: 0, ease: 'power2.in' }, '-=0.1');
+  lbTimeline.to('#lb-name-group', { duration: 0.55, xPercent: -110, ease: 'power3.in' }, '-=0.1');
+}
+
+/* ═══════════════════════════════════════════
    DEFAULT DEMO STATE
    ═══════════════════════════════════════════ */
 function showDefault() {
@@ -440,6 +560,25 @@ function showDefault() {
     fontSize: 33, msgColor: '#111111', msgBg: '#ffffff',
     speed: 80, fontFamily: 'Inter, sans-serif', logoUrl: null, logoWidth: 4,
   });
+
+  lbUpdateData({
+    lugar: 'C.C VIVA',
+    ciudad: 'TUNJA',
+    refreshInterval: 1800000,
+    estilo: {
+      fontFamily: 'Montserrat, sans-serif',
+      titleFontSize: '3.0rem',
+      subtitleFontSize: '2.5rem',
+      titleColor: '#ffffff',
+      titleBg: '#06155A',
+      subtitleColor: '#111111',
+      subtitleBg: '#ffffff',
+      escala: 1.0,
+      posX: 100,
+      posY: 32,
+    },
+  });
+  lbAnimEntrada();
 }
 
 /* ═══════════════════════════════════════════
@@ -528,6 +667,25 @@ function handlePayload(payload) {
         tkrUpdate(data);
       } else if (accion === 'HIDE') {
         tkrAnimSalida();
+      }
+      return;
+    }
+
+    /* ── LIVEBUG ── */
+    if (tipo === 'LIVEBUG') {
+      const { accion } = data;
+      if (accion === 'SHOW') {
+        lbUpdateData(data);
+        if (!lbVisible) lbAnimEntrada();
+      } else if (accion === 'HIDE') {
+        lbAnimSalida();
+      } else if (accion === 'UPDATE') {
+        if (!lbVisible) return;
+        lbUpdateData(data);
+      } else if (accion === 'REFRESH_TEMP') {
+        if (lbCurrentCity) {
+          lbFetchTemp(lbCurrentCity).then((t) => lbRenderCiudadTemp(lbCurrentCity, t));
+        }
       }
       return;
     }

@@ -113,7 +113,7 @@ export function initLiveBug() {
     if (el) el.addEventListener('input', liveBugUpdate);
   }
   setTimeout(() => {
-    if (document.getElementById(TOGGLE_ID)?.checked) liveBugUpdate();
+    if (document.getElementById(TOGGLE_ID)?.checked) liveBugEmit('SHOW');
   }, 500);
 
   document.getElementById('livebugToggle')?.addEventListener('change', function () {

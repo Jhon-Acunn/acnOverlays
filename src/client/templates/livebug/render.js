@@ -105,6 +105,7 @@ function showDefault() {
       posY: 32,
     },
   });
+  animarEntrada();
 }
 
 function animarEntrada() {

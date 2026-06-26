@@ -1,5 +1,5 @@
 export function initCombo() {
-  const ids = ['dualBothToggle', 'sponsorToggle', 'tkrToggle'];
+  const ids = ['dualBothToggle', 'sponsorToggle', 'tkrToggle', 'livebugToggle'];
   function flipAll(on) {
     ids.forEach((id) => {
       const el = document.getElementById(id);
