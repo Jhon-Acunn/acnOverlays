@@ -20,67 +20,63 @@
   <span class="theme-icon">🌙</span>
 </div>
 
+<button id="sidebar-toggle" class="sidebar-toggle-btn" title="Ocultar/Mostrar panel">☰</button>
+
 <!-- ═══ SIDEBAR ═══ -->
 <aside id="quick-panel">
-  <div class="qp-header">⚡ Control Rápido</div>
+  <div class="qp-header">
+    <span>⚡ Control Rápido</span>
+    <button id="qp-collapse-btn" class="qp-collapse-btn" title="Colapsar panel">◀</button>
+  </div>
 
   <div class="qp-section">
+    <div class="qp-subtitle">Lower Dual</div>
     <div class="qp-toggle-row">
-      <span class="qp-label">Scoreboard</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpScoreToggle"><span class="switch-slider"></span></label>
-    </div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Lower Third</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpLowerToggle"><span class="switch-slider"></span></label>
-    </div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Dual L</span>
+      <span class="qp-label">Izquierda</span>
       <label class="switch qp-switch"><input type="checkbox" id="qpDualLToggle"><span class="switch-slider"></span></label>
     </div>
     <div class="qp-toggle-row">
-      <span class="qp-label">Dual R</span>
+      <span class="qp-label">Derecha</span>
       <label class="switch qp-switch"><input type="checkbox" id="qpDualRToggle"><span class="switch-slider"></span></label>
     </div>
     <div class="qp-toggle-row">
-      <span class="qp-label">Sponsors</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpSponsorToggle"><span class="switch-slider"></span></label>
+      <span class="qp-label">Ambos</span>
+      <label class="switch qp-switch"><input type="checkbox" id="qpDualBothToggle"><span class="switch-slider"></span></label>
     </div>
+  </div>
+
+  <div class="qp-section">
+    <div class="qp-subtitle">Lower Third Izq. <span style="font-weight:400;font-size:0.55rem;color:var(--text-muted);">clic → cargar · clic der. → guardar</span></div>
+    <div class="qp-guest-grid" id="qp-dualL-grid"></div>
+    <div id="qp-dualL-preview" class="qp-slot-preview"></div>
+  </div>
+
+  <div class="qp-section">
+    <div class="qp-subtitle">Lower Third Der. <span style="font-weight:400;font-size:0.55rem;color:var(--text-muted);">clic → cargar · clic der. → guardar</span></div>
+    <div class="qp-guest-grid" id="qp-dualR-grid"></div>
+    <div id="qp-dualR-preview" class="qp-slot-preview"></div>
+  </div>
+
+  <div class="qp-section">
+    <div class="qp-subtitle">Ticker</div>
     <div class="qp-toggle-row">
-      <span class="qp-label">Ticker</span>
+      <span class="qp-label">Activar</span>
       <label class="switch qp-switch"><input type="checkbox" id="qpToggle"><span class="switch-slider"></span></label>
     </div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Clima</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpWeatherToggle"><span class="switch-slider"></span></label>
-    </div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Cuenta</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpCountdownToggle"><span class="switch-slider"></span></label>
-    </div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Música</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpNowPlayingToggle"><span class="switch-slider"></span></label>
-    </div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Resultados</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpResultadosToggle"><span class="switch-slider"></span></label>
-    </div>
   </div>
 
   <div class="qp-section">
-    <div class="qp-subtitle">Textos rápidos</div>
-    <input type="text" id="qpDualNombre" placeholder="Dual Nombre">
-    <input type="text" id="qpDualApellido" placeholder="Dual Apellido">
-    <input type="text" id="qpDualCargo" placeholder="Dual Cargo">
-    <input type="text" id="qpMensaje" placeholder="Ticker mensaje" style="margin-top:0.3rem;">
+    <div class="qp-subtitle">Ticker Guardados <span style="font-weight:400;font-size:0.55rem;color:var(--text-muted);">clic → cargar · clic der. → guardar</span></div>
+    <div class="qp-guest-grid" id="qp-ticker-grid"></div>
+    <div id="qp-ticker-preview" class="qp-slot-preview"></div>
   </div>
 
   <div class="qp-section">
-    <div class="qp-subtitle">Slots <span style="font-weight:400;font-size:0.6rem;color:var(--text-muted);">clic → cargar · clic der. → guardar</span></div>
-    <div class="qp-guest-grid" id="qp-guest-grid"></div>
-  </div>
-
-  <div class="qp-section" style="padding-top:0.25rem;">
+    <div class="qp-subtitle">Otros</div>
+    <div class="qp-toggle-row">
+      <span class="qp-label">Patrocinadores</span>
+      <label class="switch qp-switch"><input type="checkbox" id="qpSponsorToggle"><span class="switch-slider"></span></label>
+    </div>
     <div class="qp-toggle-row">
       <span class="qp-label" style="font-weight:700;color:var(--accent);">★ Combo</span>
       <label class="switch qp-switch"><input type="checkbox" id="qpComboToggle"><span class="switch-slider"></span></label>
@@ -98,17 +94,18 @@
   <h1>Panel de Control — Overlays</h1>
 
   <nav class="tabs">
-    <button class="tab" data-tab="scoreboard">Scoreboard</button>
-    <button class="tab active" data-tab="lower">Lower Third</button>
-    <button class="tab" data-tab="lower-dual">Lower Dual</button>
-    <button class="tab" data-tab="sponsors">Patrocinadores</button>
+    <button class="tab active" data-tab="lower-dual">Lower Dual</button>
     <button class="tab" data-tab="ticker">Ticker</button>
+    <button class="tab" data-tab="sponsors">Patrocinadores</button>
+    <button class="tab" data-tab="livebug">Live Bug</button>
     <button class="tab" data-tab="combo">Combo</button>
     <button class="tab" data-tab="media">Media</button>
-    <button class="tab" data-tab="weather">🌤 Clima</button>
-    <button class="tab" data-tab="countdown">⏱ Cuenta</button>
-    <button class="tab" data-tab="nowplaying">🎵 Música</button>
-    <button class="tab" data-tab="resultados">🗳 Resultados</button>
+    <button class="tab hidden-tab" data-tab="lower">Lower Third</button>
+    <button class="tab hidden-tab" data-tab="scoreboard">Scoreboard</button>
+    <button class="tab hidden-tab" data-tab="weather">Clima</button>
+    <button class="tab hidden-tab" data-tab="countdown">Cuenta</button>
+    <button class="tab hidden-tab" data-tab="nowplaying">Música</button>
+    <button class="tab hidden-tab" data-tab="resultados">Resultados</button>
   </nav>
 
   <section class="tab-content" data-tab-content="scoreboard">
@@ -251,7 +248,7 @@
     </div>
   </section>
 
-  <section class="tab-content active" data-tab-content="lower">
+  <section class="tab-content" data-tab-content="lower">
     <h2>Lower Third / Tercio Inferior</h2>
     <div class="lower-grid">
       <div class="lower-left">
@@ -351,7 +348,7 @@
     </div>
   </section>
 
-  <section class="tab-content" data-tab-content="lower-dual">
+  <section class="tab-content active" data-tab-content="lower-dual">
     <h2>Lower Third Dual</h2>
     <div class="lower-grid">
       <div class="lower-left">
@@ -676,6 +673,99 @@
         <div class="row">
           <span class="row-label">Fondo</span>
           <input type="color" id="tkrMsgBg" value="#ffffff">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-content" data-tab-content="livebug">
+    <h2>Live Bug</h2>
+    <div class="lower-grid">
+      <div class="lower-left">
+        <div class="preview-scene">
+          <div class="preview-stage">
+            <iframe src="/templates/livebug/" class="preview-iframe" title="Vista previa Live Bug"></iframe>
+          </div>
+        </div>
+        <div class="row">
+          <input type="text" id="lbInputLugar" value="C.C VIVA" placeholder="Lugar (ej. C.C VIVA)">
+        </div>
+        <div class="row">
+          <input type="text" id="lbInputCiudad" value="TUNJA" placeholder="Ciudad para clima (ej. TUNJA)">
+        </div>
+        <div class="row" style="margin-top:0.5rem;">
+          <span class="row-label" style="min-width:80px;">Refrescar</span>
+          <input type="number" id="lbInputRefresh" class="spin-input" min="60" max="3600" step="30" value="1800"><button type="button" class="spin-btn" data-spin="lbInputRefresh" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputRefresh" data-dir="down">▼</button>
+          <span class="val" id="valLbRefresh">30 min</span>
+          <button id="lbRefreshTempBtn" title="Refrescar temperatura ahora" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;margin-left:0.4rem;">⟳</button>
+        </div>
+        <div class="row" style="margin-top: 0.75rem; justify-content:center;">
+          <label class="switch">
+            <input type="checkbox" id="livebugToggle">
+            <span class="switch-slider"></span>
+          </label>
+        </div>
+        <div class="url-row" data-path="/templates/livebug/"></div>
+      </div>
+      <div class="lower-right">
+        <h3>Personalizar estilo</h3>
+        <div class="row">
+          <span class="row-label">Fuente</span>
+          <div style="display:flex;flex:1;gap:0;position:relative;">
+            <input type="text" id="lbInputFont" value="Montserrat, sans-serif" placeholder="Nombre de fuente" list="fontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
+            <button id="lbFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-right-radius:0;border-bottom-right-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
+          </div>
+        </div>
+
+        <h4 class="section-label">Título (azul) <button data-lb-reset-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <div class="row">
+          <span class="row-label">Tamaño</span>
+          <input type="number" id="lbInputTitleSize" class="spin-input" min="1.0" max="4.0" step="0.1" value="3.0"><button type="button" class="spin-btn" data-spin="lbInputTitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputTitleSize" data-dir="down">▼</button>
+          <span class="val" id="valLbTitleSize">3.0rem</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="lbInputTitleColor" value="#ffffff">
+        </div>
+        <div class="row">
+          <span class="row-label">Fondo</span>
+          <input type="color" id="lbInputTitleBg" value="#06155A">
+        </div>
+
+        <h4 class="section-label">Subtítulo (blanco) <button data-lb-reset-sub style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <div class="row">
+          <span class="row-label">Tamaño</span>
+          <input type="number" id="lbInputSubtitleSize" class="spin-input" min="0.8" max="4.0" step="0.1" value="2.5"><button type="button" class="spin-btn" data-spin="lbInputSubtitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputSubtitleSize" data-dir="down">▼</button>
+          <span class="val" id="valLbSubtitleSize">2.5rem</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Color</span>
+          <input type="color" id="lbInputSubtitleColor" value="#111111">
+        </div>
+        <div class="row">
+          <span class="row-label">Fondo</span>
+          <input type="color" id="lbInputSubtitleBg" value="#ffffff">
+        </div>
+
+        <h4 class="section-label">Posición <button data-lb-reset-pos title="Restaurar valores por defecto" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
+        <div class="row">
+          <span class="row-label">Escala</span>
+          <input type="number" id="lbInputScale" class="spin-input" min="0.5" max="2.0" step="0.1" value="1.0"><button type="button" class="spin-btn" data-spin="lbInputScale" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputScale" data-dir="down">▼</button>
+          <span class="val" id="valLbScale">1.0x</span>
+        </div>
+        <div class="row">
+          <span class="row-label">X (izq.)</span>
+          <input type="number" id="lbInputPosX" class="spin-input" min="0" max="1800" step="5" value="100"><button type="button" class="spin-btn" data-spin="lbInputPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputPosX" data-dir="down">▼</button>
+          <span class="val" id="valLbPosX">100px</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Y (arriba)</span>
+          <input type="number" id="lbInputPosY" class="spin-input" min="0" max="1000" step="5" value="32"><button type="button" class="spin-btn" data-spin="lbInputPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputPosY" data-dir="down">▼</button>
+          <span class="val" id="valLbPosY">32px</span>
+        </div>
+
+        <div style="margin-top:1rem;">
+          <button class="block" id="livebugResetStyle">↺ Restaurar estilo</button>
         </div>
       </div>
     </div>

@@ -1,3 +1,5 @@
+const storageBus = new EventTarget();
+
 export function loadJSON(key, fallback = {}) {
   try {
     return JSON.parse(localStorage.getItem(key)) || fallback;
@@ -8,4 +10,13 @@ export function loadJSON(key, fallback = {}) {
 
 export function saveJSON(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+  storageBus.dispatchEvent(new CustomEvent('save', { detail: { key } }));
+}
+
+export function onStorageSave(key, callback) {
+  const handler = (e) => {
+    if (e.detail.key === key) callback();
+  };
+  storageBus.addEventListener('save', handler);
+  return () => storageBus.removeEventListener('save', handler);
 }

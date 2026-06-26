@@ -1,18 +1,12 @@
-import { loadJSON, saveJSON } from './storage.js';
+import { loadJSON, saveJSON, onStorageSave } from './storage.js';
 
-// Map sidebar toggle IDs → tab toggle IDs
 const QP_MAP = {
-  qpScoreToggle: 'scoreToggle',
-  qpLowerToggle: 'lowerToggle',
   qpDualLToggle: 'dualLToggle',
   qpDualRToggle: 'dualRToggle',
+  qpDualBothToggle: 'dualBothToggle',
   qpSponsorToggle: 'sponsorToggle',
   qpToggle: 'tkrToggle',
-  qpWeatherToggle: 'weatherToggle',
-  qpCountdownToggle: 'countdownToggle',
-  qpNowPlayingToggle: 'nowplayingToggle',
   qpComboToggle: 'comboToggle',
-  qpResultadosToggle: 'resultadosToggle',
 };
 
 const ALL_TAB_TOGGLES = [
@@ -20,6 +14,7 @@ const ALL_TAB_TOGGLES = [
   'lowerToggle',
   'dualLToggle',
   'dualRToggle',
+  'dualBothToggle',
   'sponsorToggle',
   'tkrToggle',
   'weatherToggle',
@@ -27,7 +22,10 @@ const ALL_TAB_TOGGLES = [
   'nowplayingToggle',
   'comboToggle',
   'resultadosToggle',
+  'livebugToggle',
 ];
+
+const LONG_PRESS_MS = 2000;
 
 export function qpSyncToggles() {
   for (const [qpId, tabId] of Object.entries(QP_MAP)) {
@@ -37,74 +35,258 @@ export function qpSyncToggles() {
   }
 }
 
-function syncDualField(field) {
-  document.getElementById('qpDual' + field)?.addEventListener('input', function () {
-    const left = document.getElementById('dualL' + field);
-    const right = document.getElementById('dualR' + field);
-    if (left) left.value = this.value;
-    if (right) right.value = this.value;
-    const event = new Event('input', { bubbles: true });
-    left?.dispatchEvent(event);
-  });
+function updatePreview(previewId, data, formatFn) {
+  const preview = document.getElementById(previewId);
+  if (!preview) return;
+  if (!data) {
+    preview.textContent = '';
+    return;
+  }
+  preview.textContent = formatFn(data);
 }
 
-function initQpGuestSlots() {
-  const grid = document.getElementById('qp-guest-grid');
+function addLongPressDelete(btn, slotNum, invitados, storageKey) {
+  let pressTimer = null;
+  let progressInterval = null;
+  const originalText = String(slotNum);
+
+  function startLongPress() {
+    let elapsed = 0;
+    const step = 100;
+    btn.style.opacity = '1';
+    progressInterval = setInterval(() => {
+      elapsed += step;
+      const progress = elapsed / LONG_PRESS_MS;
+      btn.style.opacity = String(1 - progress * 0.7);
+      btn.textContent = Math.ceil((LONG_PRESS_MS - elapsed) / 1000) + 's';
+      if (elapsed >= LONG_PRESS_MS) {
+        clearInterval(progressInterval);
+        delete invitados[slotNum];
+        saveJSON(storageKey, invitados);
+        btn.style.opacity = '1';
+        btn.textContent = originalText;
+      }
+    }, step);
+  }
+
+  function cancelLongPress() {
+    if (pressTimer) {
+      clearTimeout(pressTimer);
+      pressTimer = null;
+    }
+    if (progressInterval) {
+      clearInterval(progressInterval);
+      progressInterval = null;
+    }
+    btn.style.opacity = '1';
+    btn.textContent = originalText;
+  }
+
+  btn.addEventListener('mousedown', (e) => {
+    if (e.button === 0) {
+      pressTimer = setTimeout(() => {
+        startLongPress();
+      }, 200);
+    }
+  });
+
+  btn.addEventListener('mouseup', cancelLongPress);
+  btn.addEventListener('mouseleave', cancelLongPress);
+  btn.addEventListener('contextmenu', cancelLongPress);
+}
+
+function initDualSlots(gridId, side, previewId) {
+  const grid = document.getElementById(gridId);
   if (!grid) return;
-  const invitados = loadJSON('dual_guests', {});
+  let invitados = loadJSON('dual_guests', {});
+  const fieldPrefix = side === 'L' ? 'dualL' : 'dualR';
+
+  function formatDual(d) {
+    if (!d) return '';
+    const lines = [];
+    if (d.nombre) lines.push(d.nombre);
+    if (d.apellido) lines.push(d.apellido);
+    if (d.cargo) lines.push(d.cargo);
+    return lines.join('\n') || 'Slot vacío';
+  }
+
+  function refresh() {
+    invitados = loadJSON('dual_guests', {});
+    grid.querySelectorAll('.guest-btn').forEach((btn) => {
+      const i = Number(btn.dataset.slot);
+      const filled = !!invitados[i];
+      btn.classList.toggle('filled', filled);
+      btn.title = filled ? formatDual(invitados[i]) : 'Slot vacío — clic der. para guardar';
+    });
+  }
+
+  onStorageSave('dual_guests', refresh);
+
   for (let i = 1; i <= 10; i++) {
     const btn = document.createElement('button');
     btn.className = 'guest-btn' + (invitados[i] ? ' filled' : '');
     btn.dataset.slot = String(i);
     btn.textContent = String(i);
-    btn.title = invitados[i]
-      ? `${invitados[i].nombre || ''} ${invitados[i].apellido || ''}`
-      : 'Slot vacío — clic der. para guardar';
+    btn.title = invitados[i] ? formatDual(invitados[i]) : 'Slot vacío — clic der. para guardar';
+
+    addLongPressDelete(btn, i, invitados, 'dual_guests');
+
     btn.addEventListener('click', () => {
+      invitados = loadJSON('dual_guests', {});
       const data = invitados[i];
       if (!data) return;
-      document.getElementById('qpDualNombre').value = data.nombre || '';
-      document.getElementById('qpDualApellido').value = data.apellido || '';
-      document.getElementById('qpDualCargo').value = data.cargo || '';
-      ['Nombre', 'Apellido', 'Cargo'].forEach((f) => {
-        const el = document.getElementById('dualL' + f);
-        if (el) el.value = data[f.toLowerCase()] || '';
-        const el2 = document.getElementById('dualR' + f);
-        if (el2) el2.value = data[f.toLowerCase()] || '';
-      });
+      document.getElementById(fieldPrefix + 'Nombre').value = data.nombre || '';
+      document.getElementById(fieldPrefix + 'Apellido').value = data.apellido || '';
+      document.getElementById(fieldPrefix + 'Cargo').value = data.cargo || '';
+      const ev = new Event('input', { bubbles: true });
+      document.getElementById(fieldPrefix + 'Nombre')?.dispatchEvent(ev);
       grid.querySelectorAll('.guest-btn').forEach((b) => b.classList.remove('active-slot'));
       btn.classList.add('active-slot');
+      updatePreview(previewId, data, formatDual);
     });
+
     btn.addEventListener('contextmenu', (e) => {
       e.preventDefault();
-      const nombre = document.getElementById('qpDualNombre').value.trim();
-      const apellido = document.getElementById('qpDualApellido').value.trim();
-      const cargo = document.getElementById('qpDualCargo').value.trim();
+      const nombre = document.getElementById(fieldPrefix + 'Nombre').value.trim();
+      const apellido = document.getElementById(fieldPrefix + 'Apellido').value.trim();
+      const cargo = document.getElementById(fieldPrefix + 'Cargo').value.trim();
       if (!nombre && !apellido && !cargo) return;
       const data = { nombre, apellido, cargo };
-      const existing = loadJSON('dual_guests', {});
-      existing[i] = data;
-      saveJSON('dual_guests', existing);
       invitados[i] = data;
+      saveJSON('dual_guests', invitados);
       btn.classList.add('filled');
-      btn.title = `${nombre} ${apellido}`;
+      btn.title = formatDual(data);
       grid.querySelectorAll('.guest-btn').forEach((b) => b.classList.remove('active-slot'));
       btn.classList.add('active-slot');
+      updatePreview(previewId, data, formatDual);
     });
+
     grid.appendChild(btn);
   }
+
   if (invitados[1]) {
-    document.getElementById('qpDualNombre').value = invitados[1].nombre || '';
-    document.getElementById('qpDualApellido').value = invitados[1].apellido || '';
-    document.getElementById('qpDualCargo').value = invitados[1].cargo || '';
-    ['Nombre', 'Apellido', 'Cargo'].forEach((f) => {
-      const el = document.getElementById('dualL' + f);
-      if (el) el.value = invitados[1][f.toLowerCase()] || '';
-      const el2 = document.getElementById('dualR' + f);
-      if (el2) el2.value = invitados[1][f.toLowerCase()] || '';
-    });
+    document.getElementById(fieldPrefix + 'Nombre').value = invitados[1].nombre || '';
+    document.getElementById(fieldPrefix + 'Apellido').value = invitados[1].apellido || '';
+    document.getElementById(fieldPrefix + 'Cargo').value = invitados[1].cargo || '';
     const first = grid.querySelector('.guest-btn[data-slot="1"]');
-    if (first) first.classList.add('active-slot');
+    if (first) {
+      first.classList.add('active-slot');
+      updatePreview(previewId, invitados[1], formatDual);
+    }
+  }
+}
+
+function initTickerSlots() {
+  const grid = document.getElementById('qp-ticker-grid');
+  if (!grid) return;
+  let invitados = loadJSON('ticker_guests', {});
+
+  function formatTicker(d) {
+    if (!d) return '';
+    const lines = [];
+    if (d.title) lines.push('[' + d.title + ']');
+    if (d.message) lines.push(d.message);
+    return lines.join('\n') || 'Slot vacío';
+  }
+
+  function refresh() {
+    invitados = loadJSON('ticker_guests', {});
+    grid.querySelectorAll('.guest-btn').forEach((btn) => {
+      const i = Number(btn.dataset.slot);
+      const filled = !!invitados[i];
+      btn.classList.toggle('filled', filled);
+      btn.title = filled ? formatTicker(invitados[i]) : 'Slot vacío — clic der. para guardar';
+    });
+  }
+
+  onStorageSave('ticker_guests', refresh);
+
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'guest-btn' + (invitados[i] ? ' filled' : '');
+    btn.dataset.slot = String(i);
+    btn.textContent = String(i);
+    btn.title = invitados[i] ? formatTicker(invitados[i]) : 'Slot vacío — clic der. para guardar';
+
+    addLongPressDelete(btn, i, invitados, 'ticker_guests');
+
+    btn.addEventListener('click', () => {
+      invitados = loadJSON('ticker_guests', {});
+      const data = invitados[i];
+      if (!data) return;
+      const tkrTitle = document.getElementById('tkrTitle');
+      const tkrMsg = document.getElementById('tkrMessage');
+      if (tkrTitle && data.title !== undefined) tkrTitle.value = data.title;
+      if (tkrMsg && data.message !== undefined) {
+        tkrMsg.value = data.message;
+        tkrMsg.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      grid.querySelectorAll('.guest-btn').forEach((b) => b.classList.remove('active-slot'));
+      btn.classList.add('active-slot');
+      updatePreview('qp-ticker-preview', data, formatTicker);
+    });
+
+    btn.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('tkrTitle')?.value.trim() || '';
+      const message = document.getElementById('tkrMessage')?.value.trim() || '';
+      if (!title && !message) return;
+      const data = { title, message };
+      invitados[i] = data;
+      saveJSON('ticker_guests', invitados);
+      btn.classList.add('filled');
+      btn.title = formatTicker(data);
+      grid.querySelectorAll('.guest-btn').forEach((b) => b.classList.remove('active-slot'));
+      btn.classList.add('active-slot');
+      updatePreview('qp-ticker-preview', data, formatTicker);
+    });
+
+    grid.appendChild(btn);
+  }
+
+  if (invitados[1]) {
+    const tkrTitle = document.getElementById('tkrTitle');
+    const tkrMsg = document.getElementById('tkrMessage');
+    if (tkrTitle && invitados[1].title !== undefined) tkrTitle.value = invitados[1].title;
+    if (tkrMsg && invitados[1].message !== undefined) {
+      tkrMsg.value = invitados[1].message;
+    }
+    const first = grid.querySelector('.guest-btn[data-slot="1"]');
+    if (first) {
+      first.classList.add('active-slot');
+      updatePreview('qp-ticker-preview', invitados[1], formatTicker);
+    }
+  }
+}
+
+function initSidebarToggle() {
+  const toggleBtn = document.getElementById('sidebar-toggle');
+  const collapseBtn = document.getElementById('qp-collapse-btn');
+  const panel = document.getElementById('quick-panel');
+  if (!toggleBtn || !panel) return;
+
+  const savedState = localStorage.getItem('sidebar_hidden');
+  if (savedState === 'true') {
+    document.body.classList.add('sidebar-hidden');
+  }
+
+  const savedCollapsed = localStorage.getItem('sidebar_collapsed');
+  if (savedCollapsed === 'true' && panel) {
+    panel.classList.add('collapsed');
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('sidebar-hidden');
+    const isHidden = document.body.classList.contains('sidebar-hidden');
+    localStorage.setItem('sidebar_hidden', String(isHidden));
+  });
+
+  if (collapseBtn) {
+    collapseBtn.addEventListener('click', () => {
+      panel.classList.toggle('collapsed');
+      const isCollapsed = panel.classList.contains('collapsed');
+      localStorage.setItem('sidebar_collapsed', String(isCollapsed));
+    });
   }
 }
 
@@ -127,14 +309,9 @@ export function initQuickPanel() {
       qpSyncToggles();
     }
   });
-  ['Nombre', 'Apellido', 'Cargo'].forEach(syncDualField);
-  document.getElementById('qpMensaje')?.addEventListener('input', function () {
-    const tkrMsg = document.getElementById('tkrMessage');
-    if (tkrMsg) {
-      tkrMsg.value = this.value;
-      tkrMsg.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-  });
-  initQpGuestSlots();
+  initDualSlots('qp-dualL-grid', 'L', 'qp-dualL-preview');
+  initDualSlots('qp-dualR-grid', 'R', 'qp-dualR-preview');
+  initTickerSlots();
+  initSidebarToggle();
   setTimeout(qpSyncToggles, 300);
 }

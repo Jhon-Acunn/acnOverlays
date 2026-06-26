@@ -11,6 +11,7 @@ const VALID_TIPOS = new Set([
   'COUNTDOWN',
   'NOWPLAYING',
   'RESULTADOS',
+  'LIVEBUG',
 ]);
 
 function isPlainObject(v) {

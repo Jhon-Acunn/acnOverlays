@@ -15,6 +15,7 @@ const TOGGLE_MAP = {
   COUNTDOWN: { id: 'countdownToggle' },
   NOWPLAYING: { id: 'nowplayingToggle' },
   RESULTADOS: { id: 'resultadosToggle' },
+  LIVEBUG: { id: 'livebugToggle' },
   LOWER_DUAL: {
     left: { id: 'dualLToggle' },
     right: { id: 'dualRToggle' },

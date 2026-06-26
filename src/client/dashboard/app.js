@@ -3,6 +3,7 @@ import { initTheme } from './modules/theme.js';
 import { initTabs } from './modules/tabs.js';
 import { initURLCopy, preventEnterOnDatalist, bindFontPicker, initSpinButtons } from './modules/utils.js';
 import { initLowerThird } from './modules/lower-third.js';
+import { initLiveBug } from './modules/livebug.js';
 import { initLowerDual } from './modules/lower-dual.js';
 import { initScoreboard } from './modules/scoreboard.js';
 import { initSponsors } from './modules/sponsors.js';
@@ -35,6 +36,7 @@ async function main() {
   // Per-tab modules
   initScoreboard();
   initLowerThird();
+  initLiveBug();
   initLowerDual();
   initSponsors();
   initTicker();
