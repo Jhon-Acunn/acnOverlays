@@ -13,14 +13,18 @@ function isHideAction(accion) {
 
 function attach(io) {
   const socketLastEmit = new Map();
-  // Current state per graphic tipo. This is the single source of truth so
-  // that any new client (OBS browser source, dashboard, second operator) can
-  // request and receive the latest known state on connect.
   const currentState = new Map();
+  const dashboardSettings = new Map();
 
   function sendStateTo(socket) {
     for (const [tipo, data] of currentState.entries()) {
       socket.emit('render-graphic', { tipo, data });
+    }
+  }
+
+  function sendSettingsTo(socket) {
+    for (const [key, value] of dashboardSettings.entries()) {
+      socket.emit('dashboard-settings', { key, value });
     }
   }
 
@@ -42,9 +46,8 @@ function attach(io) {
 
   io.on('connection', (socket) => {
     logger.info({ id: socket.id }, 'socket connected');
-    // Send full current state so the new client mirrors OBS without having
-    // to wait for the next manual update.
     sendStateTo(socket);
+    sendSettingsTo(socket);
 
     socket.on('update-graphic', (payload) => {
       const now = Date.now();
@@ -62,6 +65,14 @@ function attach(io) {
 
     socket.on('request-state', () => {
       sendStateTo(socket);
+    });
+
+    socket.on('save-dashboard-settings', ({ key, value }) => {
+      dashboardSettings.set(key, value);
+    });
+
+    socket.on('request-dashboard-settings', () => {
+      sendSettingsTo(socket);
     });
 
     socket.on('disconnect', (reason) => {

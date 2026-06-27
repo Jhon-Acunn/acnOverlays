@@ -1,5 +1,6 @@
 import { io } from 'socket.io-client';
 import { getAuthToken } from '../../shared/auth-token.js';
+import { onServerSave } from './storage.js';
 
 let socket = null;
 let authToken = '';
@@ -177,5 +178,19 @@ export async function initSocket() {
       }
     });
   }
+
+  // ── Dashboard settings server sync ──
+  socket.on('dashboard-settings', ({ key, value }) => {
+    if (key && value !== undefined) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+  });
+
+  onServerSave((e) => {
+    if (socket && socket.connected && e.detail) {
+      socket.emit('save-dashboard-settings', e.detail);
+    }
+  });
+
   return socket;
 }

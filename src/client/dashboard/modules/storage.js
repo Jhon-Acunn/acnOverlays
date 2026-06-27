@@ -11,6 +11,7 @@ export function loadJSON(key, fallback = {}) {
 export function saveJSON(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
   storageBus.dispatchEvent(new CustomEvent('save', { detail: { key } }));
+  storageBus.dispatchEvent(new CustomEvent('server-save', { detail: { key, value } }));
 }
 
 export function onStorageSave(key, callback) {
@@ -19,4 +20,9 @@ export function onStorageSave(key, callback) {
   };
   storageBus.addEventListener('save', handler);
   return () => storageBus.removeEventListener('save', handler);
+}
+
+export function onServerSave(callback) {
+  storageBus.addEventListener('server-save', callback);
+  return () => storageBus.removeEventListener('server-save', callback);
 }
