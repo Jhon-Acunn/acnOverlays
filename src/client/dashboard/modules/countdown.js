@@ -101,6 +101,13 @@ export function initCountdown() {
   window.addEventListener('storage', (e) => {
     if (e.key === SETTINGS_KEY && e.newValue) {
       loadSettings();
+      const container = document.querySelector('[data-tab-content="countdown"]');
+      if (container) {
+        container.querySelectorAll('input, select, textarea').forEach((el) => {
+          const eventType = el.type === 'checkbox' ? 'change' : 'input';
+          el.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+      }
     }
   });
 

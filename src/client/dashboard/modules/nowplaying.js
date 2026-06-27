@@ -109,6 +109,13 @@ export function initNowPlaying() {
   window.addEventListener('storage', (e) => {
     if (e.key === SETTINGS_KEY && e.newValue) {
       loadSettings();
+      const container = document.querySelector('[data-tab-content="nowplaying"]');
+      if (container) {
+        container.querySelectorAll('input, select, textarea').forEach((el) => {
+          const eventType = el.type === 'checkbox' ? 'change' : 'input';
+          el.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+      }
     }
   });
 

@@ -147,6 +147,13 @@ export function initTicker() {
   window.addEventListener('storage', (e) => {
     if (e.key === 'ticker_settings' && e.newValue) {
       loadTkrSettings();
+      const container = document.querySelector('[data-tab-content="ticker"]');
+      if (container) {
+        container.querySelectorAll('input, select, textarea').forEach(el => {
+          const eventType = el.type === 'checkbox' ? 'change' : 'input';
+          el.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+      }
     }
   });
 

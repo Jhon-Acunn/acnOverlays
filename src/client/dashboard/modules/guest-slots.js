@@ -23,6 +23,15 @@ export function createGuestSlots({
   let activeSlot = null;
   const applyLocal = applyDataLocal || applyData;
 
+  function render() {
+    data = loadJSON(storageKey, {});
+    refresh();
+  }
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === storageKey && e.newValue) render();
+  });
+
   function markActive(slot) {
     grid.querySelectorAll('.guest-btn').forEach((b) => b.classList.remove('active-slot'));
     if (slot !== null) {

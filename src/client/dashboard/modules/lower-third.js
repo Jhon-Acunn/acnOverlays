@@ -102,6 +102,13 @@ export function initLowerThird() {
   window.addEventListener('storage', (e) => {
     if (e.key === MODULE_KEY && e.newValue) {
       loadLowerSettings();
+      const container = document.querySelector('[data-tab-content="lower"]');
+      if (container) {
+        container.querySelectorAll('input, select, textarea').forEach(el => {
+          const eventType = el.type === 'checkbox' ? 'change' : 'input';
+          el.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+      }
     }
   });
   setVal('valTitleSize', (document.getElementById('inputTitleSize')?.value || '0') + 'rem');

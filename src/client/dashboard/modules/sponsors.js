@@ -220,6 +220,13 @@ export function initSponsors() {
   window.addEventListener('storage', (e) => {
     if (e.key === 'sponsors_settings' && e.newValue) {
       loadSponsorsSettings();
+      const container = document.querySelector('[data-tab-content="sponsors"]');
+      if (container) {
+        container.querySelectorAll('input, select, textarea').forEach(el => {
+          const eventType = el.type === 'checkbox' ? 'change' : 'input';
+          el.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+      }
     }
   });
 
