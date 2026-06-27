@@ -16,6 +16,7 @@ const config = {
     assets: path.resolve(__dirname, '..', 'client', 'assets'),
     logos: path.resolve(__dirname, '..', 'client', 'assets', 'logos'),
     dist: path.resolve(__dirname, '..', '..', 'dist', 'client'),
+    data: path.resolve(__dirname, '..', '..', 'data'),
   },
   limits: {
     jsonBody: '10mb',

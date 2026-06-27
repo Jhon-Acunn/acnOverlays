@@ -9,3 +9,5 @@ services:
       - NODE_ENV=production
       - PORT=3000
     restart: unless-stopped
+    volumes:
+      - ./data:/app/data

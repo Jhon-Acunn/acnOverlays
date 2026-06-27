@@ -10,8 +10,12 @@ const { Server } = require('socket.io');
 
 const config = require('./config');
 const logger = require('./logger');
+const db = require('./db');
 const media = require('./media');
 const socket = require('./socket');
+
+// ── Open database ──────────────────────────────────────────
+db.open();
 
 // ── Process-level crash protection ────────────────────────────
 // After an uncaught error the process is in an unknown state; let the

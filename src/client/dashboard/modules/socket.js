@@ -201,5 +201,24 @@ export async function initSocket() {
     }
   });
 
+  // ── Guest slot sync from other clients ──
+  socket.on('guest-slot-updated', ({ storageKey }) => {
+    window.dispatchEvent(new StorageEvent('storage', { key: storageKey }));
+  });
+
+  // Load guest slots from server on connect
+  const guestKeys = ['lower_guests', 'dual_guests', 'ticker_guests', 'sponsor_guests'];
+  socket.on('connect', () => {
+    guestKeys.forEach((k) => {
+      socket.emit('request-guest-slots', { storageKey: k });
+    });
+  });
+  socket.on('guest-slots-data', ({ storageKey, slots }) => {
+    if (slots && Object.keys(slots).length > 0) {
+      localStorage.setItem(storageKey, JSON.stringify(slots));
+      window.dispatchEvent(new StorageEvent('storage', { key: storageKey }));
+    }
+  });
+
   return socket;
 }
