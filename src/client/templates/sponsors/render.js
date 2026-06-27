@@ -83,76 +83,95 @@ function animarEntrada() {
   const container = document.getElementById('sponsors-container');
   const bar = document.getElementById('sponsors-bar');
   const logosContainer = document.getElementById('sponsors-logos');
+  if (timeline) timeline.kill();
+
   container.style.display = 'block';
   visible = true;
-  if (timeline) timeline.kill();
+
+  // Initial state: reset any leftover transforms, then set the starting values
+  gsap.set(bar, { clearProps: 'transform', x: '-110%' });
+  gsap.set(logosContainer, { clearProps: 'transform', scaleY: 0, transformOrigin: 'top' });
+  const logos = document.querySelectorAll('.sp-logo');
+  gsap.set(logos, { clearProps: 'opacity', opacity: 0 });
+
   timeline = gsap.timeline({ onComplete: () => iniciarRotacion() });
-  gsap.set('.sp-logo', { opacity: 0 });
-  if (document.querySelectorAll('.sp-logo').length > 0) {
-    gsap.set(document.querySelectorAll('.sp-logo')[0], { opacity: 1 });
-  }
-  gsap.set(bar, { x: '-110%' });
-  gsap.set(logosContainer, { scaleY: 0, transformOrigin: 'top' });
+
+  // Bar slides in from left over 0.5s with power3.out
   timeline.to(bar, {
-    duration: 0.6, x: '0%', ease: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-  });
+    duration: 0.5,
+    x: '0%',
+    ease: 'power3.out',
+  }, 0);
+
+  // Logos container grows down 0.1s after bar starts
   timeline.to(logosContainer, {
-    duration: 0.4, scaleY: 1, ease: 'power2.out',
-  }, '-=0.1');
+    duration: 0.4,
+    scaleY: 1,
+    ease: 'power3.out',
+    transformOrigin: 'top',
+  }, 0.1);
+
+  // First logo fades in 0.2s after bar started
+  if (logos.length > 0) {
+    timeline.to(logos[0], {
+      duration: 0.3,
+      opacity: 1,
+      ease: 'power2.out',
+    }, 0.2);
+  }
 }
 
 function animarSalida() {
   detenerRotacion();
+  const container = document.getElementById('sponsors-container');
   const bar = document.getElementById('sponsors-bar');
   const logosContainer = document.getElementById('sponsors-logos');
   if (timeline) timeline.kill();
   timeline = gsap.timeline({
     onComplete: () => {
       visible = false;
-      const container = document.getElementById('sponsors-container');
       container.style.display = 'none';
+      // Reset all transforms so the next SHOW starts fresh
+      gsap.set(bar, { clearProps: 'transform' });
+      gsap.set(logosContainer, { clearProps: 'transform' });
+      const logos = document.querySelectorAll('.sp-logo');
+      gsap.set(logos, { clearProps: 'opacity' });
     },
   });
-  timeline.to(logosContainer, { duration: 0.3, scaleY: 0, ease: 'power2.in' });
-  timeline.to(bar, { duration: 0.3, x: '-110%', ease: 'power2.in' }, '-=0.1');
-}
 
-function mostrarPreview(data) {
-  if (!data) return;
-  const { sponsors, config } = data;
-  construirSponsors(sponsors || []);
-  aplicarConfig(config);
-  const container = document.getElementById('sponsors-container');
-  container.style.display = 'block';
-  visible = true;
-  gsap.set('#sponsors-bar', { x: '0%' });
-  gsap.set('#sponsors-logos', { scaleY: 1, transformOrigin: 'top' });
-  gsap.set('.sp-logo', { opacity: 0 });
-  if (document.querySelectorAll('.sp-logo').length > 0) {
-    gsap.set(document.querySelectorAll('.sp-logo')[0], { opacity: 1 });
-  }
-  detenerRotacion();
-  iniciarRotacion();
+  // Logos container collapses over 0.25s
+  timeline.to(logosContainer, {
+    duration: 0.25,
+    scaleY: 0,
+    ease: 'power2.in',
+    transformOrigin: 'top',
+  }, 0);
+
+  // Bar slides out over 0.3s, started 0.05s after logos start collapsing
+  timeline.to(bar, {
+    duration: 0.3,
+    x: '-110%',
+    ease: 'power2.in',
+  }, 0.05);
 }
 
 function showDefault() {
-  mostrarPreview({
-    sponsors: [
-      { name: 'Sponsor A', logoUrl: null },
-      { name: 'Sponsor B', logoUrl: null },
-      { name: 'Sponsor C', logoUrl: null },
-    ],
-    config: {
-      barText: 'PATROCINADO POR',
-      barColor: '#e53935',
-      barTextColor: '#ffffff',
-      fontFamily: 'Inter, sans-serif',
-      barHeight: 44,
-      bgGradientTop: '#3a3a3a',
-      bgGradientBottom: '#555',
-      rotationSpeed: 5000,
-    },
+  construirSponsors([
+    { name: 'Sponsor A', logoUrl: null },
+    { name: 'Sponsor B', logoUrl: null },
+    { name: 'Sponsor C', logoUrl: null },
+  ]);
+  aplicarConfig({
+    barText: 'PATROCINADO POR',
+    barColor: '#e53935',
+    barTextColor: '#ffffff',
+    fontFamily: 'Inter, sans-serif',
+    barHeight: 44,
+    bgGradientTop: '#3a3a3a',
+    bgGradientBottom: '#555',
+    rotationSpeed: 5000,
   });
+  animarEntrada();
 }
 
 function handlePayload(payload) {
@@ -162,16 +181,16 @@ function handlePayload(payload) {
 
     const { accion, sponsors, config } = payload.data;
 
-      if (accion === 'SHOW') {
-        if (sponsors) construirSponsors(sponsors);
-        if (config) aplicarConfig(config);
-        if (visible) {
-          detenerRotacion();
-          iniciarRotacion();
-        } else {
-          animarEntrada();
-        }
-      } else if (accion === 'UPDATE') {
+    if (accion === 'SHOW') {
+      if (sponsors) construirSponsors(sponsors);
+      if (config) aplicarConfig(config);
+      if (visible) {
+        detenerRotacion();
+        iniciarRotacion();
+      } else {
+        animarEntrada();
+      }
+    } else if (accion === 'UPDATE') {
       if (!visible) return;
       if (sponsors) construirSponsors(sponsors);
       if (config) aplicarConfig(config);

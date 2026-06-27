@@ -148,6 +148,7 @@ body {
   gap: 8px;
   opacity: 0;
   will-change: opacity;
+  direction: ltr;
 }
 
 #ltr-nombre {

@@ -150,6 +150,59 @@ function initTicker(messages) {
   tickerInterval = setInterval(updateTicker, 12000);
 }
 
+let mainTimeline = null;
+
+function animEntrada() {
+  if (mainTimeline) mainTimeline.kill();
+
+  const app = document.getElementById('app');
+  app.style.display = 'block';
+
+  gsap.set('#app', { opacity: 0 });
+  gsap.set('#top-bar', { y: -60 });
+  gsap.set('#bottom-ticker', { y: 40 });
+  gsap.set('.candidate-zone', { opacity: 0, y: 30 });
+  gsap.set('#center-zone', { opacity: 0, scale: 0.95 });
+
+  mainTimeline = gsap.timeline({
+    onComplete: () => {
+      gsap.set('#app', { clearProps: 'opacity' });
+      gsap.set('#top-bar', { clearProps: 'y' });
+      gsap.set('#bottom-ticker', { clearProps: 'y' });
+      gsap.set('.candidate-zone', { clearProps: 'opacity,y' });
+      gsap.set('#center-zone', { clearProps: 'opacity,scale' });
+    },
+  });
+
+  mainTimeline.to('#app', { duration: 0.5, opacity: 1, ease: 'power2.out' }, 0);
+  mainTimeline.to('#top-bar', { duration: 0.6, y: 0, ease: 'power3.out' }, 0);
+  mainTimeline.to('#bottom-ticker', { duration: 0.6, y: 0, ease: 'power3.out' }, 0.2);
+  mainTimeline.to('.candidate-zone', { duration: 0.6, opacity: 1, y: 0, ease: 'power2.out', stagger: 0.15 }, 0.1);
+  mainTimeline.to('#center-zone', { duration: 0.6, opacity: 1, scale: 1, ease: 'power2.out' }, 0.2);
+}
+
+function animSalida() {
+  if (mainTimeline) mainTimeline.kill();
+
+  const app = document.getElementById('app');
+
+  mainTimeline = gsap.timeline({
+    onComplete: () => {
+      app.style.display = 'none';
+      gsap.set('#top-bar', { clearProps: 'y' });
+      gsap.set('#bottom-ticker', { clearProps: 'y' });
+      gsap.set('.candidate-zone', { clearProps: 'opacity,y' });
+      gsap.set('#center-zone', { clearProps: 'opacity,scale' });
+    },
+  });
+
+  mainTimeline.to('#center-zone', { duration: 0.3, scale: 0.95, opacity: 0, ease: 'power2.in' }, 0);
+  mainTimeline.to('.candidate-zone', { duration: 0.3, y: 30, opacity: 0, ease: 'power2.in' }, 0);
+  mainTimeline.to('#top-bar', { duration: 0.3, y: -60, ease: 'power2.in' }, 0);
+  mainTimeline.to('#bottom-ticker', { duration: 0.3, y: 40, ease: 'power2.in' }, 0);
+  mainTimeline.to('#app', { duration: 0.3, opacity: 0, ease: 'power2.in' }, 0);
+}
+
 function mostrar(data) {
   if (!data) return;
   aplicarDatos(data);
@@ -158,11 +211,7 @@ function mostrar(data) {
   if (appVisible) return;
 
   appVisible = true;
-  gsap.fromTo('#app', { opacity: 0 }, { duration: 0.6, opacity: 1, ease: 'power2.out' });
-  gsap.fromTo('#top-bar', { y: -60 }, { duration: 0.5, y: 0, ease: 'power3.out' });
-  gsap.fromTo('#bottom-ticker', { y: 40 }, { duration: 0.5, y: 0, ease: 'power3.out' });
-  gsap.fromTo('.candidate-zone', { opacity: 0, y: 30 }, { duration: 0.5, y: 0, opacity: 1, ease: 'power2.out', stagger: 0.1 });
-  gsap.fromTo('#center-zone', { opacity: 0, scale: 0.95 }, { duration: 0.5, opacity: 1, scale: 1, ease: 'power2.out' });
+  animEntrada();
 }
 
 function showDefault() {
@@ -218,8 +267,8 @@ function handlePayload(payload) {
       if (data?.ticker) initTicker(data.ticker.messages);
     } else if (accion === 'HIDE') {
       appVisible = false;
-      gsap.to('#app', { duration: 0.3, opacity: 0, ease: 'power2.in' });
       if (tickerInterval) clearInterval(tickerInterval);
+      animSalida();
     }
   } catch (err) {
     console.error('[RENDER RESULTADOS] Error:', err);

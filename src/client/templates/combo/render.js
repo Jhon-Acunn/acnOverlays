@@ -538,7 +538,7 @@ function showDefault() {
     nombre: 'Juan', apellido: 'Pérez', cargo: 'INVITADO',
     estilo: {
       fontFamily: 'Montserrat, sans-serif',
-      titleFontSize: '1.65rem', subtitleFontSize: '2.5rem',
+      titleFontSize: '3.0rem', subtitleFontSize: '2.5rem',
       titleColor: '#ffffff', titleBg: '#06155A',
       subtitleColor: '#111111', subtitleBg: '#ffffff',
       escala: 1.0, posX: 100, posY: 90,
@@ -547,7 +547,7 @@ function showDefault() {
     nombre: 'María', apellido: 'García', cargo: 'CONDUCTORA',
     estilo: {
       fontFamily: 'Montserrat, sans-serif',
-      titleFontSize: '1.65rem', subtitleFontSize: '2.5rem',
+      titleFontSize: '3.0rem', subtitleFontSize: '2.5rem',
       titleColor: '#ffffff', titleBg: '#06155A',
       subtitleColor: '#111111', subtitleBg: '#ffffff',
       escala: 1.0, posX: 100, posY: 90,

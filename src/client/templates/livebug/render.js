@@ -115,19 +115,22 @@ function animarEntrada() {
   container.style.display = 'block';
   visible = true;
 
-  gsap.set('#lt-name-group', { xPercent: -110 });
-  gsap.set('#lt-name-ghost', { scaleX: 0, transformOrigin: 'left' });
-  gsap.set('#lt-name-text', { opacity: 0 });
-  gsap.set('#lt-title-box', { scaleY: 0, transformOrigin: 'top' });
+  // Reset state cleanly before entry so the next SHOW always starts fresh
+  gsap.set('#lt-name-group', { clearProps: 'xPercent', xPercent: -110 });
+  gsap.set('#lt-name-ghost', { clearProps: 'transform', scaleX: 0, transformOrigin: 'left' });
+  gsap.set('#lt-name-text', { clearProps: 'opacity', opacity: 0 });
+  gsap.set('#lt-title-box', { clearProps: 'transform', scaleY: 0, transformOrigin: 'top' });
 
   timeline = gsap.timeline();
 
+  // name-group: 1.0s, power4.out
   timeline.to('#lt-name-group', {
     duration: 1.0,
     xPercent: 0,
     ease: 'power4.out',
-  });
+  }, 0);
 
+  // ghost: 0.4s, power3.out, started 0.5s into name-group animation
   timeline.to(
     '#lt-name-ghost',
     {
@@ -139,6 +142,7 @@ function animarEntrada() {
     '-=0.5'
   );
 
+  // name-text: 0.35s, power2.out, started 0.35s into ghost animation
   timeline.to(
     '#lt-name-text',
     {
@@ -149,6 +153,7 @@ function animarEntrada() {
     '-=0.35'
   );
 
+  // title-box: 0.55s, back.out(1.6), started 0.2s into name-text animation
   timeline.to(
     '#lt-title-box',
     {
@@ -169,20 +174,23 @@ function animarSalida() {
       const container = document.getElementById('lt-container');
       container.style.display = 'none';
       visible = false;
+      // Reset all transforms so the next SHOW starts fresh
       gsap.set('#lt-name-group', { clearProps: 'xPercent' });
       gsap.set('#lt-name-ghost', { clearProps: 'transform' });
       gsap.set('#lt-title-box', { clearProps: 'transform' });
-      gsap.set('#lt-name-text', { opacity: 0 });
+      gsap.set('#lt-name-text', { clearProps: 'opacity' });
     },
   });
 
+  // title-box collapses first
   timeline.to('#lt-title-box', {
     duration: 0.25,
     scaleY: 0,
     ease: 'power2.in',
     transformOrigin: 'top',
-  });
+  }, 0);
 
+  // name-text fades out 0.1s into title-box exit
   timeline.to(
     '#lt-name-text',
     {
@@ -193,6 +201,7 @@ function animarSalida() {
     '-=0.1'
   );
 
+  // name-group slides out 0.1s into name-text exit
   timeline.to(
     '#lt-name-group',
     {

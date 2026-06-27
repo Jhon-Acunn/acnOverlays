@@ -54,46 +54,87 @@ function showDefault() {
       posY: 40,
     },
   });
+  animarEntrada();
 }
 
 function animarEntrada() {
   const container = document.getElementById('scoreboard-container');
+  if (timeline) timeline.kill();
+
   container.style.display = 'flex';
   visible = true;
-  if (timeline) timeline.kill();
-  gsap.set(container, { xPercent: -50, y: -20, opacity: 0 });
-  timeline = gsap.timeline()
-    .to(container, { duration: 0.3, xPercent: -50, y: 0, opacity: 1, ease: 'power2.out' });
+
+  // Initial state: keep the centered offset (translateX -50%) intact, scale in and slide down
+  gsap.set(container, {
+    xPercent: -50,
+    y: -40,
+    opacity: 0,
+    scale: 0.85,
+    transformOrigin: 'center center',
+  });
+
+  const teams = container.querySelectorAll('.team');
+  gsap.set(teams, { clearProps: 'opacity', opacity: 0 });
+
+  timeline = gsap.timeline();
+
+  // Main container entry
+  timeline.to(container, {
+    duration: 0.6,
+    xPercent: -50,
+    y: 0,
+    opacity: 1,
+    scale: 1,
+    ease: 'power3.out',
+  }, 0);
+
+  // Each team fades in slightly staggered
+  timeline.to(teams, {
+    duration: 0.35,
+    opacity: 1,
+    ease: 'power2.out',
+    stagger: 0.05,
+  }, '-=0.35');
 }
 
 function animarSalida() {
   const container = document.getElementById('scoreboard-container');
-  visible = false;
   if (timeline) timeline.kill();
+  visible = false;
   timeline = gsap.timeline({
     onComplete: () => {
       container.style.display = 'none';
-      gsap.set(container, { clearProps: 'opacity' });
+      gsap.set(container, { clearProps: 'opacity,scale,y,xPercent' });
+      const teams = container.querySelectorAll('.team');
+      gsap.set(teams, { clearProps: 'opacity' });
     },
-  })
-    .to(container, { duration: 0.25, opacity: 0, ease: 'power2.in' });
+  });
+  timeline.to(container, {
+    duration: 0.3,
+    opacity: 0,
+    scale: 0.9,
+    y: -20,
+    ease: 'power2.in',
+  });
 }
 
 function pulseUpdate() {
   const container = document.getElementById('scoreboard-container');
-  if (container.style.display === 'none' || container.style.display === '') return;
+  if (!visible) return;
   if (timeline) timeline.kill();
-  timeline = gsap.timeline()
-    .to(container, { duration: 0.1, xPercent: -50, scale: 1.02, ease: 'power1.in', transformOrigin: 'center center' })
-    .to(container, {
-      duration: 0.15,
-      xPercent: -50,
-      scale: 1.0,
-      ease: 'power1.out',
-      onComplete: () => {
-        gsap.set(container, { xPercent: -50, clearProps: 'scale' });
-      },
-    });
+  timeline = gsap.timeline();
+  timeline.to(container, {
+    duration: 0.12,
+    scale: 1.03,
+    ease: 'power2.out',
+    transformOrigin: 'center center',
+  });
+  timeline.to(container, {
+    duration: 0.2,
+    scale: 1,
+    ease: 'power2.inOut',
+    transformOrigin: 'center center',
+  });
 }
 
 function handlePayload(payload) {
@@ -103,10 +144,10 @@ function handlePayload(payload) {
 
     const { accion } = payload.data;
 
-      if (accion === 'SHOW') {
-        updateData(payload.data);
-        if (!visible) animarEntrada();
-      } else if (accion === 'HIDE') {
+    if (accion === 'SHOW') {
+      updateData(payload.data);
+      if (!visible) animarEntrada();
+    } else if (accion === 'HIDE') {
       animarSalida();
     } else if (accion === 'UPDATE') {
       if (!visible) return;
