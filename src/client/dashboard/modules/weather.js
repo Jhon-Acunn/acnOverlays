@@ -111,6 +111,12 @@ function actualizarValoresWeather() {
 export function initWeather() {
   loadSettings();
 
+  window.addEventListener('storage', (e) => {
+    if (e.key === SETTINGS_KEY && e.newValue) {
+      loadSettings();
+    }
+  });
+
   const debouncedSave = debounce(saveSettings, 300);
 
   for (const id of [

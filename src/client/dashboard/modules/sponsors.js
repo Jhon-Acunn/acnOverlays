@@ -217,6 +217,12 @@ function sponsorsAddItem() {
 export function initSponsors() {
   loadSponsorsSettings();
 
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'sponsors_settings' && e.newValue) {
+      loadSponsorsSettings();
+    }
+  });
+
   const list = document.getElementById('sponsor-list');
   if (list && !list.children.length) {
     for (let i = 1; i <= 3; i++) {

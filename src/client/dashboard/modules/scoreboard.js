@@ -153,6 +153,12 @@ function actualizarValScore() {
 
 export function initScoreboard() {
   loadSettings();
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === SETTINGS_KEY && e.newValue) {
+      loadSettings();
+    }
+  });
   const loaded = cargarScore();
   scoreA = loaded.scoreA;
   scoreB = loaded.scoreB;

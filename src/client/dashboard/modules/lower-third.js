@@ -98,6 +98,12 @@ function lowerEmit(accion) {
 
 export function initLowerThird() {
   loadLowerSettings();
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === MODULE_KEY && e.newValue) {
+      loadLowerSettings();
+    }
+  });
   setVal('valTitleSize', (document.getElementById('inputTitleSize')?.value || '0') + 'rem');
   setVal('valSubtitleSize', (document.getElementById('inputSubtitleSize')?.value || '0') + 'rem');
   setVal('valScale', (document.getElementById('inputScale')?.value || '0') + 'x');

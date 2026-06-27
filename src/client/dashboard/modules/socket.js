@@ -180,9 +180,18 @@ export async function initSocket() {
   }
 
   // ── Dashboard settings server sync ──
+  // Receive settings from server on connect
   socket.on('dashboard-settings', ({ key, value }) => {
     if (key && value !== undefined) {
       localStorage.setItem(key, JSON.stringify(value));
+    }
+  });
+
+  // Receive live updates from other clients
+  socket.on('dashboard-settings-updated', ({ key, value }) => {
+    if (key && value !== undefined) {
+      localStorage.setItem(key, JSON.stringify(value));
+      window.dispatchEvent(new StorageEvent('storage', { key, newValue: JSON.stringify(value) }));
     }
   });
 

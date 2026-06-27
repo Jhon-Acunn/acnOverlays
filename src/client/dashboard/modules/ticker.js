@@ -144,6 +144,12 @@ async function cargarTkrLogos() {
 export function initTicker() {
   loadTkrSettings();
 
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'ticker_settings' && e.newValue) {
+      loadTkrSettings();
+    }
+  });
+
   document.getElementById('tkrToggle')?.addEventListener('change', function () {
     tickerEmit(this.checked ? 'SHOW' : 'HIDE');
   });

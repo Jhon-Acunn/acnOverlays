@@ -143,6 +143,13 @@ export function initLowerDual() {
   let busy = false;
 
   loadSettings();
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEY && e.newValue) {
+      loadSettings();
+    }
+  });
+
   actualizarValDual();
 
   function syncBoth() {

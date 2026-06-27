@@ -69,6 +69,7 @@ function attach(io) {
 
     socket.on('save-dashboard-settings', ({ key, value }) => {
       dashboardSettings.set(key, value);
+      socket.broadcast.emit('dashboard-settings-updated', { key, value });
     });
 
     socket.on('request-dashboard-settings', () => {
