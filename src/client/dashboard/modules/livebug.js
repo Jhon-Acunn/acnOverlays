@@ -1,10 +1,49 @@
-import { setVal } from './utils.js';
+import { setVal, debounce } from './utils.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
+import { loadJSON, saveJSON } from './storage.js';
 
 const TIPO = 'LIVEBUG';
 const TAB = 'livebug';
 const PREVIEW_TIPO = 'PREVIEW_LIVEBUG';
 const TOGGLE_ID = 'livebugToggle';
+const SETTINGS_KEY = 'livebug_settings';
+
+function saveSettings() {
+  saveJSON(SETTINGS_KEY, {
+    lbInputFont: document.getElementById('lbInputFont').value,
+    lbInputTitleSize: document.getElementById('lbInputTitleSize').value,
+    lbInputTitleColor: document.getElementById('lbInputTitleColor').value,
+    lbInputTitleBg: document.getElementById('lbInputTitleBg').value,
+    lbInputSubtitleSize: document.getElementById('lbInputSubtitleSize').value,
+    lbInputSubtitleColor: document.getElementById('lbInputSubtitleColor').value,
+    lbInputSubtitleBg: document.getElementById('lbInputSubtitleBg').value,
+    lbInputScale: document.getElementById('lbInputScale').value,
+    lbInputPosX: document.getElementById('lbInputPosX').value,
+    lbInputPosY: document.getElementById('lbInputPosY').value,
+    lbInputLugar: document.getElementById('lbInputLugar').value,
+    lbInputCiudad: document.getElementById('lbInputCiudad').value,
+    lbInputRefresh: document.getElementById('lbInputRefresh').value,
+    livebugToggle: document.getElementById('livebugToggle')?.checked ?? false,
+  });
+}
+
+function loadSettings() {
+  const s = loadJSON(SETTINGS_KEY, {});
+  if (s.lbInputFont !== undefined) document.getElementById('lbInputFont').value = s.lbInputFont;
+  if (s.lbInputTitleSize !== undefined) document.getElementById('lbInputTitleSize').value = s.lbInputTitleSize;
+  if (s.lbInputTitleColor !== undefined) document.getElementById('lbInputTitleColor').value = s.lbInputTitleColor;
+  if (s.lbInputTitleBg !== undefined) document.getElementById('lbInputTitleBg').value = s.lbInputTitleBg;
+  if (s.lbInputSubtitleSize !== undefined) document.getElementById('lbInputSubtitleSize').value = s.lbInputSubtitleSize;
+  if (s.lbInputSubtitleColor !== undefined) document.getElementById('lbInputSubtitleColor').value = s.lbInputSubtitleColor;
+  if (s.lbInputSubtitleBg !== undefined) document.getElementById('lbInputSubtitleBg').value = s.lbInputSubtitleBg;
+  if (s.lbInputScale !== undefined) document.getElementById('lbInputScale').value = s.lbInputScale;
+  if (s.lbInputPosX !== undefined) document.getElementById('lbInputPosX').value = s.lbInputPosX;
+  if (s.lbInputPosY !== undefined) document.getElementById('lbInputPosY').value = s.lbInputPosY;
+  if (s.lbInputLugar !== undefined) document.getElementById('lbInputLugar').value = s.lbInputLugar;
+  if (s.lbInputCiudad !== undefined) document.getElementById('lbInputCiudad').value = s.lbInputCiudad;
+  if (s.lbInputRefresh !== undefined) document.getElementById('lbInputRefresh').value = s.lbInputRefresh;
+  if (s.livebugToggle !== undefined) document.getElementById('livebugToggle').checked = s.livebugToggle;
+}
 
 function obtenerEstilo() {
   return {
@@ -76,6 +115,23 @@ function actualizarValoresLiveBug() {
 }
 
 export function initLiveBug() {
+  loadSettings();
+
+  const debouncedSave = debounce(saveSettings, 300);
+
+  for (const id of [
+    'lbInputFont', 'lbInputTitleSize', 'lbInputTitleColor', 'lbInputTitleBg',
+    'lbInputSubtitleSize', 'lbInputSubtitleColor', 'lbInputSubtitleBg',
+    'lbInputScale', 'lbInputPosX', 'lbInputPosY',
+    'lbInputLugar', 'lbInputCiudad', 'lbInputRefresh',
+  ]) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    if (el.type === 'checkbox') el.addEventListener('change', debouncedSave);
+    else el.addEventListener('input', debouncedSave);
+  }
+  document.getElementById('livebugToggle')?.addEventListener('change', debouncedSave);
+
   document.getElementById('lbInputLugar')?.addEventListener('input', liveBugUpdate);
   document.getElementById('lbInputCiudad')?.addEventListener('input', liveBugUpdate);
   document.getElementById('lbInputRefresh')?.addEventListener('input', () => {

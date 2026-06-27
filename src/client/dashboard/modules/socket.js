@@ -3,6 +3,8 @@ import { getAuthToken } from '../../shared/auth-token.js';
 
 let socket = null;
 let authToken = '';
+let lastLatency = -1;
+let pingSentAt = 0;
 
 // Map OBS graphic tipo → dashboard toggle(s) so the UI stays in sync with
 // the actual state broadcast by the server.
@@ -27,6 +29,10 @@ const debounceTimers = new Map();
 
 export function getSocket() {
   return socket;
+}
+
+export function getLatency() {
+  return lastLatency;
 }
 
 export function requestState() {
@@ -156,5 +162,20 @@ export async function initSocket() {
     if (!payload || !payload.tipo) return;
     syncTogglesFromServer(payload.tipo, payload.data);
   });
+
+  const engine = socket.io && socket.io.engine;
+  if (engine) {
+    engine.on('packetCreate', (packet) => {
+      if (packet && packet.type === 'ping') {
+        pingSentAt = Date.now();
+      }
+    });
+    engine.on('packet', (packet) => {
+      if (packet && packet.type === 'pong' && pingSentAt) {
+        lastLatency = Date.now() - pingSentAt;
+        pingSentAt = 0;
+      }
+    });
+  }
   return socket;
 }

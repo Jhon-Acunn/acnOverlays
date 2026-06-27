@@ -1,10 +1,53 @@
-import { hexToRgba, setVal, bindFontPicker } from './utils.js';
+import { hexToRgba, setVal, bindFontPicker, debounce } from './utils.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
+import { loadJSON, saveJSON } from './storage.js';
 
 const TIPO = 'NOWPLAYING';
 const TAB = 'nowplaying';
 const PREVIEW_TIPO = 'PREVIEW_NOWPLAYING';
 const TOGGLE_ID = 'nowplayingToggle';
+const SETTINGS_KEY = 'nowplaying_settings';
+
+function saveSettings() {
+  saveJSON(SETTINGS_KEY, {
+    npSong: document.getElementById('npSong').value,
+    npArtist: document.getElementById('npArtist').value,
+    npCoverUrl: document.getElementById('npCoverUrl').value,
+    npBarText: document.getElementById('npBarText').value,
+    npBarBg: document.getElementById('npBarBg').value,
+    npBarColor: document.getElementById('npBarColor').value,
+    npFont: document.getElementById('npFont').value,
+    npSongSize: document.getElementById('npSongSize').value,
+    npSongColor: document.getElementById('npSongColor').value,
+    npArtistSize: document.getElementById('npArtistSize').value,
+    npArtistColor: document.getElementById('npArtistColor').value,
+    npBgColor: document.getElementById('npBgColor').value,
+    npOpacity: document.getElementById('npOpacity').value,
+    npPosX: document.getElementById('npPosX').value,
+    npPosY: document.getElementById('npPosY').value,
+    nowplayingToggle: document.getElementById('nowplayingToggle')?.checked ?? false,
+  });
+}
+
+function loadSettings() {
+  const s = loadJSON(SETTINGS_KEY, {});
+  if (s.npSong !== undefined) document.getElementById('npSong').value = s.npSong;
+  if (s.npArtist !== undefined) document.getElementById('npArtist').value = s.npArtist;
+  if (s.npCoverUrl !== undefined) document.getElementById('npCoverUrl').value = s.npCoverUrl;
+  if (s.npBarText !== undefined) document.getElementById('npBarText').value = s.npBarText;
+  if (s.npBarBg !== undefined) document.getElementById('npBarBg').value = s.npBarBg;
+  if (s.npBarColor !== undefined) document.getElementById('npBarColor').value = s.npBarColor;
+  if (s.npFont !== undefined) document.getElementById('npFont').value = s.npFont;
+  if (s.npSongSize !== undefined) document.getElementById('npSongSize').value = s.npSongSize;
+  if (s.npSongColor !== undefined) document.getElementById('npSongColor').value = s.npSongColor;
+  if (s.npArtistSize !== undefined) document.getElementById('npArtistSize').value = s.npArtistSize;
+  if (s.npArtistColor !== undefined) document.getElementById('npArtistColor').value = s.npArtistColor;
+  if (s.npBgColor !== undefined) document.getElementById('npBgColor').value = s.npBgColor;
+  if (s.npOpacity !== undefined) document.getElementById('npOpacity').value = s.npOpacity;
+  if (s.npPosX !== undefined) document.getElementById('npPosX').value = s.npPosX;
+  if (s.npPosY !== undefined) document.getElementById('npPosY').value = s.npPosY;
+  if (s.nowplayingToggle !== undefined) document.getElementById('nowplayingToggle').checked = s.nowplayingToggle;
+}
 
 function leerNowPlayingData() {
   return {
@@ -61,6 +104,23 @@ function actualizarValoresNP() {
 }
 
 export function initNowPlaying() {
+  loadSettings();
+
+  const debouncedSave = debounce(saveSettings, 300);
+
+  for (const id of [
+    'npSong', 'npArtist', 'npCoverUrl', 'npBarText',
+    'npBarBg', 'npBarColor', 'npFont',
+    'npSongSize', 'npSongColor', 'npArtistSize', 'npArtistColor',
+    'npBgColor', 'npOpacity', 'npPosX', 'npPosY',
+  ]) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    if (el.type === 'checkbox') el.addEventListener('change', debouncedSave);
+    else el.addEventListener('input', debouncedSave);
+  }
+  document.getElementById('nowplayingToggle')?.addEventListener('change', debouncedSave);
+
   document.getElementById('nowplayingToggle')?.addEventListener('change', function () {
     nowPlayingEmit(this.checked ? 'SHOW' : 'HIDE');
   });

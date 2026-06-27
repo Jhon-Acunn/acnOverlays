@@ -1,8 +1,50 @@
 import { setVal } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
+import { loadJSON, saveJSON } from './storage.js';
 
-const STORAGE_KEY = 'lower_guests';
+const GUEST_STORAGE_KEY = 'lower_guests';
+const MODULE_KEY = 'lower_third_settings';
+
+const LOWER_IDS = [
+  'inputNombre', 'inputApellido', 'inputCargo', 'inputFont',
+  'inputTitleSize', 'inputSubtitleSize',
+  'inputScale', 'inputPosX', 'inputPosY',
+  'inputTitleColor', 'inputTitleBg', 'inputSubtitleColor', 'inputSubtitleBg',
+];
+
+const LOWER_TOGGLE_IDS = ['lowerToggle'];
+
+function saveLowerSettings() {
+  const data = {};
+  for (const id of LOWER_IDS) {
+    const el = document.getElementById(id);
+    data[id] = el ? el.value : '';
+  }
+  for (const id of LOWER_TOGGLE_IDS) {
+    const el = document.getElementById(id);
+    data[id] = el ? el.checked : false;
+  }
+  saveJSON(MODULE_KEY, data);
+}
+
+function loadLowerSettings() {
+  const data = loadJSON(MODULE_KEY, {});
+  for (const id of LOWER_IDS) {
+    const el = document.getElementById(id);
+    if (el && data[id] !== undefined) el.value = data[id];
+  }
+  for (const id of LOWER_TOGGLE_IDS) {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!data[id];
+  }
+}
+
+let _lowerSaveTimer;
+function _lowerDebouncedSave() {
+  clearTimeout(_lowerSaveTimer);
+  _lowerSaveTimer = setTimeout(saveLowerSettings, 300);
+}
 
 const TIPO = 'LOWER_THIRD';
 const TAB = 'lower';
@@ -55,6 +97,13 @@ function lowerEmit(accion) {
 }
 
 export function initLowerThird() {
+  loadLowerSettings();
+  setVal('valTitleSize', (document.getElementById('inputTitleSize')?.value || '0') + 'rem');
+  setVal('valSubtitleSize', (document.getElementById('inputSubtitleSize')?.value || '0') + 'rem');
+  setVal('valScale', (document.getElementById('inputScale')?.value || '0') + 'x');
+  setVal('valPosX', (document.getElementById('inputPosX')?.value || '0') + 'px');
+  setVal('valPosY', (document.getElementById('inputPosY')?.value || '0') + 'px');
+
   document.getElementById('nameA')?.addEventListener('input', lowerUpdate);
   document.getElementById('nameB')?.addEventListener('input', lowerUpdate);
   for (const id of [
@@ -121,9 +170,15 @@ export function initLowerThird() {
     lowerUpdate();
   });
 
+  const lowerContainer = document.getElementById(TAB);
+  if (lowerContainer) {
+    lowerContainer.addEventListener('input', _lowerDebouncedSave);
+    lowerContainer.addEventListener('change', _lowerDebouncedSave);
+  }
+
   createGuestSlots({
     gridId: 'guest-grid',
-    storageKey: STORAGE_KEY,
+    storageKey: GUEST_STORAGE_KEY,
     getCurrent: () => {
       const nombre = document.getElementById('inputNombre').value.trim();
       const apellido = document.getElementById('inputApellido').value.trim();
@@ -132,11 +187,18 @@ export function initLowerThird() {
       return { nombre, apellido, cargo };
     },
     applyData: (d) => {
-      document.getElementById('inputNombre').value = d.nombre || '';
-      document.getElementById('inputApellido').value = d.apellido || '';
-      document.getElementById('inputCargo').value = d.cargo || '';
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = val || '';
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      };
+      set('inputNombre', d.nombre);
+      set('inputApellido', d.apellido);
+      set('inputCargo', d.cargo);
     },
-    formatTitle: (d) => `${d.nombre || ''} ${d.apellido || ''}`.trim() || 'Slot vacío',
+    formatTitle: (d) => `${d.nombre || ''} ${d.apellido || ''}`.trim() || 'Empty Slot',
     applyPreview: lowerUpdate,
   })?.loadInitial(1);
 }

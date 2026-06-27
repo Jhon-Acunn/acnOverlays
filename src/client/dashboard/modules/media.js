@@ -14,7 +14,7 @@ async function cargarMedia() {
         <img src="${f.url}" loading="lazy">
         <div class="name">${f.name}</div>
         <div class="actions">
-          <button class="media-copy" data-url="${f.url}">Copiar URL</button>
+          <button class="media-copy" data-url="${f.url}">Copy URL</button>
           <button class="media-del" data-name="${f.name}">×</button>
         </div>
       `;

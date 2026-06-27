@@ -1,11 +1,68 @@
 import { setVal, bindFontPicker } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
+import { loadJSON, saveJSON } from './storage.js';
 
 const TIPO = 'SPONSORS';
 const TAB = 'sponsors';
 const PREVIEW_TIPO = 'PREVIEW_SPONSORS';
 const TOGGLE_ID = 'sponsorToggle';
+
+let spSaveTimer;
+
+function saveSponsorsSettings() {
+  const sponsorItems = [];
+  document.querySelectorAll('.sponsor-item').forEach((item) => {
+    const nameEl = item.querySelector('.sp-name');
+    const urlEl = item.querySelector('.sp-logo-url');
+    sponsorItems.push({
+      name: nameEl ? nameEl.value : '',
+      url: urlEl ? urlEl.value : '',
+    });
+  });
+  saveJSON('sponsors_settings', {
+    spBarText: document.getElementById('spBarText').value,
+    spBarHeight: document.getElementById('spBarHeight').value,
+    spRotationSpeed: document.getElementById('spRotationSpeed').value,
+    spBarColor: document.getElementById('spBarColor').value,
+    spBarTextColor: document.getElementById('spBarTextColor').value,
+    spBgTop: document.getElementById('spBgTop').value,
+    spBgBottom: document.getElementById('spBgBottom').value,
+    spFont: document.getElementById('spFont').value,
+    sponsorToggle: document.getElementById('sponsorToggle').checked,
+    sponsorItems,
+  });
+}
+
+function loadSponsorsSettings() {
+  const s = loadJSON('sponsors_settings', {});
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined) el.value = val;
+  };
+  set('spBarText', s.spBarText);
+  set('spBarHeight', s.spBarHeight);
+  set('spRotationSpeed', s.spRotationSpeed);
+  set('spBarColor', s.spBarColor);
+  set('spBarTextColor', s.spBarTextColor);
+  set('spBgTop', s.spBgTop);
+  set('spBgBottom', s.spBgBottom);
+  set('spFont', s.spFont);
+  const toggle = document.getElementById('sponsorToggle');
+  if (toggle && s.sponsorToggle !== undefined) toggle.checked = s.sponsorToggle;
+  if (s.sponsorItems && s.sponsorItems.length > 0) {
+    const list = document.getElementById('sponsor-list');
+    if (list) {
+      list.innerHTML = '';
+      s.sponsorItems.forEach((sp) => list.appendChild(crearSponsorItem(sp)));
+    }
+  }
+}
+
+function debouncedSaveSp() {
+  clearTimeout(spSaveTimer);
+  spSaveTimer = setTimeout(saveSponsorsSettings, 300);
+}
 
 function leerSponsorsCfg() {
   return {
@@ -72,6 +129,7 @@ function ensurePickerPopup() {
     if (spPickerTarget) spPickerTarget.value = pickBtn.dataset.pickUrl;
     popup.style.display = 'none';
     sponsorsUpdate();
+    debouncedSaveSp();
   });
   document.addEventListener('click', (e) => {
     if (!popup.contains(e.target) && !e.target.closest('.sp-pick-logo')) {
@@ -91,17 +149,17 @@ async function mostrarPicker(btn) {
   popup.style.left = Math.max(4, rect.left) + 'px';
   popup.style.display = 'flex';
   popup.innerHTML =
-    '<div style="width:100%;font-size:0.7rem;color:var(--text-muted);margin-bottom:0.3rem;">Seleccionar logo:</div>';
+    '<div style="width:100%;font-size:0.7rem;color:var(--text-muted);margin-bottom:0.3rem;">Select logo:</div>';
   try {
     const res = await fetch('/api/media');
     const files = await res.json();
     if (!files.length) {
       popup.innerHTML +=
-        '<div style="font-size:0.7rem;color:var(--text-muted);width:100%;">Sube logos en la pestaña Media</div>';
+        '<div style="font-size:0.7rem;color:var(--text-muted);width:100%;">Upload logos in the Media tab</div>';
       return;
     }
     const btnNinguno = document.createElement('button');
-    btnNinguno.textContent = 'Sin logo';
+    btnNinguno.textContent = 'No Logo';
     btnNinguno.style.cssText =
       'font-size:0.7rem;padding:2px 6px;border-radius:4px;border:1px solid var(--border);background:var(--btn-bg);color:var(--text);cursor:pointer;';
     btnNinguno.dataset.pickUrl = '';
@@ -127,9 +185,9 @@ function crearSponsorItem(sp) {
   const nameVal = sp?.name || '';
   const logoVal = sp?.logoUrl || '';
   item.innerHTML = `
-    <input type="text" class="sp-name" placeholder="Nombre" value="${nameVal.replace(/"/g, '&quot;')}" style="flex:1;min-width:80px;font-size:0.8rem;">
-    <input type="text" class="sp-logo-url" placeholder="URL logo (opcional)" value="${logoVal.replace(/"/g, '&quot;')}" style="flex:1.5;min-width:100px;font-size:0.8rem;">
-    <button class="sp-pick-logo small" title="Seleccionar de Media" style="padding:0.3rem 0.4rem;font-size:0.8rem;">📁</button>
+    <input type="text" class="sp-name" placeholder="Name" value="${nameVal.replace(/"/g, '&quot;')}" style="flex:1;min-width:80px;font-size:0.8rem;">
+    <input type="text" class="sp-logo-url" placeholder="Logo URL (optional)" value="${logoVal.replace(/"/g, '&quot;')}" style="flex:1.5;min-width:100px;font-size:0.8rem;">
+    <button class="sp-pick-logo small" title="Select from Media" style="padding:0.3rem 0.4rem;font-size:0.8rem;">📁</button>
     <button class="sp-remove small danger" style="padding:0.3rem 0.4rem;font-size:0.8rem;">×</button>
   `;
   const nameInput = item.querySelector('.sp-name');
@@ -142,6 +200,7 @@ function crearSponsorItem(sp) {
   item.querySelector('.sp-remove').addEventListener('click', () => {
     item.remove();
     sponsorsUpdate();
+    debouncedSaveSp();
   });
   return item;
 }
@@ -152,9 +211,12 @@ function sponsorsAddItem() {
   list.appendChild(item);
   setTimeout(() => item.querySelector('.sp-name').focus(), 50);
   sponsorsUpdate();
+  debouncedSaveSp();
 }
 
 export function initSponsors() {
+  loadSponsorsSettings();
+
   const list = document.getElementById('sponsor-list');
   if (list && !list.children.length) {
     for (let i = 1; i <= 3; i++) {
@@ -162,9 +224,9 @@ export function initSponsors() {
       item.className = 'sponsor-item';
       item.style.cssText = 'display:flex;gap:0.3rem;align-items:center;width:100%;';
       item.innerHTML = `
-        <input type="text" class="sp-name" placeholder="Nombre" value="Sponsor ${String.fromCharCode(64 + i)}" style="flex:1;min-width:80px;font-size:0.8rem;">
-        <input type="text" class="sp-logo-url" placeholder="URL logo (opcional)" style="flex:1.5;min-width:100px;font-size:0.8rem;">
-        <button class="sp-pick-logo small" title="Seleccionar de Media" style="padding:0.3rem 0.4rem;font-size:0.8rem;">📁</button>
+        <input type="text" class="sp-name" placeholder="Name" value="Sponsor ${String.fromCharCode(64 + i)}" style="flex:1;min-width:80px;font-size:0.8rem;">
+        <input type="text" class="sp-logo-url" placeholder="Logo URL (optional)" style="flex:1.5;min-width:100px;font-size:0.8rem;">
+        <button class="sp-pick-logo small" title="Select from Media" style="padding:0.3rem 0.4rem;font-size:0.8rem;">📁</button>
         <button class="sp-remove small danger" style="padding:0.3rem 0.4rem;font-size:0.8rem;">×</button>
       `;
       item.querySelector('.sp-name').addEventListener('input', sponsorsUpdate);
@@ -175,13 +237,15 @@ export function initSponsors() {
       item.querySelector('.sp-remove').addEventListener('click', () => {
         item.remove();
         sponsorsUpdate();
+        debouncedSaveSp();
       });
       list.appendChild(item);
     }
-    setTimeout(() => {
-      if (document.getElementById(TOGGLE_ID)?.checked) sponsorsUpdate();
-    }, 500);
   }
+
+  setTimeout(() => {
+    if (document.getElementById(TOGGLE_ID)?.checked) sponsorsUpdate();
+  }, 500);
 
   document.getElementById('sponsor-add')?.addEventListener('click', sponsorsAddItem);
 
@@ -239,6 +303,7 @@ export function initSponsors() {
     setVal('valSpBarHeight', '44px');
     setVal('valSpRotationSpeed', '5.0s');
     sponsorsUpdate();
+    debouncedSaveSp();
   });
 
   createGuestSlots({
@@ -256,29 +321,37 @@ export function initSponsors() {
       if (data.sponsors) {
         data.sponsors.forEach((sp) => list.appendChild(crearSponsorItem(sp)));
       }
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el && val !== undefined) {
+          el.value = val;
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      };
       if (data.config) {
-        if (data.config.barText) document.getElementById('spBarText').value = data.config.barText;
-        if (data.config.barColor) document.getElementById('spBarColor').value = data.config.barColor;
-        if (data.config.barTextColor)
-          document.getElementById('spBarTextColor').value = data.config.barTextColor;
-        if (data.config.barHeight)
-          document.getElementById('spBarHeight').value = data.config.barHeight;
-        if (data.config.bgGradientTop)
-          document.getElementById('spBgTop').value = data.config.bgGradientTop;
-        if (data.config.bgGradientBottom)
-          document.getElementById('spBgBottom').value = data.config.bgGradientBottom;
-        if (data.config.rotationSpeed)
-          document.getElementById('spRotationSpeed').value = data.config.rotationSpeed;
-        if (data.config.fontFamily)
-          document.getElementById('spFont').value = data.config.fontFamily;
+        set('spBarText', data.config.barText);
+        set('spBarColor', data.config.barColor);
+        set('spBarTextColor', data.config.barTextColor);
+        set('spBarHeight', data.config.barHeight);
+        set('spBgTop', data.config.bgGradientTop);
+        set('spBgBottom', data.config.bgGradientBottom);
+        set('spRotationSpeed', data.config.rotationSpeed);
+        set('spFont', data.config.fontFamily);
         setVal('valSpBarHeight', document.getElementById('spBarHeight').value + 'px');
         setVal(
           'valSpRotationSpeed',
           (parseInt(document.getElementById('spRotationSpeed').value, 10) / 1000).toFixed(1) + 's'
         );
       }
+      sponsorsUpdate();
     },
     formatTitle: (d) => d.sponsors?.[0]?.name || 'Config',
     applyPreview: sponsorsUpdate,
   })?.loadInitial(1);
+
+  const spContainer = document.querySelector('[data-tab-content="sponsors"]');
+  if (spContainer) {
+    spContainer.addEventListener('input', debouncedSaveSp);
+    spContainer.addEventListener('change', debouncedSaveSp);
+  }
 }

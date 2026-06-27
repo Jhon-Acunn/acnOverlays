@@ -1,10 +1,54 @@
 import { setVal, bindFontPicker } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
+import { loadJSON, saveJSON } from './storage.js';
 
 const TIPO = 'LOWER_DUAL';
 const TAB = 'lower-dual';
 const PREVIEW_TIPO = 'PREVIEW_LOWER_DUAL';
+const STORAGE_KEY = 'lower_dual_settings';
+
+const DUAL_IDS = [
+  'dualLNombre', 'dualLApellido', 'dualLCargo',
+  'dualRNombre', 'dualRApellido', 'dualRCargo',
+  'dualFont', 'dualTitleSize', 'dualSubSize',
+  'dualLScale', 'dualLX', 'dualLY',
+  'dualRScale', 'dualRX', 'dualRY',
+  'dualTitleColor', 'dualTitleBg', 'dualSubColor', 'dualSubBg',
+];
+
+const DUAL_TOGGLE_IDS = ['dualLToggle', 'dualRToggle', 'dualBothToggle'];
+
+function saveSettings() {
+  const data = {};
+  for (const id of DUAL_IDS) {
+    const el = document.getElementById(id);
+    data[id] = el ? el.value : '';
+  }
+  for (const id of DUAL_TOGGLE_IDS) {
+    const el = document.getElementById(id);
+    data[id] = el ? el.checked : false;
+  }
+  saveJSON(STORAGE_KEY, data);
+}
+
+function loadSettings() {
+  const data = loadJSON(STORAGE_KEY, {});
+  for (const id of DUAL_IDS) {
+    const el = document.getElementById(id);
+    if (el && data[id] !== undefined) el.value = data[id];
+  }
+  for (const id of DUAL_TOGGLE_IDS) {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!data[id];
+  }
+}
+
+let _dualSaveTimer;
+function _dualDebouncedSave() {
+  clearTimeout(_dualSaveTimer);
+  _dualSaveTimer = setTimeout(saveSettings, 300);
+}
 
 function leerDualCfg() {
   const shared = {
@@ -98,11 +142,15 @@ function actualizarValDual() {
 export function initLowerDual() {
   let busy = false;
 
+  loadSettings();
+  actualizarValDual();
+
   function syncBoth() {
     const both = document.getElementById('dualBothToggle');
     if (!both) return;
     const on =
-      document.getElementById('dualLToggle').checked && document.getElementById('dualRToggle').checked;
+      document.getElementById('dualLToggle').checked &&
+      document.getElementById('dualRToggle').checked;
     if (both.checked !== on) {
       both.checked = on;
     }
@@ -190,7 +238,12 @@ export function initLowerDual() {
     });
   }
   bindFontPicker('dualFontDropdownBtn', 'dualFont');
-  actualizarValDual();
+
+  const dualContainer = document.getElementById(TAB);
+  if (dualContainer) {
+    dualContainer.addEventListener('input', _dualDebouncedSave);
+    dualContainer.addEventListener('change', _dualDebouncedSave);
+  }
 
   document.querySelector('[data-dual-reset-title]')?.addEventListener('click', () => {
     document.getElementById('dualTitleSize').value = '3.0';
@@ -232,11 +285,18 @@ export function initLowerDual() {
       return { nombre, apellido, cargo };
     },
     applyData: (d) => {
-      document.getElementById('dualLNombre').value = d.nombre || '';
-      document.getElementById('dualLApellido').value = d.apellido || '';
-      document.getElementById('dualLCargo').value = d.cargo || '';
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = val || '';
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      };
+      set('dualLNombre', d.nombre);
+      set('dualLApellido', d.apellido);
+      set('dualLCargo', d.cargo);
     },
-    formatTitle: (d) => `${d.nombre || ''} ${d.apellido || ''}`.trim() || 'Slot vacío',
+    formatTitle: (d) => `${d.nombre || ''} ${d.apellido || ''}`.trim() || 'Empty Slot',
     applyPreview: dualUpdate,
   });
 
@@ -251,11 +311,18 @@ export function initLowerDual() {
       return { nombre, apellido, cargo };
     },
     applyData: (d) => {
-      document.getElementById('dualRNombre').value = d.nombre || '';
-      document.getElementById('dualRApellido').value = d.apellido || '';
-      document.getElementById('dualRCargo').value = d.cargo || '';
+      const set = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.value = val || '';
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      };
+      set('dualRNombre', d.nombre);
+      set('dualRApellido', d.apellido);
+      set('dualRCargo', d.cargo);
     },
-    formatTitle: (d) => `${d.nombre || ''} ${d.apellido || ''}`.trim() || 'Slot vacío',
+    formatTitle: (d) => `${d.nombre || ''} ${d.apellido || ''}`.trim() || 'Empty Slot',
     applyPreview: dualUpdate,
   });
 

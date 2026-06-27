@@ -1,11 +1,57 @@
 import { setVal, bindFontPicker } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
+import { loadJSON, saveJSON } from './storage.js';
 
 const TIPO = 'TICKER';
 const TAB = 'ticker';
 const PREVIEW_TIPO = 'PREVIEW_TICKER';
 const TOGGLE_ID = 'tkrToggle';
+
+let tkrSaveTimer;
+
+function saveTkrSettings() {
+  saveJSON('ticker_settings', {
+    tkrTitle: document.getElementById('tkrTitle').value,
+    tkrMessage: document.getElementById('tkrMessage').value,
+    tkrSpeed: document.getElementById('tkrSpeed').value,
+    tkrLogoWidth: document.getElementById('tkrLogoWidth').value,
+    tkrFontSize: document.getElementById('tkrFontSize').value,
+    tkrFont: document.getElementById('tkrFont').value,
+    tkrTitleSize: document.getElementById('tkrTitleSize').value,
+    tkrTitleColor: document.getElementById('tkrTitleColor').value,
+    tkrTitleBg: document.getElementById('tkrTitleBg').value,
+    tkrMsgColor: document.getElementById('tkrMsgColor').value,
+    tkrMsgBg: document.getElementById('tkrMsgBg').value,
+    tkrToggle: document.getElementById('tkrToggle').checked,
+  });
+}
+
+function loadTkrSettings() {
+  const s = loadJSON('ticker_settings', {});
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el && val !== undefined) el.value = val;
+  };
+  set('tkrTitle', s.tkrTitle);
+  set('tkrMessage', s.tkrMessage);
+  set('tkrSpeed', s.tkrSpeed);
+  set('tkrLogoWidth', s.tkrLogoWidth);
+  set('tkrFontSize', s.tkrFontSize);
+  set('tkrFont', s.tkrFont);
+  set('tkrTitleSize', s.tkrTitleSize);
+  set('tkrTitleColor', s.tkrTitleColor);
+  set('tkrTitleBg', s.tkrTitleBg);
+  set('tkrMsgColor', s.tkrMsgColor);
+  set('tkrMsgBg', s.tkrMsgBg);
+  const toggle = document.getElementById('tkrToggle');
+  if (toggle && s.tkrToggle !== undefined) toggle.checked = s.tkrToggle;
+}
+
+function debouncedSaveTkr() {
+  clearTimeout(tkrSaveTimer);
+  tkrSaveTimer = setTimeout(saveTkrSettings, 300);
+}
 
 let tickerLogoUrl = null;
 
@@ -62,7 +108,7 @@ async function cargarTkrLogos() {
     const files = await res.json();
     container.innerHTML = '';
     const btnNinguno = document.createElement('button');
-    btnNinguno.textContent = 'Ninguno';
+    btnNinguno.textContent = 'None';
     btnNinguno.style.cssText =
       'font-size:0.7rem;padding:2px 6px;border-radius:4px;border:2px solid #2a2a36;background:#1a1a24;color:#888;cursor:pointer;';
     btnNinguno.dataset.logo = '';
@@ -96,6 +142,8 @@ async function cargarTkrLogos() {
 }
 
 export function initTicker() {
+  loadTkrSettings();
+
   document.getElementById('tkrToggle')?.addEventListener('change', function () {
     tickerEmit(this.checked ? 'SHOW' : 'HIDE');
   });
@@ -129,6 +177,7 @@ export function initTicker() {
     document.getElementById('tkrTitleBg').value = '#071041';
     actualizarValoresTkr();
     tickerUpdate();
+    debouncedSaveTkr();
   });
   document.querySelector('[data-reset-tkr-msg]')?.addEventListener('click', () => {
     document.getElementById('tkrFontSize').value = 33;
@@ -136,6 +185,7 @@ export function initTicker() {
     document.getElementById('tkrMsgBg').value = '#ffffff';
     actualizarValoresTkr();
     tickerUpdate();
+    debouncedSaveTkr();
   });
 
   document.querySelector('[data-tab="ticker"]')?.addEventListener('click', () => {
@@ -165,22 +215,35 @@ export function initTicker() {
       };
     },
     applyData: (d) => {
-      document.getElementById('tkrTitle').value = d.title || '';
-      document.getElementById('tkrMessage').value = d.message || '';
+      const set = (id, val, dispatch = true) => {
+        const el = document.getElementById(id);
+        if (el && val !== undefined) {
+          el.value = val;
+          if (dispatch) el.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      };
+      set('tkrTitle', d.title || '');
+      set('tkrMessage', d.message || '');
       tickerLogoUrl = d.logoUrl || null;
-      if (d.speed) document.getElementById('tkrSpeed').value = d.speed;
-      if (d.logoWidth) document.getElementById('tkrLogoWidth').value = d.logoWidth;
-      if (d.fontSize) document.getElementById('tkrFontSize').value = d.fontSize;
-      if (d.fontFamily) document.getElementById('tkrFont').value = d.fontFamily;
-      if (d.titleSize) document.getElementById('tkrTitleSize').value = d.titleSize;
-      if (d.titleColor) document.getElementById('tkrTitleColor').value = d.titleColor;
-      if (d.titleBg) document.getElementById('tkrTitleBg').value = d.titleBg;
-      if (d.msgColor) document.getElementById('tkrMsgColor').value = d.msgColor;
-      if (d.msgBg) document.getElementById('tkrMsgBg').value = d.msgBg;
+      set('tkrSpeed', d.speed);
+      set('tkrLogoWidth', d.logoWidth);
+      set('tkrFontSize', d.fontSize);
+      set('tkrFont', d.fontFamily);
+      set('tkrTitleSize', d.titleSize);
+      set('tkrTitleColor', d.titleColor);
+      set('tkrTitleBg', d.titleBg);
+      set('tkrMsgColor', d.msgColor);
+      set('tkrMsgBg', d.msgBg);
       actualizarValoresTkr();
       cargarTkrLogos();
     },
-    formatTitle: (d) => d.title || '(sin título)',
+    formatTitle: (d) => d.title || '(no title)',
     applyPreview: tickerUpdate,
   })?.loadInitial(1);
+
+  const tkrContainer = document.querySelector('[data-tab-content="ticker"]');
+  if (tkrContainer) {
+    tkrContainer.addEventListener('input', debouncedSaveTkr);
+    tkrContainer.addEventListener('change', debouncedSaveTkr);
+  }
 }

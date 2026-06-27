@@ -1,3 +1,11 @@
+export function debounce(fn, ms = 300) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}
+
 export function hexToRgba(hex, opacity) {
   hex = String(hex || '').replace('#', '');
   if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
@@ -12,7 +20,8 @@ export function colorWithOpacity(color, opacity) {
   if (!color) return `rgba(0,0,0,${opacity})`;
   const trimmed = String(color).trim();
   if (trimmed.startsWith('rgba')) return trimmed.replace(/[\d.]+\)$/, opacity + ')');
-  if (trimmed.startsWith('rgb')) return trimmed.replace('rgb', 'rgba').replace(')', ', ' + opacity + ')');
+  if (trimmed.startsWith('rgb'))
+    return trimmed.replace('rgb', 'rgba').replace(')', ', ' + opacity + ')');
   return hexToRgba(trimmed, opacity);
 }
 
@@ -52,7 +61,7 @@ export function initURLCopy() {
     const url = window.location.origin + row.dataset.path;
     row.innerHTML = `
       <code class="url-text">${url}</code>
-      <button class="url-copy" data-url="${url}" title="Copiar URL">📋</button>
+      <button class="url-copy" data-url="${url}" title="Copy URL">📋</button>
     `;
   });
   document.addEventListener('click', (e) => {

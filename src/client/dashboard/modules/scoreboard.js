@@ -1,8 +1,9 @@
 import { loadJSON, saveJSON } from './storage.js';
-import { colorWithOpacity, setVal } from './utils.js';
+import { colorWithOpacity, setVal, debounce } from './utils.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
 
 const STORAGE_KEY = 'scoreboard';
+const SETTINGS_KEY = 'scoreboard_settings';
 let scoreA = 0;
 let scoreB = 0;
 
@@ -99,6 +100,47 @@ function resetearScore() {
   scoreEmit();
 }
 
+function saveSettings() {
+  saveJSON(SETTINGS_KEY, {
+    scScoreSize: document.getElementById('scScoreSize').value,
+    scTeamSize: document.getElementById('scTeamSize').value,
+    scScoreColor: document.getElementById('scScoreColor').value,
+    scTeamColor: document.getElementById('scTeamColor').value,
+    scBgColor: document.getElementById('scBgColor').value,
+    scBgOpacity: document.getElementById('scBgOpacity').value,
+    scRadius: document.getElementById('scRadius').value,
+    scTeamABg: document.getElementById('scTeamABg').value,
+    scTeamAOpacity: document.getElementById('scTeamAOpacity').value,
+    scTeamBBg: document.getElementById('scTeamBBg').value,
+    scTeamBOpacity: document.getElementById('scTeamBOpacity').value,
+    scDividerColor: document.getElementById('scDividerColor').value,
+    scPosY: document.getElementById('scPosY').value,
+    nameA: document.getElementById('nameA').value,
+    nameB: document.getElementById('nameB').value,
+    scoreToggle: document.getElementById('scoreToggle')?.checked ?? false,
+  });
+}
+
+function loadSettings() {
+  const s = loadJSON(SETTINGS_KEY, {});
+  if (s.scScoreSize !== undefined) document.getElementById('scScoreSize').value = s.scScoreSize;
+  if (s.scTeamSize !== undefined) document.getElementById('scTeamSize').value = s.scTeamSize;
+  if (s.scScoreColor !== undefined) document.getElementById('scScoreColor').value = s.scScoreColor;
+  if (s.scTeamColor !== undefined) document.getElementById('scTeamColor').value = s.scTeamColor;
+  if (s.scBgColor !== undefined) document.getElementById('scBgColor').value = s.scBgColor;
+  if (s.scBgOpacity !== undefined) document.getElementById('scBgOpacity').value = s.scBgOpacity;
+  if (s.scRadius !== undefined) document.getElementById('scRadius').value = s.scRadius;
+  if (s.scTeamABg !== undefined) document.getElementById('scTeamABg').value = s.scTeamABg;
+  if (s.scTeamAOpacity !== undefined) document.getElementById('scTeamAOpacity').value = s.scTeamAOpacity;
+  if (s.scTeamBBg !== undefined) document.getElementById('scTeamBBg').value = s.scTeamBBg;
+  if (s.scTeamBOpacity !== undefined) document.getElementById('scTeamBOpacity').value = s.scTeamBOpacity;
+  if (s.scDividerColor !== undefined) document.getElementById('scDividerColor').value = s.scDividerColor;
+  if (s.scPosY !== undefined) document.getElementById('scPosY').value = s.scPosY;
+  if (s.nameA !== undefined) document.getElementById('nameA').value = s.nameA;
+  if (s.nameB !== undefined) document.getElementById('nameB').value = s.nameB;
+  if (s.scoreToggle !== undefined) document.getElementById('scoreToggle').checked = s.scoreToggle;
+}
+
 function actualizarValScore() {
   setVal('valScScoreSize', document.getElementById('scScoreSize').value + 'rem');
   setVal('valScTeamSize', document.getElementById('scTeamSize').value + 'rem');
@@ -110,11 +152,27 @@ function actualizarValScore() {
 }
 
 export function initScoreboard() {
+  loadSettings();
   const loaded = cargarScore();
   scoreA = loaded.scoreA;
   scoreB = loaded.scoreB;
   document.getElementById('displayA').innerText = String(scoreA);
   document.getElementById('displayB').innerText = String(scoreB);
+
+  const debouncedSave = debounce(saveSettings, 300);
+
+  for (const id of [
+    'scScoreSize', 'scTeamSize', 'scScoreColor', 'scTeamColor',
+    'scBgColor', 'scBgOpacity', 'scRadius', 'scTeamABg', 'scTeamAOpacity',
+    'scTeamBBg', 'scTeamBOpacity', 'scDividerColor', 'scPosY',
+    'nameA', 'nameB',
+  ]) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    if (el.type === 'checkbox') el.addEventListener('change', debouncedSave);
+    else el.addEventListener('input', debouncedSave);
+  }
+  document.getElementById('scoreToggle')?.addEventListener('change', debouncedSave);
 
   document.getElementById('nameA')?.addEventListener('input', scoreUpdate);
   document.getElementById('nameB')?.addEventListener('input', scoreUpdate);

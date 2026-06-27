@@ -1,1160 +1,2619 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - Control de Overlays</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Bebas+Neue&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css">
-</head>
-<body>
-
-<div class="theme-toggle">
-  <span class="theme-icon">☀️</span>
-  <label class="switch">
-    <input type="checkbox" id="themeSwitch">
-    <span class="switch-slider"></span>
-  </label>
-  <span class="theme-icon">🌙</span>
-</div>
-
-<button id="sidebar-toggle" class="sidebar-toggle-btn" title="Ocultar/Mostrar panel">☰</button>
-
-<!-- ═══ SIDEBAR ═══ -->
-<aside id="quick-panel">
-  <div class="qp-header">
-    <span>⚡ Control Rápido</span>
-    <button id="qp-collapse-btn" class="qp-collapse-btn" title="Colapsar panel">◀</button>
-  </div>
-
-  <div class="qp-section">
-    <div class="qp-subtitle">Lower Dual</div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Izquierda</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpDualLToggle"><span class="switch-slider"></span></label>
-    </div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Derecha</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpDualRToggle"><span class="switch-slider"></span></label>
-    </div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Ambos</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpDualBothToggle"><span class="switch-slider"></span></label>
-    </div>
-  </div>
-
-  <div class="qp-section">
-    <div class="qp-subtitle">Lower Third Izq. <span style="font-weight:400;font-size:0.55rem;color:var(--text-muted);">clic → cargar · clic der. → guardar</span></div>
-    <div class="qp-guest-grid" id="qp-dualL-grid"></div>
-    <div id="qp-dualL-preview" class="qp-slot-preview"></div>
-  </div>
-
-  <div class="qp-section">
-    <div class="qp-subtitle">Lower Third Der. <span style="font-weight:400;font-size:0.55rem;color:var(--text-muted);">clic → cargar · clic der. → guardar</span></div>
-    <div class="qp-guest-grid" id="qp-dualR-grid"></div>
-    <div id="qp-dualR-preview" class="qp-slot-preview"></div>
-  </div>
-
-  <div class="qp-section">
-    <div class="qp-subtitle">Ticker</div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Activar</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpToggle"><span class="switch-slider"></span></label>
-    </div>
-  </div>
-
-  <div class="qp-section">
-    <div class="qp-subtitle">Ticker Guardados <span style="font-weight:400;font-size:0.55rem;color:var(--text-muted);">clic → cargar · clic der. → guardar</span></div>
-    <div class="qp-guest-grid" id="qp-ticker-grid"></div>
-    <div id="qp-ticker-preview" class="qp-slot-preview"></div>
-  </div>
-
-  <div class="qp-section">
-    <div class="qp-subtitle">Otros</div>
-    <div class="qp-toggle-row">
-      <span class="qp-label">Patrocinadores</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpSponsorToggle"><span class="switch-slider"></span></label>
-    </div>
-    <div class="qp-toggle-row">
-      <span class="qp-label" style="font-weight:700;color:var(--accent);">★ Combo</span>
-      <label class="switch qp-switch"><input type="checkbox" id="qpComboToggle"><span class="switch-slider"></span></label>
-    </div>
-    <div style="display:flex;gap:0.3rem;margin-top:0.3rem;">
-      <button id="qpShowAll" class="qp-btn" style="flex:1;">Mostrar todo</button>
-      <button id="qpHideAll" class="qp-btn" style="flex:1;">Ocultar todo</button>
-    </div>
-  </div>
-</aside>
-
-<!-- ═══ MAIN CONTENT ═══ -->
-<div class="main-content">
-
-  <h1>Panel de Control — Overlays</h1>
-
-  <nav class="tabs">
-    <button class="tab active" data-tab="lower-dual">Lower Dual</button>
-    <button class="tab" data-tab="ticker">Ticker</button>
-    <button class="tab" data-tab="sponsors">Patrocinadores</button>
-    <button class="tab" data-tab="livebug">Live Bug</button>
-    <button class="tab" data-tab="combo">Combo</button>
-    <button class="tab" data-tab="media">Media</button>
-    <button class="tab hidden-tab" data-tab="lower">Lower Third</button>
-    <button class="tab hidden-tab" data-tab="scoreboard">Scoreboard</button>
-    <button class="tab hidden-tab" data-tab="weather">Clima</button>
-    <button class="tab hidden-tab" data-tab="countdown">Cuenta</button>
-    <button class="tab hidden-tab" data-tab="nowplaying">Música</button>
-    <button class="tab hidden-tab" data-tab="resultados">Resultados</button>
-  </nav>
-
-  <section class="tab-content" data-tab-content="scoreboard">
-    <h2>Scoreboard / Marcador</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/scoreboard/" class="preview-iframe" title="Vista previa Scoreboard"></iframe>
-          </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Overlay Control</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Bebas+Neue&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- ═══ MAIN CONTENT ═══ -->
+      <div class="main-content">
+        <div class="module-header">
+          <div id="module-tabs" class="module-tabs"></div>
+          <button id="open-settings-btn" class="open-settings-btn" title="Open settings">⚙</button>
         </div>
-        <div class="dual-grid" style="margin-top:0.75rem;">
-          <div class="dual-side">
-            <h5 class="dual-heading">Equipo A</h5>
-            <div class="row" style="margin-bottom:0.35rem;">
-              <input type="text" id="nameA" value="LOCAL" placeholder="Nombre">
-            </div>
-            <div class="row" style="justify-content:center;gap:0.4rem;">
-              <span class="score-display" id="displayA">0</span>
-              <button class="small" data-score="A" data-val="1">+1</button>
-              <button class="small" data-score="A" data-val="-1">-1</button>
+
+        <!-- ═══ Quick Controls Bar ═══ -->
+        <div class="quick-controls-bar">
+          <div class="qc-row">
+            <span class="qc-section-label">Lower Dual</span>
+            <div class="qc-toggles">
+              <div class="qc-toggle">
+                <span>Left</span>
+                <label class="switch qp-switch"
+                  ><input type="checkbox" id="qpDualLToggle" /><span class="switch-slider"></span
+                ></label>
+              </div>
+              <div class="qc-toggle">
+                <span>Right</span>
+                <label class="switch qp-switch"
+                  ><input type="checkbox" id="qpDualRToggle" /><span class="switch-slider"></span
+                ></label>
+              </div>
+              <div class="qc-toggle">
+                <span>Both</span>
+                <label class="switch qp-switch"
+                  ><input type="checkbox" id="qpDualBothToggle" /><span class="switch-slider"></span
+                ></label>
+              </div>
             </div>
           </div>
-          <div class="dual-divider"></div>
-          <div class="dual-side">
-            <h5 class="dual-heading">Equipo B</h5>
-            <div class="row" style="margin-bottom:0.35rem;">
-              <input type="text" id="nameB" value="VISITANTE" placeholder="Nombre">
-            </div>
-            <div class="row" style="justify-content:center;gap:0.4rem;">
-              <span class="score-display" id="displayB">0</span>
-              <button class="small" data-score="B" data-val="1">+1</button>
-              <button class="small" data-score="B" data-val="-1">-1</button>
-            </div>
-          </div>
-        </div>
-        <div class="row" style="margin-top: 1rem;">
-          <button class="danger block" data-reset-score>Resetear Marcador</button>
-        </div>
-        <div class="row" style="margin-top:0.75rem;justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="scoreToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-        <div class="url-row" data-path="/templates/scoreboard/"></div>
-      </div>
-
-      <div class="lower-right">
-        <h3>Personalizar estilo</h3>
-
-        <h4 class="section-label">Puntaje</h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="scScoreSize" class="spin-input" min="2.0" max="6.0" step="0.1" value="3.5">
-          <button type="button" class="spin-btn" data-spin="scScoreSize" data-dir="up">▲</button>
-          <button type="button" class="spin-btn" data-spin="scScoreSize" data-dir="down">▼</button>
-          <span class="val" id="valScScoreSize">3.5rem</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="scScoreColor" value="#ffffff">
-        </div>
-
-        <h4 class="section-label">Nombre equipo</h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="scTeamSize" class="spin-input" min="0.6" max="2.0" step="0.1" value="1.0">
-          <button type="button" class="spin-btn" data-spin="scTeamSize" data-dir="up">▲</button>
-          <button type="button" class="spin-btn" data-spin="scTeamSize" data-dir="down">▼</button>
-          <span class="val" id="valScTeamSize">1.0rem</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="scTeamColor" value="#aaaaaa">
-        </div>
-
-        <h4 class="section-label">Fondo global</h4>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="scBgColor" value="#000000">
-        </div>
-        <div class="row">
-          <span class="row-label">Opacidad</span>
-          <input type="number" id="scBgOpacity" class="spin-input" min="0" max="100" step="5" value="75">
-          <button type="button" class="spin-btn" data-spin="scBgOpacity" data-dir="up">▲</button>
-          <button type="button" class="spin-btn" data-spin="scBgOpacity" data-dir="down">▼</button>
-          <span class="val" id="valScBgOpacity">75%</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Radius</span>
-          <input type="number" id="scRadius" class="spin-input" min="0" max="30" step="1" value="12">
-          <button type="button" class="spin-btn" data-spin="scRadius" data-dir="up">▲</button>
-          <button type="button" class="spin-btn" data-spin="scRadius" data-dir="down">▼</button>
-          <span class="val" id="valScRadius">12px</span>
-        </div>
-
-        <h4 class="section-label">Fondo por equipo</h4>
-        <div class="row">
-          <span class="row-label">Equipo A</span>
-          <input type="color" id="scTeamABg" value="#1e50c8">
-        </div>
-        <div class="row">
-          <span class="row-label">Opac. A</span>
-          <input type="number" id="scTeamAOpacity" class="spin-input" min="0" max="100" step="5" value="30">
-          <button type="button" class="spin-btn" data-spin="scTeamAOpacity" data-dir="up">▲</button>
-          <button type="button" class="spin-btn" data-spin="scTeamAOpacity" data-dir="down">▼</button>
-          <span class="val" id="valScTeamAOpacity">30%</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Equipo B</span>
-          <input type="color" id="scTeamBBg" value="#c83232">
-        </div>
-        <div class="row">
-          <span class="row-label">Opac. B</span>
-          <input type="number" id="scTeamBOpacity" class="spin-input" min="0" max="100" step="5" value="30">
-          <button type="button" class="spin-btn" data-spin="scTeamBOpacity" data-dir="up">▲</button>
-          <button type="button" class="spin-btn" data-spin="scTeamBOpacity" data-dir="down">▼</button>
-          <span class="val" id="valScTeamBOpacity">30%</span>
-        </div>
-
-        <h4 class="section-label">Divisor</h4>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="scDividerColor" value="#555555">
-        </div>
-
-        <h4 class="section-label">Posición</h4>
-        <div class="row">
-          <span class="row-label">Y</span>
-          <input type="number" id="scPosY" class="spin-input" min="10" max="200" step="5" value="40">
-          <button type="button" class="spin-btn" data-spin="scPosY" data-dir="up">▲</button>
-          <button type="button" class="spin-btn" data-spin="scPosY" data-dir="down">▼</button>
-          <span class="val" id="valScPosY">40px</span>
-        </div>
-        <div style="margin-top:1rem;">
-          <button class="block" id="scResetStyle">↺ Restaurar estilo</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab-content" data-tab-content="lower">
-    <h2>Lower Third / Tercio Inferior</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/lower-third/" class="preview-iframe" title="Vista previa Lower Third"></iframe>
-          </div>
-        </div>
-        <div class="row">
-          <input type="text" id="inputNombre" placeholder="Nombre">
-        </div>
-        <div class="row">
-          <input type="text" id="inputApellido" placeholder="Apellido">
-        </div>
-        <div class="row">
-          <input type="text" id="inputCargo" placeholder="Cargo / Título">
-        </div>
-        <div class="row" style="margin-top: 0.75rem; justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="lowerToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-        <div class="row" style="margin-top:0.75rem; gap:0.25rem;" id="guest-grid"></div>
-        <div class="url-row" data-path="/templates/lower-third/"></div>
-      </div>
-      <div class="lower-right">
-        <h3>Personalizar estilo</h3>
-        <div class="row">
-          <span class="row-label">Fuente</span>
-          <div style="display:flex;flex:1;gap:0;position:relative;">
-            <input type="text" id="inputFont" value="Montserrat, sans-serif" placeholder="Nombre de fuente" list="fontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
-            <button id="fontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
-          </div>
-          <datalist id="fontList">
-            <option value="Montserrat, sans-serif">
-            <option value="Inter, sans-serif">
-            <option value="Arial, Helvetica, sans-serif">
-            <option value="Verdana, sans-serif">
-            <option value="Tahoma, sans-serif">
-            <option value="Trebuchet MS, sans-serif">
-            <option value="Georgia, serif">
-            <option value="Times New Roman, serif">
-            <option value="Courier New, monospace">
-            <option value="Impact, sans-serif">
-            <option value="Segoe UI, sans-serif">
-          </datalist>
-        </div>
-
-        <h4 class="section-label">Título <button data-reset-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="inputTitleSize" class="spin-input" min="1.0" max="4.0" step="0.1" value="3.0"><button type="button" class="spin-btn" data-spin="inputTitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputTitleSize" data-dir="down">▼</button>
-          <span class="val" id="valTitleSize">2.5rem</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="inputTitleColor" value="#ffffff">
-        </div>
-        <div class="row">
-          <span class="row-label">Fondo</span>
-          <input type="color" id="inputTitleBg" value="#06155A">
-        </div>
-
-        <h4 class="section-label">Subtítulo <button data-reset-sub style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="inputSubtitleSize" class="spin-input" min="0.8" max="4.0" step="0.1" value="2.5"><button type="button" class="spin-btn" data-spin="inputSubtitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputSubtitleSize" data-dir="down">▼</button>
-          <span class="val" id="valSubtitleSize">2.5rem</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="inputSubtitleColor" value="#111111">
-        </div>
-        <div class="row">
-          <span class="row-label">Fondo</span>
-          <input type="color" id="inputSubtitleBg" value="#ffffff">
-        </div>
-
-        <h4 class="section-label">Posición <button data-reset-pos title="Restaurar valores por defecto" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Escala</span>
-          <input type="number" id="inputScale" class="spin-input" min="0.5" max="2.0" step="0.1" value="1.0"><button type="button" class="spin-btn" data-spin="inputScale" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputScale" data-dir="down">▼</button>
-          <span class="val" id="valScale">1.0x</span>
-        </div>
-        <div class="row">
-          <span class="row-label">X</span>
-          <input type="number" id="inputPosX" class="spin-input" min="0" max="1800" step="5" value="100"><button type="button" class="spin-btn" data-spin="inputPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputPosX" data-dir="down">▼</button>
-          <span class="val" id="valPosX">100px</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Y</span>
-          <input type="number" id="inputPosY" class="spin-input" min="0" max="1000" step="5" value="90"><button type="button" class="spin-btn" data-spin="inputPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="inputPosY" data-dir="down">▼</button>
-          <span class="val" id="valPosY">90px</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab-content active" data-tab-content="lower-dual">
-    <h2>Lower Third Dual</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/lower-third-dual/" class="preview-iframe" title="Vista previa Lower Dual"></iframe>
-          </div>
-        </div>
-        <div class="row" style="margin-top:0.5rem; justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="dualBothToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-        <div class="dual-grid">
-          <div class="dual-side">
-            <h5 class="dual-heading">Izquierda</h5>
-            <div class="row">
-              <input type="text" id="dualLNombre" placeholder="Nombre">
-            </div>
-            <div class="row">
-              <input type="text" id="dualLApellido" placeholder="Apellido">
-            </div>
-            <div class="row">
-              <input type="text" id="dualLCargo" placeholder="Cargo / Título">
-            </div>
-            <div class="row" style="margin-top:0.5rem; justify-content:center;">
-              <label class="switch">
-                <input type="checkbox" id="dualLToggle">
-                <span class="switch-slider"></span>
-              </label>
-            </div>
-            <div class="row" style="margin-top:0.5rem; gap:0.25rem;" id="dualL-guest-grid"></div>
-          </div>
-          <div class="dual-divider"></div>
-          <div class="dual-side">
-            <h5 class="dual-heading">Derecha</h5>
-            <div class="row">
-              <input type="text" id="dualRNombre" placeholder="Nombre">
-            </div>
-            <div class="row">
-              <input type="text" id="dualRApellido" placeholder="Apellido">
-            </div>
-            <div class="row">
-              <input type="text" id="dualRCargo" placeholder="Cargo / Título">
-            </div>
-            <div class="row" style="margin-top:0.5rem; justify-content:center;">
-              <label class="switch">
-                <input type="checkbox" id="dualRToggle">
-                <span class="switch-slider"></span>
-              </label>
-            </div>
-            <div class="row" style="margin-top:0.5rem; gap:0.25rem;" id="dualR-guest-grid"></div>
-          </div>
-        </div>
-        <div class="url-row" data-path="/templates/lower-third-dual/"></div>
-      </div>
-      <div class="lower-right">
-        <h3>Personalizar estilo</h3>
-        <div class="row">
-          <span class="row-label">Fuente</span>
-          <div style="display:flex;flex:1;gap:0;position:relative;">
-            <input type="text" id="dualFont" value="Montserrat, sans-serif" placeholder="Nombre de fuente" list="dualFontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
-            <button id="dualFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
-          </div>
-          <datalist id="dualFontList">
-            <option value="Montserrat, sans-serif">
-            <option value="Inter, sans-serif">
-            <option value="Arial, Helvetica, sans-serif">
-            <option value="Verdana, sans-serif">
-            <option value="Tahoma, sans-serif">
-            <option value="Trebuchet MS, sans-serif">
-            <option value="Georgia, serif">
-            <option value="Times New Roman, serif">
-            <option value="Courier New, monospace">
-            <option value="Impact, sans-serif">
-            <option value="Segoe UI, sans-serif">
-          </datalist>
-        </div>
-
-        <h4 class="section-label">Título <button data-dual-reset-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="dualTitleSize" class="spin-input" min="1.0" max="4.0" step="0.1" value="3.0"><button type="button" class="spin-btn" data-spin="dualTitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualTitleSize" data-dir="down">▼</button>
-          <span class="val" id="valDualTitleSize">2.5rem</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="dualTitleColor" value="#ffffff">
-        </div>
-        <div class="row">
-          <span class="row-label">Fondo</span>
-          <input type="color" id="dualTitleBg" value="#06155A">
-        </div>
-
-        <h4 class="section-label">Subtítulo <button data-dual-reset-sub style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="dualSubSize" class="spin-input" min="0.8" max="4.0" step="0.1" value="2.5"><button type="button" class="spin-btn" data-spin="dualSubSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualSubSize" data-dir="down">▼</button>
-          <span class="val" id="valDualSubSize">2.5rem</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="dualSubColor" value="#111111">
-        </div>
-        <div class="row">
-          <span class="row-label">Fondo</span>
-          <input type="color" id="dualSubBg" value="#ffffff">
-        </div>
-
-        <h4 class="section-label">Lado izquierdo <button data-dual-reset-left style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Escala</span>
-          <input type="number" id="dualLScale" class="spin-input" min="0.5" max="2.0" step="0.1" value="1.0"><button type="button" class="spin-btn" data-spin="dualLScale" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualLScale" data-dir="down">▼</button>
-          <span class="val" id="valDualLScale">1.0x</span>
-        </div>
-        <div class="row">
-          <span class="row-label">X</span>
-          <input type="number" id="dualLX" class="spin-input" min="0" max="1800" step="5" value="100"><button type="button" class="spin-btn" data-spin="dualLX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualLX" data-dir="down">▼</button>
-          <span class="val" id="valDualLX">100px</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Y</span>
-          <input type="number" id="dualLY" class="spin-input" min="0" max="1000" step="5" value="90"><button type="button" class="spin-btn" data-spin="dualLY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualLY" data-dir="down">▼</button>
-          <span class="val" id="valDualLY">90px</span>
-        </div>
-
-        <h4 class="section-label">Lado derecho <button data-dual-reset-right style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Escala</span>
-          <input type="number" id="dualRScale" class="spin-input" min="0.5" max="2.0" step="0.1" value="1.0"><button type="button" class="spin-btn" data-spin="dualRScale" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualRScale" data-dir="down">▼</button>
-          <span class="val" id="valDualRScale">1.0x</span>
-        </div>
-        <div class="row">
-          <span class="row-label">X</span>
-          <input type="number" id="dualRX" class="spin-input" min="0" max="1800" step="5" value="100"><button type="button" class="spin-btn" data-spin="dualRX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualRX" data-dir="down">▼</button>
-          <span class="val" id="valDualRX">100px</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Y</span>
-          <input type="number" id="dualRY" class="spin-input" min="0" max="1000" step="5" value="90"><button type="button" class="spin-btn" data-spin="dualRY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="dualRY" data-dir="down">▼</button>
-          <span class="val" id="valDualRY">90px</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab-content" data-tab-content="sponsors">
-    <h2>Patrocinadores</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/sponsors/" class="preview-iframe" title="Vista previa Patrocinadores"></iframe>
-          </div>
-        </div>
-
-        <div class="row" style="gap:0.4rem;flex-wrap:wrap;" id="sponsor-list"></div>
-
-        <div class="row" style="margin-top:0.5rem;">
-          <button class="primary" id="sponsor-add" style="flex:1;">+ Agregar Patrocinador</button>
-        </div>
-
-        <div class="row" style="margin-top:0.75rem;justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="sponsorToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-
-        <div class="row" style="margin-top:0.75rem;gap:0.25rem;" id="sponsor-guest-grid"></div>
-
-        <div class="url-row" data-path="/templates/sponsors/"></div>
-      </div>
-
-      <div class="lower-right">
-        <h3>Personalizar estilo</h3>
-
-        <h4 class="section-label">Barra</h4>
-        <div class="row">
-          <span class="row-label">Texto</span>
-          <input type="text" id="spBarText" value="PATROCINADO POR">
-        </div>
-        <div class="row">
-          <span class="row-label">Color barra</span>
-          <input type="color" id="spBarColor" value="#e53935">
-        </div>
-        <div class="row">
-          <span class="row-label">Texto barra</span>
-          <input type="color" id="spBarTextColor" value="#ffffff">
-        </div>
-        <div class="row">
-          <span class="row-label">Altura</span>
-          <input type="number" id="spBarHeight" class="spin-input" min="30" max="80" step="2" value="44"><button type="button" class="spin-btn" data-spin="spBarHeight" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="spBarHeight" data-dir="down">▼</button>
-          <span class="val" id="valSpBarHeight">44px</span>
-        </div>
-
-        <h4 class="section-label">Fondo logos</h4>
-        <div class="row">
-          <span class="row-label">Degr. arriba</span>
-          <input type="color" id="spBgTop" value="#3a3a3a">
-        </div>
-        <div class="row">
-          <span class="row-label">Degr. abajo</span>
-          <input type="color" id="spBgBottom" value="#555555">
-        </div>
-
-        <h4 class="section-label">Rotación</h4>
-        <div class="row">
-          <span class="row-label">Velocidad</span>
-          <input type="number" id="spRotationSpeed" class="spin-input" min="2000" max="15000" step="500" value="5000"><button type="button" class="spin-btn" data-spin="spRotationSpeed" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="spRotationSpeed" data-dir="down">▼</button>
-          <span class="val" id="valSpRotationSpeed">5.0s</span>
-        </div>
-
-        <h4 class="section-label">Fuente</h4>
-        <div class="row">
-          <span class="row-label">Fuente</span>
-          <div style="display:flex;flex:1;gap:0;position:relative;">
-            <input type="text" id="spFont" value="Inter, sans-serif" placeholder="Nombre de fuente" list="spFontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
-            <button id="spFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
-          </div>
-          <datalist id="spFontList">
-            <option value="Inter, sans-serif">
-            <option value="Montserrat, sans-serif">
-            <option value="Arial, Helvetica, sans-serif">
-            <option value="Impact, sans-serif">
-          </datalist>
-        </div>
-        <div style="margin-top:1rem;">
-          <button class="block" id="spResetStyle">↺ Restaurar estilo</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab-content" data-tab-content="ticker">
-    <h2>Ticker / Barra Inferior</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/ticker/" class="preview-iframe" title="Vista previa Ticker"></iframe>
-          </div>
-        </div>
-        <div class="row">
-          <span class="row-label">Título</span>
-          <input type="text" id="tkrTitle" value="LIVE" placeholder="Texto del bloque izquierdo">
-        </div>
-        <div class="row">
-          <span class="row-label">Mensaje</span>
-          <input type="text" id="tkrMessage" value="masterización profesional. Producción musical de calidad" placeholder="Texto del ticker">
-        </div>
-        <div class="row" style="margin-top:0.5rem; justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="tkrToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-        <div class="row">
-          <span class="row-label">Logo final</span>
-          <div id="tkr-logo-select" style="display:flex;flex-wrap:wrap;gap:4px;flex:1;"></div>
-        </div>
-        <div class="row" style="margin-top:0.75rem; gap:0.25rem;" id="tkr-guest-grid"></div>
-        <div class="url-row" data-path="/templates/ticker/"></div>
-      </div>
-      <div class="lower-right">
-        <h3>Personalizar estilo</h3>
-        <div class="row">
-          <span class="row-label">Fuente</span>
-          <div style="display:flex;flex:1;gap:0;position:relative;">
-            <input type="text" id="tkrFont" value="Inter, sans-serif" placeholder="Nombre de fuente" list="tkrFontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
-            <button id="tkrFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
-          </div>
-          <datalist id="tkrFontList">
-            <option value="Inter, sans-serif">
-            <option value="Montserrat, sans-serif">
-            <option value="Arial, Helvetica, sans-serif">
-            <option value="Verdana, sans-serif">
-            <option value="Tahoma, sans-serif">
-            <option value="Trebuchet MS, sans-serif">
-            <option value="Georgia, serif">
-            <option value="Times New Roman, serif">
-            <option value="Courier New, monospace">
-            <option value="Impact, sans-serif">
-            <option value="Segoe UI, sans-serif">
-          </datalist>
-        </div>
-        <div class="row">
-          <span class="row-label">Velocidad</span>
-          <input type="number" id="tkrSpeed" class="spin-input" min="30" max="200" step="5" value="80"><button type="button" class="spin-btn" data-spin="tkrSpeed" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="tkrSpeed" data-dir="down">▼</button>
-          <span class="val" id="valTkrSpeed">80px/s</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Ancho logo</span>
-          <input type="number" id="tkrLogoWidth" class="spin-input" min="1" max="15" step="0.5" value="4"><button type="button" class="spin-btn" data-spin="tkrLogoWidth" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="tkrLogoWidth" data-dir="down">▼</button>
-          <span class="val" id="valTkrLogoWidth">4%</span>
-        </div>
-        <h4 class="section-label">Título <button data-reset-tkr-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="tkrTitleSize" class="spin-input" min="16" max="60" step="1" value="44"><button type="button" class="spin-btn" data-spin="tkrTitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="tkrTitleSize" data-dir="down">▼</button>
-          <span class="val" id="valTkrTitleSize">44px</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="tkrTitleColor" value="#ffffff">
-        </div>
-        <div class="row">
-          <span class="row-label">Fondo</span>
-          <input type="color" id="tkrTitleBg" value="#071041">
-        </div>
-        <h4 class="section-label">Mensaje <button data-reset-tkr-msg style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="tkrFontSize" class="spin-input" min="16" max="60" step="1" value="33"><button type="button" class="spin-btn" data-spin="tkrFontSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="tkrFontSize" data-dir="down">▼</button>
-          <span class="val" id="valTkrFontSize">33px</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="tkrMsgColor" value="#111111">
-        </div>
-        <div class="row">
-          <span class="row-label">Fondo</span>
-          <input type="color" id="tkrMsgBg" value="#ffffff">
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab-content" data-tab-content="livebug">
-    <h2>Live Bug</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/livebug/" class="preview-iframe" title="Vista previa Live Bug"></iframe>
-          </div>
-        </div>
-        <div class="row">
-          <input type="text" id="lbInputLugar" value="C.C VIVA" placeholder="Lugar (ej. C.C VIVA)">
-        </div>
-        <div class="row">
-          <input type="text" id="lbInputCiudad" value="TUNJA" placeholder="Ciudad para clima (ej. TUNJA)">
-        </div>
-        <div class="row" style="margin-top:0.5rem;">
-          <span class="row-label" style="min-width:80px;">Refrescar</span>
-          <input type="number" id="lbInputRefresh" class="spin-input" min="60" max="3600" step="30" value="1800"><button type="button" class="spin-btn" data-spin="lbInputRefresh" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputRefresh" data-dir="down">▼</button>
-          <span class="val" id="valLbRefresh">30 min</span>
-          <button id="lbRefreshTempBtn" title="Refrescar temperatura ahora" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;margin-left:0.4rem;">⟳</button>
-        </div>
-        <div class="row" style="margin-top: 0.75rem; justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="livebugToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-        <div class="url-row" data-path="/templates/livebug/"></div>
-      </div>
-      <div class="lower-right">
-        <h3>Personalizar estilo</h3>
-        <div class="row">
-          <span class="row-label">Fuente</span>
-          <div style="display:flex;flex:1;gap:0;position:relative;">
-            <input type="text" id="lbInputFont" value="Montserrat, sans-serif" placeholder="Nombre de fuente" list="fontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
-            <button id="lbFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-right-radius:0;border-bottom-right-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
-          </div>
-        </div>
-
-        <h4 class="section-label">Título (azul) <button data-lb-reset-title style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="lbInputTitleSize" class="spin-input" min="1.0" max="4.0" step="0.1" value="3.0"><button type="button" class="spin-btn" data-spin="lbInputTitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputTitleSize" data-dir="down">▼</button>
-          <span class="val" id="valLbTitleSize">3.0rem</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="lbInputTitleColor" value="#ffffff">
-        </div>
-        <div class="row">
-          <span class="row-label">Fondo</span>
-          <input type="color" id="lbInputTitleBg" value="#06155A">
-        </div>
-
-        <h4 class="section-label">Subtítulo (blanco) <button data-lb-reset-sub style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Tamaño</span>
-          <input type="number" id="lbInputSubtitleSize" class="spin-input" min="0.8" max="4.0" step="0.1" value="2.5"><button type="button" class="spin-btn" data-spin="lbInputSubtitleSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputSubtitleSize" data-dir="down">▼</button>
-          <span class="val" id="valLbSubtitleSize">2.5rem</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Color</span>
-          <input type="color" id="lbInputSubtitleColor" value="#111111">
-        </div>
-        <div class="row">
-          <span class="row-label">Fondo</span>
-          <input type="color" id="lbInputSubtitleBg" value="#ffffff">
-        </div>
-
-        <h4 class="section-label">Posición <button data-lb-reset-pos title="Restaurar valores por defecto" style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;padding:0;font-size:0.7rem;border-radius:4px;background:#2a2a36;border:1px solid #444;color:#aaa;cursor:pointer;vertical-align:middle;">↺</button></h4>
-        <div class="row">
-          <span class="row-label">Escala</span>
-          <input type="number" id="lbInputScale" class="spin-input" min="0.5" max="2.0" step="0.1" value="1.0"><button type="button" class="spin-btn" data-spin="lbInputScale" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputScale" data-dir="down">▼</button>
-          <span class="val" id="valLbScale">1.0x</span>
-        </div>
-        <div class="row">
-          <span class="row-label">X (izq.)</span>
-          <input type="number" id="lbInputPosX" class="spin-input" min="0" max="1800" step="5" value="100"><button type="button" class="spin-btn" data-spin="lbInputPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputPosX" data-dir="down">▼</button>
-          <span class="val" id="valLbPosX">100px</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Y (arriba)</span>
-          <input type="number" id="lbInputPosY" class="spin-input" min="0" max="1000" step="5" value="32"><button type="button" class="spin-btn" data-spin="lbInputPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="lbInputPosY" data-dir="down">▼</button>
-          <span class="val" id="valLbPosY">32px</span>
-        </div>
-
-        <div style="margin-top:1rem;">
-          <button class="block" id="livebugResetStyle">↺ Restaurar estilo</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab-content" data-tab-content="combo">
-    <h2>Combo — Todo en uno</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/combo/" class="preview-iframe" title="Vista previa Combo"></iframe>
-          </div>
-        </div>
-        <p style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.75rem;line-height:1.5;">
-          Este overlay combina <strong>Lower Dual</strong> + <strong>Patrocinadores</strong> + <strong>Ticker</strong>
-          en una sola salida. Controla cada elemento desde su pestaña individual.
-        </p>
-        <div class="row" style="margin-top:0.5rem;justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="comboToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-        <div class="url-row" data-path="/templates/combo/"></div>
-      </div>
-      <div class="lower-right">
-        <h3>Información</h3>
-        <p style="font-size:0.75rem;color:var(--text-muted);line-height:1.6;">
-          Capas (z-index):<br>
-          <strong>Sponsors</strong> z-index: 10 (arriba izquierda)<br>
-          <strong>Lower Dual</strong> z-index: 20 (abajo ambos lados)<br>
-          <strong>Ticker</strong> z-index: 30 (abajo, 65px altura)
-        </p>
-        <p style="font-size:0.75rem;color:var(--text-muted);margin-top:1rem;line-height:1.6;">
-          El toggle "Mostrar todo" emite <em>SHOW</em> para los tres componentes
-          simultáneamente. Úsalo para encender o apagar el combo completo desde OBS.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <section class="tab-content" data-tab-content="media">
-    <h2>Media / Logos</h2>
-    <div class="media-layout">
-      <div id="media-grid" class="media-grid"></div>
-      <div class="media-side">
-        <input type="file" id="media-file-input" accept="image/*" multiple hidden>
-        <button id="media-upload-btn" class="media-upload-btn">+ Subir imágenes</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ WEATHER ═══ -->
-  <section class="tab-content" data-tab-content="weather">
-    <h2>Clima / Weather</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/weather/" class="preview-iframe" title="Vista previa Clima"></iframe>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:0.75rem;">
-          <span class="row-label" style="min-width:50px;">Ciudad</span>
-          <input type="text" id="weatherCity" value="Lima" placeholder="Ej: Lima, London, Tokyo" style="flex:1;">
-        </div>
-        <div class="row">
-          <span class="row-label" style="min-width:50px;">País</span>
-          <input type="text" id="weatherCountry" value="Perú" placeholder="Ej: Perú" style="flex:1;">
-        </div>
-
-        <div class="row" style="margin-top:0.75rem;">
-          <span class="row-label" style="min-width:50px;">Refrescar</span>
-          <input type="number" id="weatherRefresh" class="spin-input" min="60" max="3600" step="30" value="600"><button type="button" class="spin-btn" data-spin="weatherRefresh" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherRefresh" data-dir="down">▼</button>
-          <span class="val" id="valWeatherRefresh">10 min</span>
-        </div>
-
-        <div class="row" style="margin-top:0.75rem;justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="weatherToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-
-        <div class="url-row" data-path="/templates/weather/"></div>
-      </div>
-
-      <div class="lower-right">
-        <h3>Personalizar estilo</h3>
-
-        <h4 class="section-label">Fuente</h4>
-        <div class="row">
-          <span class="row-label">Familia</span>
-          <div style="display:flex;flex:1;gap:0;position:relative;">
-            <input type="text" id="weatherFont" value="Inter, sans-serif" list="fontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
-            <button id="weatherFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
-          </div>
-        </div>
-
-        <h4 class="section-label">Colores</h4>
-        <div class="row"><span class="row-label">Texto</span><input type="color" id="weatherTextColor" value="#ffffff"></div>
-        <div class="row"><span class="row-label">País</span><input type="color" id="weatherCountryColor" value="#8ab4f8"></div>
-        <div class="row"><span class="row-label">Fondo</span><input type="color" id="weatherBgColor" value="#000000"></div>
-        <div class="row"><span class="row-label">Opacidad</span><input type="number" id="weatherOpacity" class="spin-input" min="0.2" max="1" step="0.05" value="0.65"><button type="button" class="spin-btn" data-spin="weatherOpacity" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherOpacity" data-dir="down">▼</button><span class="val" id="valWeatherOpacity">0.65</span></div>
-
-        <h4 class="section-label">Posición</h4>
-        <div class="row"><span class="row-label">X</span><input type="number" id="weatherPosX" class="spin-input" min="10" max="200" step="5" value="32"><button type="button" class="spin-btn" data-spin="weatherPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherPosX" data-dir="down">▼</button><span class="val" id="valWeatherPosX">32px</span></div>
-        <div class="row"><span class="row-label">Y</span><input type="number" id="weatherPosY" class="spin-input" min="10" max="200" step="5" value="32"><button type="button" class="spin-btn" data-spin="weatherPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherPosY" data-dir="down">▼</button><span class="val" id="valWeatherPosY">32px</span></div>
-
-        <h4 class="section-label">Tamaños</h4>
-        <div class="row"><span class="row-label">País</span><input type="number" id="weatherSizeCountry" class="spin-input" min="0.5" max="1.2" step="0.05" value="0.7"><button type="button" class="spin-btn" data-spin="weatherSizeCountry" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherSizeCountry" data-dir="down">▼</button><span class="val" id="valWeatherSizeCountry">0.7rem</span></div>
-        <div class="row"><span class="row-label">Ciudad</span><input type="number" id="weatherSizeCity" class="spin-input" min="0.8" max="2.0" step="0.1" value="1.2"><button type="button" class="spin-btn" data-spin="weatherSizeCity" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherSizeCity" data-dir="down">▼</button><span class="val" id="valWeatherSizeCity">1.2rem</span></div>
-        <div class="row"><span class="row-label">Temp.</span><input type="number" id="weatherSizeTemp" class="spin-input" min="1.2" max="3.0" step="0.1" value="1.8"><button type="button" class="spin-btn" data-spin="weatherSizeTemp" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="weatherSizeTemp" data-dir="down">▼</button><span class="val" id="valWeatherSizeTemp">1.8rem</span></div>
-
-        <div class="row" style="margin-top:0.5rem;">
-          <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-muted);cursor:pointer;">
-            <input type="checkbox" id="weatherShowIcon" checked> Mostrar ícono
-          </label>
-          <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--text-muted);cursor:pointer;">
-            <input type="checkbox" id="weatherShowCountry" checked> Mostrar país
-          </label>
-        </div>
-
-        <div style="margin-top:1rem;">
-          <button class="block" id="weatherResetStyle">↺ Restaurar estilo</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ COUNTDOWN ═══ -->
-  <section class="tab-content" data-tab-content="countdown">
-    <h2>Cuenta Regresiva / Countdown</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/countdown/" class="preview-iframe" title="Vista previa Countdown"></iframe>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:0.75rem;">
-          <span class="row-label" style="min-width:70px;">Duración</span>
-          <input type="number" id="cdDuration" value="3600" min="10" max="86400" step="60" style="flex:1;width:80px;">
-          <span style="font-size:0.7rem;color:var(--text-muted);">segundos</span>
-        </div>
-        <div class="row">
-          <span class="row-label" style="min-width:70px;">Etiqueta</span>
-          <input type="text" id="cdLabel" value="PRÓXIMO INICIO" placeholder="Ej: PRÓXIMO INICIO" style="flex:1;">
-        </div>
-        <div class="row">
-          <span class="row-label" style="min-width:70px;">Modo</span>
-          <select id="cdMode" style="flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;padding:0.4rem;color:var(--text);">
-            <option value="countdown">Regresiva</option>
-            <option value="countup">Progresivo</option>
-          </select>
-        </div>
-
-        <div class="row" style="margin-top:0.75rem;">
-          <button class="primary" id="cdReset" style="flex:1;">⟳ Reiniciar cuenta</button>
-        </div>
-
-        <div class="row" style="margin-top:0.5rem;justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="countdownToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-
-        <div class="url-row" data-path="/templates/countdown/"></div>
-      </div>
-
-      <div class="lower-right">
-        <h3>Personalizar estilo</h3>
-
-        <h4 class="section-label">Fuente</h4>
-        <div class="row">
-          <span class="row-label">Familia</span>
-          <div style="display:flex;flex:1;gap:0;position:relative;">
-            <input type="text" id="cdFont" value="Inter, sans-serif" list="fontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
-            <button id="cdFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
-          </div>
-        </div>
-
-        <h4 class="section-label">Colores</h4>
-        <div class="row"><span class="row-label">Etiqueta</span><input type="color" id="cdLabelColor" value="#aaaaaa"></div>
-        <div class="row"><span class="row-label">Números</span><input type="color" id="cdDisplayColor" value="#ffffff"></div>
-        <div class="row"><span class="row-label">Fondo</span><input type="color" id="cdBgColor" value="#000000"></div>
-        <div class="row"><span class="row-label">Opacidad</span><input type="number" id="cdOpacity" class="spin-input" min="0.2" max="1" step="0.05" value="0.6"><button type="button" class="spin-btn" data-spin="cdOpacity" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdOpacity" data-dir="down">▼</button><span class="val" id="valCdOpacity">0.60</span></div>
-
-        <h4 class="section-label">Tamaños</h4>
-        <div class="row"><span class="row-label">Etiqueta</span><input type="number" id="cdLabelSize" class="spin-input" min="0.4" max="1.2" step="0.05" value="0.6"><button type="button" class="spin-btn" data-spin="cdLabelSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdLabelSize" data-dir="down">▼</button><span class="val" id="valCdLabelSize">0.6rem</span></div>
-        <div class="row"><span class="row-label">Números</span><input type="number" id="cdDisplaySize" class="spin-input" min="1.5" max="5.0" step="0.1" value="2.8"><button type="button" class="spin-btn" data-spin="cdDisplaySize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdDisplaySize" data-dir="down">▼</button><span class="val" id="valCdDisplaySize">2.8rem</span></div>
-
-        <h4 class="section-label">Posición</h4>
-        <div class="row"><span class="row-label">X (der.)</span><input type="number" id="cdPosX" class="spin-input" min="10" max="300" step="5" value="32"><button type="button" class="spin-btn" data-spin="cdPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdPosX" data-dir="down">▼</button><span class="val" id="valCdPosX">32px</span></div>
-        <div class="row"><span class="row-label">Y (abajo)</span><input type="number" id="cdPosY" class="spin-input" min="20" max="400" step="5" value="96"><button type="button" class="spin-btn" data-spin="cdPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="cdPosY" data-dir="down">▼</button><span class="val" id="valCdPosY">96px</span></div>
-
-        <div style="margin-top:1rem;">
-          <button class="block" id="cdResetStyle">↺ Restaurar estilo</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ NOW PLAYING ═══ -->
-  <section class="tab-content" data-tab-content="nowplaying">
-    <h2>Now Playing / Música</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/nowplaying/" class="preview-iframe" title="Vista previa Now Playing"></iframe>
-          </div>
-        </div>
-
-        <div class="row" style="margin-top:0.75rem;">
-          <span class="row-label" style="min-width:60px;">Canción</span>
-          <input type="text" id="npSong" value="Blinding Lights" placeholder="Nombre de canción" style="flex:1;">
-        </div>
-        <div class="row">
-          <span class="row-label" style="min-width:60px;">Artista</span>
-          <input type="text" id="npArtist" value="The Weeknd" placeholder="Nombre del artista" style="flex:1;">
-        </div>
-        <div class="row">
-          <span class="row-label" style="min-width:60px;">Portada URL</span>
-          <input type="text" id="npCoverUrl" placeholder="URL de imagen de portada (opcional)" style="flex:1;">
-        </div>
-
-        <div class="row" style="margin-top:0.75rem;justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="nowplayingToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-
-        <div class="url-row" data-path="/templates/nowplaying/"></div>
-      </div>
-
-      <div class="lower-right">
-        <h3>Personalizar estilo</h3>
-
-        <h4 class="section-label">Barra superior</h4>
-        <div class="row"><span class="row-label">Texto</span><input type="text" id="npBarText" value="NOW PLAYING" style="flex:1;"></div>
-        <div class="row"><span class="row-label">Fondo</span><input type="color" id="npBarBg" value="#1db954"></div>
-        <div class="row"><span class="row-label">Color</span><input type="color" id="npBarColor" value="#ffffff"></div>
-
-        <h4 class="section-label">Fuente</h4>
-        <div class="row">
-          <span class="row-label">Familia</span>
-          <div style="display:flex;flex:1;gap:0;position:relative;">
-            <input type="text" id="npFont" value="Inter, sans-serif" list="fontList" style="flex:1;border-top-right-radius:0;border-bottom-right-radius:0;">
-            <button id="npFontDropdownBtn" type="button" style="width:28px;padding:0;border-top-left-radius:0;border-bottom-left-radius:0;background:#1a1a24;border:1px solid #2a2a36;border-left:none;color:#888;cursor:pointer;font-size:0.7rem;display:flex;align-items:center;justify-content:center;">▼</button>
-          </div>
-        </div>
-
-        <h4 class="section-label">Colores</h4>
-        <div class="row"><span class="row-label">Canción</span><input type="color" id="npSongColor" value="#ffffff"></div>
-        <div class="row"><span class="row-label">Artista</span><input type="color" id="npArtistColor" value="#aaaaaa"></div>
-        <div class="row"><span class="row-label">Fondo</span><input type="color" id="npBgColor" value="#000000"></div>
-        <div class="row"><span class="row-label">Opacidad</span><input type="number" id="npOpacity" class="spin-input" min="0.2" max="1" step="0.05" value="0.65"><button type="button" class="spin-btn" data-spin="npOpacity" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npOpacity" data-dir="down">▼</button><span class="val" id="valNpOpacity">0.65</span></div>
-
-        <h4 class="section-label">Tamaños</h4>
-        <div class="row"><span class="row-label">Canción</span><input type="number" id="npSongSize" class="spin-input" min="0.7" max="1.8" step="0.05" value="1.0"><button type="button" class="spin-btn" data-spin="npSongSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npSongSize" data-dir="down">▼</button><span class="val" id="valNpSongSize">1.0rem</span></div>
-        <div class="row"><span class="row-label">Artista</span><input type="number" id="npArtistSize" class="spin-input" min="0.5" max="1.2" step="0.05" value="0.75"><button type="button" class="spin-btn" data-spin="npArtistSize" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npArtistSize" data-dir="down">▼</button><span class="val" id="valNpArtistSize">0.75rem</span></div>
-
-        <h4 class="section-label">Posición</h4>
-        <div class="row"><span class="row-label">X (izq.)</span><input type="number" id="npPosX" class="spin-input" min="10" max="300" step="5" value="32"><button type="button" class="spin-btn" data-spin="npPosX" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npPosX" data-dir="down">▼</button><span class="val" id="valNpPosX">32px</span></div>
-        <div class="row"><span class="row-label">Y (abajo)</span><input type="number" id="npPosY" class="spin-input" min="20" max="400" step="5" value="96"><button type="button" class="spin-btn" data-spin="npPosY" data-dir="up">▲</button><button type="button" class="spin-btn" data-spin="npPosY" data-dir="down">▼</button><span class="val" id="valNpPosY">96px</span></div>
-
-        <div style="margin-top:1rem;">
-          <button class="block" id="npResetStyle">↺ Restaurar estilo</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══ RESULTADOS ═══ -->
-  <section class="tab-content" data-tab-content="resultados">
-    <h2>Resultados Electorales</h2>
-    <div class="lower-grid">
-      <div class="lower-left">
-        <div class="preview-scene">
-          <div class="preview-stage">
-            <iframe src="/templates/resultados/" class="preview-iframe" title="Vista previa Resultados"></iframe>
-          </div>
-        </div>
-
-        <div class="dual-grid">
-          <div class="dual-side">
-            <h5 class="dual-heading">Candidato A</h5>
-            <div class="row"><input type="text" id="resNombreA" placeholder="Nombre completo"></div>
-            <div class="row"><input type="text" id="resPartidoA" placeholder="Partido político"></div>
-            <div class="row"><span class="row-label">Color</span><input type="color" id="resColorA" value="#3b82f6"></div>
-            <div class="row">
-              <span class="row-label">%</span>
-              <input type="number" id="resPercentA" value="45.2" min="0" max="100" step="0.1" style="flex:1;">
-            </div>
-            <div class="row">
-              <span class="row-label">Votos</span>
-              <input type="number" id="resVotosA" value="1234567" min="0" step="1" style="flex:1;">
-            </div>
-            <div class="row">
-              <span class="row-label">Foto</span>
-              <div id="res-fotoA-picker" style="display:flex;flex-wrap:wrap;gap:2px;flex:1;"></div>
-            </div>
-          </div>
-          <div class="dual-divider"></div>
-          <div class="dual-side">
-            <h5 class="dual-heading">Candidato B</h5>
-            <div class="row"><input type="text" id="resNombreB" placeholder="Nombre completo"></div>
-            <div class="row"><input type="text" id="resPartidoB" placeholder="Partido político"></div>
-            <div class="row"><span class="row-label">Color</span><input type="color" id="resColorB" value="#ef4444"></div>
-            <div class="row">
-              <span class="row-label">%</span>
-              <input type="number" id="resPercentB" value="42.8" min="0" max="100" step="0.1" style="flex:1;">
-            </div>
-            <div class="row">
-              <span class="row-label">Votos</span>
-              <input type="number" id="resVotosB" value="1198765" min="0" step="1" style="flex:1;">
-            </div>
-            <div class="row">
-              <span class="row-label">Foto</span>
-              <div id="res-fotoB-picker" style="display:flex;flex-wrap:wrap;gap:2px;flex:1;"></div>
+          <div class="qc-divider"></div>
+          <div class="qc-row">
+            <span class="qc-section-label">Info Graphics</span>
+            <div class="qc-toggles">
+              <div class="qc-toggle">
+                <span>Ticker</span>
+                <label class="switch qp-switch"
+                  ><input type="checkbox" id="qpToggle" /><span class="switch-slider"></span
+                ></label>
+              </div>
+              <div class="qc-toggle">
+                <span>Sponsors</span>
+                <label class="switch qp-switch"
+                  ><input type="checkbox" id="qpSponsorToggle" /><span class="switch-slider"></span
+                ></label>
+              </div>
+              <div class="qc-toggle">
+                <span>Live Bug</span>
+                <label class="switch qp-switch"
+                  ><input type="checkbox" id="qpLivebugToggle" /><span class="switch-slider"></span
+                ></label>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="row" style="margin-top:0.75rem;justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" id="resultadosToggle">
-            <span class="switch-slider"></span>
-          </label>
-        </div>
-        <div class="url-row" data-path="/templates/resultados/"></div>
-      </div>
+        <div id="module-container" class="module-container">
+          <!-- Las <section class="tab-content"> se clonan/mueven aquí dinámicamente -->
 
-      <div class="lower-right">
-        <h3>Personalizar datos</h3>
+          <section
+            class="tab-content"
+            data-tab-content="scoreboard"
+            data-module-name="Scoreboard"
+            hidden
+          >
+            <h2>Scoreboard</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/scoreboard/"
+                      class="preview-iframe"
+                      title="Vista previa Scoreboard"
+                    ></iframe>
+                  </div>
+                </div>
+                <div class="dual-grid" style="margin-top: 0.75rem">
+                  <div class="dual-side">
+                    <h5 class="dual-heading">Team A</h5>
+                    <div class="row" style="margin-bottom: 0.35rem">
+                      <input type="text" id="nameA" value="LOCAL" placeholder="Name" />
+                    </div>
+                    <div class="row" style="justify-content: center; gap: 0.4rem">
+                      <span class="score-display" id="displayA">0</span>
+                      <button class="small" data-score="A" data-val="1">+1</button>
+                      <button class="small" data-score="A" data-val="-1">-1</button>
+                    </div>
+                  </div>
+                  <div class="dual-divider"></div>
+                  <div class="dual-side">
+                    <h5 class="dual-heading">Team B</h5>
+                    <div class="row" style="margin-bottom: 0.35rem">
+                      <input type="text" id="nameB" value="VISITANTE" placeholder="Name" />
+                    </div>
+                    <div class="row" style="justify-content: center; gap: 0.4rem">
+                      <span class="score-display" id="displayB">0</span>
+                      <button class="small" data-score="B" data-val="1">+1</button>
+                      <button class="small" data-score="B" data-val="-1">-1</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row" style="margin-top: 1rem">
+                  <button class="danger block" data-reset-score>Reset Scoreboard</button>
+                </div>
+                <div class="row" style="margin-top: 0.75rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="scoreToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+                <div class="url-row" data-path="/templates/scoreboard/"></div>
+              </div>
 
-        <h4 class="section-label">Centro</h4>
-        <div class="row">
-          <span class="row-label">Participación</span>
-          <input type="number" id="resParticipacion" value="62.5" min="0" max="100" step="0.1" style="flex:1;">
-          <span class="val">%</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Dpto. mayor</span>
-          <input type="text" id="resTopDept" value="Boyacá" style="flex:1;">
-        </div>
-        <div class="row">
-          <span class="row-label">Tendencia</span>
-          <input type="text" id="resTendencia" value="↑ Estable" style="flex:1;">
-        </div>
-        <div class="row">
-          <span class="row-label">Diferencia</span>
-          <input type="number" id="resDiferencia" value="2.4" min="0" max="100" step="0.1" style="flex:1;">
-          <span class="val">%</span>
-        </div>
+              <div class="lower-right style-panel">
+                <h3>Customize Style</h3>
 
-        <h4 class="section-label">Header</h4>
-        <div class="row">
-          <span class="row-label">Fecha</span>
-          <input type="text" id="resFecha" value="21 JUNIO 2026" style="flex:1;">
-        </div>
-        <div class="row">
-          <span class="row-label">Escrutinio</span>
-          <input type="number" id="resEscrutinio" value="94.72" min="0" max="100" step="0.01" style="flex:1;">
-          <span class="val">%</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Logo</span>
-          <div id="res-logo-picker" style="display:flex;flex-wrap:wrap;gap:2px;flex:1;"></div>
-        </div>
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-section-label">Score</div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="scScoreSize"
+                          class="spin-input"
+                          min="2.0"
+                          max="6.0"
+                          step="0.1"
+                          value="3.5"
+                        />
+                        <div class="spin-group-arrows">
+                          <button type="button" data-spin="scScoreSize" data-dir="up">▲</button>
+                          <button type="button" data-spin="scScoreSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input type="color" id="scScoreColor" value="#ffffff" class="style-color" />
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-section-label">Team Name</div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="scTeamSize"
+                          class="spin-input"
+                          min="0.6"
+                          max="2.0"
+                          step="0.1"
+                          value="1.0"
+                        />
+                        <div class="spin-group-arrows">
+                          <button type="button" data-spin="scTeamSize" data-dir="up">▲</button>
+                          <button type="button" data-spin="scTeamSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input type="color" id="scTeamColor" value="#aaaaaa" class="style-color" />
+                    </div>
+                  </div>
+                </div>
 
-        <h4 class="section-label">Ticker</h4>
-        <div class="row">
-          <textarea id="resTickerMsgs" rows="3" style="flex:1;font-size:0.75rem;resize:vertical;" placeholder="Un mensaje por línea">Registraduría Nacional actualiza resultados
+                <div class="style-section-label">Global Background</div>
+                <div class="style-row">
+                  <span class="style-label">Color</span>
+                  <input type="color" id="scBgColor" value="#000000" class="style-color" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Opacity</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="scBgOpacity"
+                      class="spin-input"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value="75"
+                    />
+                    <div class="spin-group-arrows">
+                      <button type="button" data-spin="scBgOpacity" data-dir="up">▲</button>
+                      <button type="button" data-spin="scBgOpacity" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Radius</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="scRadius"
+                      class="spin-input"
+                      min="0"
+                      max="30"
+                      step="1"
+                      value="12"
+                    />
+                    <div class="spin-group-arrows">
+                      <button type="button" data-spin="scRadius" data-dir="up">▲</button>
+                      <button type="button" data-spin="scRadius" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Per-Team Background</div>
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-row">
+                      <span class="style-label">Team A</span>
+                      <input type="color" id="scTeamABg" value="#1e50c8" class="style-color" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Opac. A</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="scTeamAOpacity"
+                          class="spin-input"
+                          min="0"
+                          max="100"
+                          step="5"
+                          value="30"
+                        />
+                        <div class="spin-group-arrows">
+                          <button type="button" data-spin="scTeamAOpacity" data-dir="up">▲</button>
+                          <button type="button" data-spin="scTeamAOpacity" data-dir="down">
+                            ▼
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-row">
+                      <span class="style-label">Team B</span>
+                      <input type="color" id="scTeamBBg" value="#c83232" class="style-color" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Opac. B</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="scTeamBOpacity"
+                          class="spin-input"
+                          min="0"
+                          max="100"
+                          step="5"
+                          value="30"
+                        />
+                        <div class="spin-group-arrows">
+                          <button type="button" data-spin="scTeamBOpacity" data-dir="up">▲</button>
+                          <button type="button" data-spin="scTeamBOpacity" data-dir="down">
+                            ▼
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Divider</div>
+                <div class="style-row">
+                  <span class="style-label">Color</span>
+                  <input type="color" id="scDividerColor" value="#555555" class="style-color" />
+                </div>
+
+                <div class="style-section-label">Position</div>
+                <div class="style-row">
+                  <span class="style-label">Y</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="scPosY"
+                      class="spin-input"
+                      min="10"
+                      max="200"
+                      step="5"
+                      value="40"
+                    />
+                    <div class="spin-group-arrows">
+                      <button type="button" data-spin="scPosY" data-dir="up">▲</button>
+                      <button type="button" data-spin="scPosY" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div style="margin-top: 1rem">
+                  <button class="block" id="scResetStyle">↺ Restore Style</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="tab-content"
+            data-tab-content="lower"
+            data-module-name="Lower Third"
+            hidden
+          >
+            <h2>Lower Third</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/lower-third/"
+                      class="preview-iframe"
+                      title="Vista previa Lower Third"
+                    ></iframe>
+                  </div>
+                </div>
+                <div class="row">
+                  <input type="text" id="inputNombre" placeholder="Name" />
+                </div>
+                <div class="row">
+                  <input type="text" id="inputApellido" placeholder="Last Name" />
+                </div>
+                <div class="row">
+                  <input type="text" id="inputCargo" placeholder="Role / Title" />
+                </div>
+                <div class="row" style="margin-top: 0.75rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="lowerToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+                <div class="row" style="margin-top: 0.75rem; gap: 0.25rem" id="guest-grid"></div>
+                <div class="url-row" data-path="/templates/lower-third/"></div>
+              </div>
+              <div class="lower-right style-panel">
+                <h3>Customize Style</h3>
+
+                <div class="style-row">
+                  <span class="style-label">Font</span>
+                  <div style="display: flex; flex: 1; gap: 0; position: relative">
+                    <input
+                      type="text"
+                      id="inputFont"
+                      value="Montserrat, sans-serif"
+                      placeholder="Font family name"
+                      list="fontList"
+                      style="
+                        flex: 1;
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                        font-size: 0.65rem;
+                        padding: 0.3rem 0.35rem;
+                      "
+                    />
+                    <button
+                      id="fontDropdownBtn"
+                      type="button"
+                      style="
+                        width: 24px;
+                        padding: 0;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                        background: #1a1a24;
+                        border: 1px solid #2a2a36;
+                        border-left: none;
+                        color: #888;
+                        cursor: pointer;
+                        font-size: 0.6rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      ▼
+                    </button>
+                  </div>
+                </div>
+                <datalist id="fontList">
+                  <option value="Montserrat, sans-serif"></option>
+                  <option value="Inter, sans-serif"></option>
+                  <option value="Arial, Helvetica, sans-serif"></option>
+                  <option value="Verdana, sans-serif"></option>
+                  <option value="Tahoma, sans-serif"></option>
+                  <option value="Trebuchet MS, sans-serif"></option>
+                  <option value="Georgia, serif"></option>
+                  <option value="Times New Roman, serif"></option>
+                  <option value="Courier New, monospace"></option>
+                  <option value="Impact, sans-serif"></option>
+                  <option value="Segoe UI, sans-serif"></option>
+                </datalist>
+
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Title <button class="style-reset-btn" data-reset-title>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="inputTitleSize"
+                          class="spin-input"
+                          min="1.0"
+                          max="4.0"
+                          step="0.1"
+                          value="3.0"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="inputTitleSize" data-dir="up">▲</button>
+                          <button data-spin="inputTitleSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input
+                        type="color"
+                        id="inputTitleColor"
+                        value="#ffffff"
+                        class="style-color"
+                      />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Bg</span>
+                      <input type="color" id="inputTitleBg" value="#06155A" class="style-color" />
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Subtitle <button class="style-reset-btn" data-reset-sub>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="inputSubtitleSize"
+                          class="spin-input"
+                          min="0.8"
+                          max="4.0"
+                          step="0.1"
+                          value="2.5"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="inputSubtitleSize" data-dir="up">▲</button>
+                          <button data-spin="inputSubtitleSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input
+                        type="color"
+                        id="inputSubtitleColor"
+                        value="#111111"
+                        class="style-color"
+                      />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Bg</span>
+                      <input
+                        type="color"
+                        id="inputSubtitleBg"
+                        value="#ffffff"
+                        class="style-color"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">
+                  Position <button class="style-reset-btn" data-reset-pos>↺</button>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Scale</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="inputScale"
+                      class="spin-input"
+                      min="0.5"
+                      max="2.0"
+                      step="0.1"
+                      value="1.0"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="inputScale" data-dir="up">▲</button>
+                      <button data-spin="inputScale" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">X</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="inputPosX"
+                      class="spin-input"
+                      min="0"
+                      max="1800"
+                      step="5"
+                      value="100"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="inputPosX" data-dir="up">▲</button>
+                      <button data-spin="inputPosX" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Y</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="inputPosY"
+                      class="spin-input"
+                      min="0"
+                      max="1000"
+                      step="5"
+                      value="90"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="inputPosY" data-dir="up">▲</button>
+                      <button data-spin="inputPosY" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="tab-content active"
+            data-tab-content="lower-dual"
+            data-module-name="Lower Dual"
+          >
+            <h2>Lower Third Dual</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/lower-third-dual/"
+                      class="preview-iframe"
+                      title="Vista previa Lower Dual"
+                    ></iframe>
+                  </div>
+                </div>
+                <div class="row" style="margin-top: 0.5rem; justify-content: center; gap: 1.5rem">
+                  <div
+                    style="display: flex; flex-direction: column; align-items: center; gap: 0.2rem"
+                  >
+                    <span
+                      style="
+                        font-size: 0.6rem;
+                        color: var(--text-muted);
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                      "
+                      >Left</span
+                    >
+                    <label class="switch">
+                      <input type="checkbox" id="dualLToggle" />
+                      <span class="switch-slider"></span>
+                    </label>
+                  </div>
+                  <div
+                    style="display: flex; flex-direction: column; align-items: center; gap: 0.2rem"
+                  >
+                    <span
+                      style="
+                        font-size: 0.6rem;
+                        color: var(--text-muted);
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                      "
+                      >Both</span
+                    >
+                    <label class="switch">
+                      <input type="checkbox" id="dualBothToggle" />
+                      <span class="switch-slider"></span>
+                    </label>
+                  </div>
+                  <div
+                    style="display: flex; flex-direction: column; align-items: center; gap: 0.2rem"
+                  >
+                    <span
+                      style="
+                        font-size: 0.6rem;
+                        color: var(--text-muted);
+                        text-transform: uppercase;
+                        letter-spacing: 0.08em;
+                      "
+                      >Right</span
+                    >
+                    <label class="switch">
+                      <input type="checkbox" id="dualRToggle" />
+                      <span class="switch-slider"></span>
+                    </label>
+                  </div>
+                </div>
+                <div class="dual-grid">
+                  <div class="dual-side">
+                    <h5 class="dual-heading">Left</h5>
+                    <div class="row">
+                      <input type="text" id="dualLNombre" placeholder="Name" />
+                    </div>
+                    <div class="row">
+                      <input type="text" id="dualLApellido" placeholder="Last Name" />
+                    </div>
+                    <div class="row">
+                      <input type="text" id="dualLCargo" placeholder="Role / Title" />
+                    </div>
+                    <div
+                      class="row"
+                      style="margin-top: 0.5rem; gap: 0.25rem"
+                      id="dualL-guest-grid"
+                    ></div>
+                  </div>
+                  <div class="dual-divider"></div>
+                  <div class="dual-side">
+                    <h5 class="dual-heading">Right</h5>
+                    <div class="row">
+                      <input type="text" id="dualRNombre" placeholder="Name" />
+                    </div>
+                    <div class="row">
+                      <input type="text" id="dualRApellido" placeholder="Last Name" />
+                    </div>
+                    <div class="row">
+                      <input type="text" id="dualRCargo" placeholder="Role / Title" />
+                    </div>
+                    <div
+                      class="row"
+                      style="margin-top: 0.5rem; gap: 0.25rem"
+                      id="dualR-guest-grid"
+                    ></div>
+                  </div>
+                </div>
+                <div class="url-row" data-path="/templates/lower-third-dual/"></div>
+              </div>
+              <div class="lower-right style-panel">
+                <h3>Customize Style</h3>
+                <div class="style-font-row">
+                  <span class="row-label">Font</span>
+                  <div style="display: flex; flex: 1; gap: 0; position: relative">
+                    <input
+                      type="text"
+                      id="dualFont"
+                      value="Montserrat, sans-serif"
+                      placeholder="Font family name"
+                      list="dualFontList"
+                      style="
+                        flex: 1;
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                        font-size: 0.65rem;
+                        padding: 0.3rem 0.35rem;
+                      "
+                    />
+                    <button
+                      id="dualFontDropdownBtn"
+                      type="button"
+                      style="
+                        width: 24px;
+                        padding: 0;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                        background: #1a1a24;
+                        border: 1px solid #2a2a36;
+                        border-left: none;
+                        color: #888;
+                        cursor: pointer;
+                        font-size: 0.6rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      ▼
+                    </button>
+                  </div>
+                  <datalist id="dualFontList">
+                    <option value="Montserrat, sans-serif"></option>
+                    <option value="Inter, sans-serif"></option>
+                    <option value="Arial, Helvetica, sans-serif"></option>
+                    <option value="Verdana, sans-serif"></option>
+                    <option value="Tahoma, sans-serif"></option>
+                    <option value="Trebuchet MS, sans-serif"></option>
+                    <option value="Georgia, serif"></option>
+                    <option value="Times New Roman, serif"></option>
+                    <option value="Courier New, monospace"></option>
+                    <option value="Impact, sans-serif"></option>
+                    <option value="Segoe UI, sans-serif"></option>
+                  </datalist>
+                </div>
+
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Title <button class="style-reset-btn" data-dual-reset-title>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="dualTitleSize"
+                          class="spin-input"
+                          min="1.0"
+                          max="4.0"
+                          step="0.1"
+                          value="3.0"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="dualTitleSize" data-dir="up">▲</button>
+                          <button data-spin="dualTitleSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input type="color" id="dualTitleColor" value="#ffffff" class="style-color" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Background</span>
+                      <input type="color" id="dualTitleBg" value="#06155A" class="style-color" />
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Subtitle <button class="style-reset-btn" data-dual-reset-sub>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="dualSubSize"
+                          class="spin-input"
+                          min="0.8"
+                          max="4.0"
+                          step="0.1"
+                          value="2.5"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="dualSubSize" data-dir="up">▲</button>
+                          <button data-spin="dualSubSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input type="color" id="dualSubColor" value="#111111" class="style-color" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Background</span>
+                      <input type="color" id="dualSubBg" value="#ffffff" class="style-color" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Left Side <button class="style-reset-btn" data-dual-reset-left>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Scale</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="dualLScale"
+                          class="spin-input"
+                          min="0.5"
+                          max="2.0"
+                          step="0.1"
+                          value="1.0"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="dualLScale" data-dir="up">▲</button>
+                          <button data-spin="dualLScale" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">X</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="dualLX"
+                          class="spin-input"
+                          min="0"
+                          max="1800"
+                          step="5"
+                          value="100"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="dualLX" data-dir="up">▲</button>
+                          <button data-spin="dualLX" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Y</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="dualLY"
+                          class="spin-input"
+                          min="0"
+                          max="1000"
+                          step="5"
+                          value="90"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="dualLY" data-dir="up">▲</button>
+                          <button data-spin="dualLY" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Right Side <button class="style-reset-btn" data-dual-reset-right>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Scale</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="dualRScale"
+                          class="spin-input"
+                          min="0.5"
+                          max="2.0"
+                          step="0.1"
+                          value="1.0"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="dualRScale" data-dir="up">▲</button>
+                          <button data-spin="dualRScale" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">X</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="dualRX"
+                          class="spin-input"
+                          min="0"
+                          max="1800"
+                          step="5"
+                          value="100"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="dualRX" data-dir="up">▲</button>
+                          <button data-spin="dualRX" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Y</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="dualRY"
+                          class="spin-input"
+                          min="0"
+                          max="1000"
+                          step="5"
+                          value="90"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="dualRY" data-dir="up">▲</button>
+                          <button data-spin="dualRY" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="tab-content"
+            data-tab-content="sponsors"
+            data-module-name="Sponsors"
+            hidden
+          >
+            <h2>Sponsors</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/sponsors/"
+                      class="preview-iframe"
+                      title="Sponsors Preview"
+                    ></iframe>
+                  </div>
+                </div>
+
+                <div class="row" style="gap: 0.4rem; flex-wrap: wrap" id="sponsor-list"></div>
+
+                <div class="row" style="margin-top: 0.5rem">
+                  <button class="primary" id="sponsor-add" style="flex: 1">+ Add Sponsor</button>
+                </div>
+
+                <div class="row" style="margin-top: 0.75rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="sponsorToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div
+                  class="row"
+                  style="margin-top: 0.75rem; gap: 0.25rem"
+                  id="sponsor-guest-grid"
+                ></div>
+
+                <div class="url-row" data-path="/templates/sponsors/"></div>
+              </div>
+
+              <div class="lower-right style-panel">
+                <h3>Customize Style</h3>
+
+                <div class="style-section-label">Bar</div>
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-row">
+                      <span class="style-label">Text</span>
+                      <input type="text" id="spBarText" value="PATROCINADO POR" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Height</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="spBarHeight"
+                          class="spin-input"
+                          min="30"
+                          max="80"
+                          step="2"
+                          value="44"
+                        />
+                        <div class="spin-group-arrows">
+                          <button type="button" data-spin="spBarHeight" data-dir="up">▲</button>
+                          <button type="button" data-spin="spBarHeight" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-row">
+                      <span class="style-label">Bar Color</span>
+                      <input type="color" id="spBarColor" value="#e53935" class="style-color" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Bar Text</span>
+                      <input type="color" id="spBarTextColor" value="#ffffff" class="style-color" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Logo Background</div>
+                <div class="style-row">
+                  <span class="style-label">Grad. Top</span>
+                  <input type="color" id="spBgTop" value="#3a3a3a" class="style-color" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Grad. Bottom</span>
+                  <input type="color" id="spBgBottom" value="#555555" class="style-color" />
+                </div>
+
+                <div class="style-section-label">Rotation</div>
+                <div class="style-row">
+                  <span class="style-label">Speed</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="spRotationSpeed"
+                      class="spin-input"
+                      min="2000"
+                      max="15000"
+                      step="500"
+                      value="5000"
+                    />
+                    <div class="spin-group-arrows">
+                      <button type="button" data-spin="spRotationSpeed" data-dir="up">▲</button>
+                      <button type="button" data-spin="spRotationSpeed" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Font</div>
+                <div class="style-row">
+                  <span class="style-label">Font</span>
+                  <div style="display: flex; flex: 1; gap: 0; position: relative">
+                    <input
+                      type="text"
+                      id="spFont"
+                      value="Inter, sans-serif"
+                      placeholder="Font family name"
+                      list="spFontList"
+                      style="flex: 1; border-top-right-radius: 0; border-bottom-right-radius: 0"
+                    />
+                    <button
+                      id="spFontDropdownBtn"
+                      type="button"
+                      style="
+                        width: 28px;
+                        padding: 0;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                        background: #1a1a24;
+                        border: 1px solid #2a2a36;
+                        border-left: none;
+                        color: #888;
+                        cursor: pointer;
+                        font-size: 0.7rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      ▼
+                    </button>
+                  </div>
+                  <datalist id="spFontList">
+                    <option value="Inter, sans-serif"></option>
+                    <option value="Montserrat, sans-serif"></option>
+                    <option value="Arial, Helvetica, sans-serif"></option>
+                    <option value="Impact, sans-serif"></option>
+                  </datalist>
+                </div>
+                <div style="margin-top: 1rem">
+                  <button class="block" id="spResetStyle">↺ Restore Style</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab-content" data-tab-content="ticker" data-module-name="Ticker" hidden>
+            <h2>Ticker</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/ticker/"
+                      class="preview-iframe"
+                      title="Vista previa Ticker"
+                    ></iframe>
+                  </div>
+                </div>
+                <div class="row">
+                  <span class="row-label">Title</span>
+                  <input type="text" id="tkrTitle" value="LIVE" placeholder="Left block text" />
+                </div>
+                <div class="row">
+                  <span class="row-label">Message</span>
+                  <input
+                    type="text"
+                    id="tkrMessage"
+                    value="masterización profesional. Producción musical de calidad"
+                    placeholder="Ticker text"
+                  />
+                </div>
+                <div class="row" style="margin-top: 0.5rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="tkrToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+                <div class="row">
+                  <span class="row-label">End Logo</span>
+                  <div
+                    id="tkr-logo-select"
+                    style="display: flex; flex-wrap: wrap; gap: 4px; flex: 1"
+                  ></div>
+                </div>
+                <div
+                  class="row"
+                  style="margin-top: 0.75rem; gap: 0.25rem"
+                  id="tkr-guest-grid"
+                ></div>
+                <div class="url-row" data-path="/templates/ticker/"></div>
+              </div>
+              <div class="lower-right style-panel">
+                <h3>Customize Style</h3>
+                <div class="style-row">
+                  <span class="style-label">Font</span>
+                  <div style="display: flex; flex: 1; gap: 0; position: relative">
+                    <input
+                      type="text"
+                      id="tkrFont"
+                      value="Inter, sans-serif"
+                      placeholder="Font family name"
+                      list="tkrFontList"
+                      style="
+                        flex: 1;
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                        font-size: 0.65rem;
+                        padding: 0.3rem 0.35rem;
+                      "
+                    />
+                    <button
+                      id="tkrFontDropdownBtn"
+                      type="button"
+                      style="
+                        width: 24px;
+                        padding: 0;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                        background: #1a1a24;
+                        border: 1px solid #2a2a36;
+                        border-left: none;
+                        color: #888;
+                        cursor: pointer;
+                        font-size: 0.6rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      ▼
+                    </button>
+                  </div>
+                  <datalist id="tkrFontList">
+                    <option value="Inter, sans-serif"></option>
+                    <option value="Montserrat, sans-serif"></option>
+                    <option value="Arial, Helvetica, sans-serif"></option>
+                    <option value="Verdana, sans-serif"></option>
+                    <option value="Tahoma, sans-serif"></option>
+                    <option value="Trebuchet MS, sans-serif"></option>
+                    <option value="Georgia, serif"></option>
+                    <option value="Times New Roman, serif"></option>
+                    <option value="Courier New, monospace"></option>
+                    <option value="Impact, sans-serif"></option>
+                    <option value="Segoe UI, sans-serif"></option>
+                  </datalist>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Speed</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="tkrSpeed"
+                      class="spin-input"
+                      min="30"
+                      max="200"
+                      step="5"
+                      value="80"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="tkrSpeed" data-dir="up">▲</button>
+                      <button data-spin="tkrSpeed" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Logo W</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="tkrLogoWidth"
+                      class="spin-input"
+                      min="1"
+                      max="15"
+                      step="0.5"
+                      value="4"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="tkrLogoWidth" data-dir="up">▲</button>
+                      <button data-spin="tkrLogoWidth" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Title <button class="style-reset-btn" data-reset-tkr-title>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="tkrTitleSize"
+                          class="spin-input"
+                          min="16"
+                          max="60"
+                          step="1"
+                          value="44"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="tkrTitleSize" data-dir="up">▲</button
+                          ><button data-spin="tkrTitleSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input type="color" id="tkrTitleColor" value="#ffffff" class="style-color" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Bg</span>
+                      <input type="color" id="tkrTitleBg" value="#071041" class="style-color" />
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Message <button class="style-reset-btn" data-reset-tkr-msg>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="tkrFontSize"
+                          class="spin-input"
+                          min="16"
+                          max="60"
+                          step="1"
+                          value="33"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="tkrFontSize" data-dir="up">▲</button
+                          ><button data-spin="tkrFontSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input type="color" id="tkrMsgColor" value="#111111" class="style-color" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Bg</span>
+                      <input type="color" id="tkrMsgBg" value="#ffffff" class="style-color" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section
+            class="tab-content"
+            data-tab-content="livebug"
+            data-module-name="Live Bug"
+            hidden
+          >
+            <h2>Live Bug</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/livebug/"
+                      class="preview-iframe"
+                      title="Vista previa Live Bug"
+                    ></iframe>
+                  </div>
+                </div>
+                <div class="row">
+                  <input
+                    type="text"
+                    id="lbInputLugar"
+                    value="C.C VIVA"
+                    placeholder="Location (e.g. C.C VIVA)"
+                  />
+                </div>
+                <div class="row">
+                  <input
+                    type="text"
+                    id="lbInputCiudad"
+                    value="TUNJA"
+                    placeholder="City for weather (e.g. TUNJA)"
+                  />
+                </div>
+                <div class="row" style="margin-top: 0.5rem">
+                  <span class="row-label" style="min-width: 80px">Refresh</span>
+                  <input
+                    type="number"
+                    id="lbInputRefresh"
+                    class="spin-input"
+                    min="60"
+                    max="3600"
+                    step="30"
+                    value="1800"
+                  /><button type="button" class="spin-btn" data-spin="lbInputRefresh" data-dir="up">
+                    ▲</button
+                  ><button
+                    type="button"
+                    class="spin-btn"
+                    data-spin="lbInputRefresh"
+                    data-dir="down"
+                  >
+                    ▼
+                  </button>
+                  <span class="val" id="valLbRefresh">30 min</span>
+                  <button
+                    id="lbRefreshTempBtn"
+                    title="Refresh temperature now"
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      justify-content: center;
+                      width: 20px;
+                      height: 20px;
+                      padding: 0;
+                      font-size: 0.7rem;
+                      border-radius: 4px;
+                      background: #2a2a36;
+                      border: 1px solid #444;
+                      color: #aaa;
+                      cursor: pointer;
+                      vertical-align: middle;
+                      margin-left: 0.4rem;
+                    "
+                  >
+                    ⟳
+                  </button>
+                </div>
+                <div class="row" style="margin-top: 0.75rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="livebugToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+                <div class="url-row" data-path="/templates/livebug/"></div>
+              </div>
+              <div class="lower-right style-panel">
+                <h3>Customize Style</h3>
+                <div class="style-font-row">
+                  <span class="row-label">Font</span>
+                  <div style="display: flex; flex: 1; gap: 0; position: relative">
+                    <input
+                      type="text"
+                      id="lbInputFont"
+                      value="Montserrat, sans-serif"
+                      placeholder="Font family name"
+                      list="fontList"
+                      style="flex: 1; border-top-right-radius: 0; border-bottom-right-radius: 0"
+                    />
+                    <button
+                      id="lbFontDropdownBtn"
+                      type="button"
+                      style="
+                        width: 28px;
+                        padding: 0;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                        background: #1a1a24;
+                        border: 1px solid #2a2a36;
+                        border-left: none;
+                        color: #888;
+                        cursor: pointer;
+                        font-size: 0.7rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      ▼
+                    </button>
+                  </div>
+                </div>
+
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Title <button class="style-reset-btn" data-lb-reset-title>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="lbInputTitleSize"
+                          class="spin-input"
+                          min="1.0"
+                          max="4.0"
+                          step="0.1"
+                          value="3.0"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="lbInputTitleSize" data-dir="up">▲</button>
+                          <button data-spin="lbInputTitleSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input
+                        type="color"
+                        id="lbInputTitleColor"
+                        value="#ffffff"
+                        class="style-color"
+                      />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Bg</span>
+                      <input type="color" id="lbInputTitleBg" value="#06155A" class="style-color" />
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-section-label">
+                      Subtitle <button class="style-reset-btn" data-lb-reset-sub>↺</button>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Size</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="lbInputSubtitleSize"
+                          class="spin-input"
+                          min="0.8"
+                          max="4.0"
+                          step="0.1"
+                          value="2.5"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="lbInputSubtitleSize" data-dir="up">▲</button>
+                          <button data-spin="lbInputSubtitleSize" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input
+                        type="color"
+                        id="lbInputSubtitleColor"
+                        value="#111111"
+                        class="style-color"
+                      />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Bg</span>
+                      <input
+                        type="color"
+                        id="lbInputSubtitleBg"
+                        value="#ffffff"
+                        class="style-color"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">
+                  Position <button class="style-reset-btn" data-lb-reset-pos>↺</button>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Scale</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="lbInputScale"
+                      class="spin-input"
+                      min="0.5"
+                      max="2.0"
+                      step="0.1"
+                      value="1.0"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="lbInputScale" data-dir="up">▲</button>
+                      <button data-spin="lbInputScale" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">X</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="lbInputPosX"
+                      class="spin-input"
+                      min="0"
+                      max="1800"
+                      step="5"
+                      value="100"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="lbInputPosX" data-dir="up">▲</button>
+                      <button data-spin="lbInputPosX" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Y</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="lbInputPosY"
+                      class="spin-input"
+                      min="0"
+                      max="1000"
+                      step="5"
+                      value="32"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="lbInputPosY" data-dir="up">▲</button>
+                      <button data-spin="lbInputPosY" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top: 1rem">
+                  <button class="block" id="livebugResetStyle">↺ Restore Style</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab-content" data-tab-content="combo" data-module-name="Combo" hidden>
+            <h2>Combo — All in One</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/combo/"
+                      class="preview-iframe"
+                      title="Vista previa Combo"
+                    ></iframe>
+                  </div>
+                </div>
+                <p
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--text-muted);
+                    margin-bottom: 0.75rem;
+                    line-height: 1.5;
+                  "
+                >
+                  This overlay combines <strong>Lower Dual</strong> + <strong>Sponsors</strong> +
+                  <strong>Ticker</strong>
+                  in a single output. Control each element from its individual tab.
+                </p>
+                <div class="row" style="margin-top: 0.5rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="comboToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+                <div class="url-row" data-path="/templates/combo/"></div>
+              </div>
+              <div class="lower-right">
+                <h3>Information</h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.6">
+                  Layers (z-index):<br />
+                  <strong>Sponsors</strong> z-index: 10 (top left)<br />
+                  <strong>Lower Dual</strong> z-index: 20 (bottom both sides)<br />
+                  <strong>Ticker</strong> z-index: 30 (bottom, 65px height)
+                </p>
+                <p
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--text-muted);
+                    margin-top: 1rem;
+                    line-height: 1.6;
+                  "
+                >
+                  The "Show All" toggle emits <em>SHOW</em> for all three components simultaneously.
+                  Use it to turn the entire combo on or off from OBS.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section class="tab-content" data-tab-content="media" data-module-name="Media" hidden>
+            <h2>Media</h2>
+            <div class="media-layout">
+              <div id="media-grid" class="media-grid"></div>
+              <div class="media-side">
+                <input type="file" id="media-file-input" accept="image/*" multiple hidden />
+                <button id="media-upload-btn" class="media-upload-btn">+ Upload Images</button>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ WEATHER ═══ -->
+          <section class="tab-content" data-tab-content="weather" data-module-name="Weather" hidden>
+            <h2>Weather</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/weather/"
+                      class="preview-iframe"
+                      title="Weather Preview"
+                    ></iframe>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top: 0.75rem">
+                  <span class="row-label" style="min-width: 50px">City</span>
+                  <input
+                    type="text"
+                    id="weatherCity"
+                    value="Lima"
+                    placeholder="e.g. Lima, London, Tokyo"
+                    style="flex: 1"
+                  />
+                </div>
+                <div class="row">
+                  <span class="row-label" style="min-width: 50px">Country</span>
+                  <input
+                    type="text"
+                    id="weatherCountry"
+                    value="Perú"
+                    placeholder="e.g. Peru"
+                    style="flex: 1"
+                  />
+                </div>
+
+                <div class="row" style="margin-top: 0.75rem">
+                  <span class="row-label" style="min-width: 50px">Refresh</span>
+                  <input
+                    type="number"
+                    id="weatherRefresh"
+                    class="spin-input"
+                    min="60"
+                    max="3600"
+                    step="30"
+                    value="600"
+                  /><button type="button" class="spin-btn" data-spin="weatherRefresh" data-dir="up">
+                    ▲</button
+                  ><button
+                    type="button"
+                    class="spin-btn"
+                    data-spin="weatherRefresh"
+                    data-dir="down"
+                  >
+                    ▼
+                  </button>
+                  <span class="val" id="valWeatherRefresh">10 min</span>
+                </div>
+
+                <div class="row" style="margin-top: 0.75rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="weatherToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="url-row" data-path="/templates/weather/"></div>
+              </div>
+
+              <div class="lower-right style-panel">
+                <h3>Customize Style</h3>
+
+                <div class="style-row">
+                  <span class="style-label">Font</span>
+                  <div style="display: flex; flex: 1; gap: 0; position: relative">
+                    <input
+                      type="text"
+                      id="weatherFont"
+                      value="Inter, sans-serif"
+                      list="fontList"
+                      style="
+                        flex: 1;
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                        font-size: 0.65rem;
+                        padding: 0.3rem 0.35rem;
+                      "
+                    />
+                    <button
+                      id="weatherFontDropdownBtn"
+                      type="button"
+                      style="
+                        width: 24px;
+                        padding: 0;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                        background: #1a1a24;
+                        border: 1px solid #2a2a36;
+                        border-left: none;
+                        color: #888;
+                        cursor: pointer;
+                        font-size: 0.6rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      ▼
+                    </button>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Colors</div>
+                <div class="style-row">
+                  <span class="style-label">Text</span>
+                  <input type="color" id="weatherTextColor" value="#ffffff" class="style-color" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Country</span>
+                  <input
+                    type="color"
+                    id="weatherCountryColor"
+                    value="#8ab4f8"
+                    class="style-color"
+                  />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Background</span>
+                  <input type="color" id="weatherBgColor" value="#000000" class="style-color" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Opacity</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="weatherOpacity"
+                      class="spin-input"
+                      min="0.2"
+                      max="1"
+                      step="0.05"
+                      value="0.65"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="weatherOpacity" data-dir="up">▲</button>
+                      <button data-spin="weatherOpacity" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Position</div>
+                <div class="style-row">
+                  <span class="style-label">X</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="weatherPosX"
+                      class="spin-input"
+                      min="10"
+                      max="200"
+                      step="5"
+                      value="32"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="weatherPosX" data-dir="up">▲</button>
+                      <button data-spin="weatherPosX" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Y</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="weatherPosY"
+                      class="spin-input"
+                      min="10"
+                      max="200"
+                      step="5"
+                      value="32"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="weatherPosY" data-dir="up">▲</button>
+                      <button data-spin="weatherPosY" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Sizes</div>
+                <div class="style-row">
+                  <span class="style-label">Country</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="weatherSizeCountry"
+                      class="spin-input"
+                      min="0.5"
+                      max="1.2"
+                      step="0.05"
+                      value="0.7"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="weatherSizeCountry" data-dir="up">▲</button>
+                      <button data-spin="weatherSizeCountry" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">City</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="weatherSizeCity"
+                      class="spin-input"
+                      min="0.8"
+                      max="2.0"
+                      step="0.1"
+                      value="1.2"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="weatherSizeCity" data-dir="up">▲</button>
+                      <button data-spin="weatherSizeCity" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Temp</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="weatherSizeTemp"
+                      class="spin-input"
+                      min="1.2"
+                      max="3.0"
+                      step="0.1"
+                      value="1.8"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="weatherSizeTemp" data-dir="up">▲</button>
+                      <button data-spin="weatherSizeTemp" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top: 0.5rem">
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.4rem;
+                      font-size: 0.75rem;
+                      color: var(--text-muted);
+                      cursor: pointer;
+                    "
+                  >
+                    <input type="checkbox" id="weatherShowIcon" checked /> Show Icon
+                  </label>
+                  <label
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 0.4rem;
+                      font-size: 0.75rem;
+                      color: var(--text-muted);
+                      cursor: pointer;
+                    "
+                  >
+                    <input type="checkbox" id="weatherShowCountry" checked /> Show Country
+                  </label>
+                </div>
+
+                <div style="margin-top: 1rem">
+                  <button class="block" id="weatherResetStyle">↺ Restore Style</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ COUNTDOWN ═══ -->
+          <section
+            class="tab-content"
+            data-tab-content="countdown"
+            data-module-name="Countdown"
+            hidden
+          >
+            <h2>Countdown</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/countdown/"
+                      class="preview-iframe"
+                      title="Vista previa Countdown"
+                    ></iframe>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top: 0.75rem">
+                  <span class="row-label" style="min-width: 70px">Duration</span>
+                  <input
+                    type="number"
+                    id="cdDuration"
+                    value="3600"
+                    min="10"
+                    max="86400"
+                    step="60"
+                    style="flex: 1; width: 80px"
+                  />
+                  <span style="font-size: 0.7rem; color: var(--text-muted)">seconds</span>
+                </div>
+                <div class="row">
+                  <span class="row-label" style="min-width: 70px">Label</span>
+                  <input
+                    type="text"
+                    id="cdLabel"
+                    value="PRÓXIMO INICIO"
+                    placeholder="e.g. STARTING SOON"
+                    style="flex: 1"
+                  />
+                </div>
+                <div class="row">
+                  <span class="row-label" style="min-width: 70px">Mode</span>
+                  <select
+                    id="cdMode"
+                    style="
+                      flex: 1;
+                      background: var(--input-bg);
+                      border: 1px solid var(--border);
+                      border-radius: 6px;
+                      padding: 0.4rem;
+                      color: var(--text);
+                    "
+                  >
+                    <option value="countdown">Countdown</option>
+                    <option value="countup">Count Up</option>
+                  </select>
+                </div>
+
+                <div class="row" style="margin-top: 0.75rem">
+                  <button class="primary" id="cdReset" style="flex: 1">⟳ Reset Countdown</button>
+                </div>
+
+                <div class="row" style="margin-top: 0.5rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="countdownToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="url-row" data-path="/templates/countdown/"></div>
+              </div>
+
+              <div class="lower-right style-panel">
+                <h3>Customize Style</h3>
+
+                <div class="style-row">
+                  <span class="style-label">Font</span>
+                  <div style="display: flex; flex: 1; gap: 0; position: relative">
+                    <input
+                      type="text"
+                      id="cdFont"
+                      value="Inter, sans-serif"
+                      list="fontList"
+                      style="
+                        flex: 1;
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                        font-size: 0.65rem;
+                        padding: 0.3rem 0.35rem;
+                      "
+                    />
+                    <button
+                      id="cdFontDropdownBtn"
+                      type="button"
+                      style="
+                        width: 24px;
+                        padding: 0;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                        background: #1a1a24;
+                        border: 1px solid #2a2a36;
+                        border-left: none;
+                        color: #888;
+                        cursor: pointer;
+                        font-size: 0.6rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      ▼
+                    </button>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Colors</div>
+                <div class="style-row">
+                  <span class="style-label">Label</span>
+                  <input type="color" id="cdLabelColor" value="#aaaaaa" class="style-color" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Numbers</span>
+                  <input type="color" id="cdDisplayColor" value="#ffffff" class="style-color" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Background</span>
+                  <input type="color" id="cdBgColor" value="#000000" class="style-color" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Opacity</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="cdOpacity"
+                      class="spin-input"
+                      min="0.2"
+                      max="1"
+                      step="0.05"
+                      value="0.6"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="cdOpacity" data-dir="up">▲</button>
+                      <button data-spin="cdOpacity" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Sizes</div>
+                <div class="style-row">
+                  <span class="style-label">Label</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="cdLabelSize"
+                      class="spin-input"
+                      min="0.4"
+                      max="1.2"
+                      step="0.05"
+                      value="0.6"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="cdLabelSize" data-dir="up">▲</button>
+                      <button data-spin="cdLabelSize" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Numbers</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="cdDisplaySize"
+                      class="spin-input"
+                      min="1.5"
+                      max="5.0"
+                      step="0.1"
+                      value="2.8"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="cdDisplaySize" data-dir="up">▲</button>
+                      <button data-spin="cdDisplaySize" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Position</div>
+                <div class="style-row">
+                  <span class="style-label">X</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="cdPosX"
+                      class="spin-input"
+                      min="10"
+                      max="300"
+                      step="5"
+                      value="32"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="cdPosX" data-dir="up">▲</button>
+                      <button data-spin="cdPosX" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Y</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="cdPosY"
+                      class="spin-input"
+                      min="20"
+                      max="400"
+                      step="5"
+                      value="96"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="cdPosY" data-dir="up">▲</button>
+                      <button data-spin="cdPosY" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top: 1rem">
+                  <button class="block" id="cdResetStyle">↺ Restore Style</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ NOW PLAYING ═══ -->
+          <section
+            class="tab-content"
+            data-tab-content="nowplaying"
+            data-module-name="Music"
+            hidden
+          >
+            <h2>Now Playing</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/nowplaying/"
+                      class="preview-iframe"
+                      title="Vista previa Now Playing"
+                    ></iframe>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top: 0.75rem">
+                  <span class="row-label" style="min-width: 60px">Song</span>
+                  <input
+                    type="text"
+                    id="npSong"
+                    value="Blinding Lights"
+                    placeholder="Song name"
+                    style="flex: 1"
+                  />
+                </div>
+                <div class="row">
+                  <span class="row-label" style="min-width: 60px">Artist</span>
+                  <input
+                    type="text"
+                    id="npArtist"
+                    value="The Weeknd"
+                    placeholder="Artist name"
+                    style="flex: 1"
+                  />
+                </div>
+                <div class="row">
+                  <span class="row-label" style="min-width: 60px">Cover URL</span>
+                  <input
+                    type="text"
+                    id="npCoverUrl"
+                    placeholder="Cover image URL (optional)"
+                    style="flex: 1"
+                  />
+                </div>
+
+                <div class="row" style="margin-top: 0.75rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="nowplayingToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+
+                <div class="url-row" data-path="/templates/nowplaying/"></div>
+              </div>
+
+              <div class="lower-right style-panel">
+                <h3>Customize Style</h3>
+
+                <div class="style-section-label">Top Bar</div>
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-row">
+                      <span class="style-label">Text</span>
+                      <input type="text" id="npBarText" value="NOW PLAYING" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Color</span>
+                      <input type="color" id="npBarColor" value="#ffffff" class="style-color" />
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-row">
+                      <span class="style-label">Background</span>
+                      <input type="color" id="npBarBg" value="#1db954" class="style-color" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-row">
+                  <span class="style-label">Font</span>
+                  <div style="display: flex; flex: 1; gap: 0; position: relative">
+                    <input
+                      type="text"
+                      id="npFont"
+                      value="Inter, sans-serif"
+                      list="fontList"
+                      style="
+                        flex: 1;
+                        border-top-right-radius: 0;
+                        border-bottom-right-radius: 0;
+                        font-size: 0.65rem;
+                        padding: 0.3rem 0.35rem;
+                      "
+                    />
+                    <button
+                      id="npFontDropdownBtn"
+                      type="button"
+                      style="
+                        width: 24px;
+                        padding: 0;
+                        border-top-left-radius: 0;
+                        border-bottom-left-radius: 0;
+                        background: #1a1a24;
+                        border: 1px solid #2a2a36;
+                        border-left: none;
+                        color: #888;
+                        cursor: pointer;
+                        font-size: 0.6rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                      "
+                    >
+                      ▼
+                    </button>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Colors</div>
+                <div class="style-grid-2">
+                  <div class="style-col">
+                    <div class="style-row">
+                      <span class="style-label">Song</span>
+                      <input type="color" id="npSongColor" value="#ffffff" class="style-color" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Artist</span>
+                      <input type="color" id="npArtistColor" value="#aaaaaa" class="style-color" />
+                    </div>
+                  </div>
+                  <div class="style-col">
+                    <div class="style-row">
+                      <span class="style-label">Background</span>
+                      <input type="color" id="npBgColor" value="#000000" class="style-color" />
+                    </div>
+                    <div class="style-row">
+                      <span class="style-label">Opacity</span>
+                      <div class="spin-group">
+                        <input
+                          type="number"
+                          id="npOpacity"
+                          class="spin-input"
+                          min="0.2"
+                          max="1"
+                          step="0.05"
+                          value="0.65"
+                        />
+                        <div class="spin-group-arrows">
+                          <button data-spin="npOpacity" data-dir="up">▲</button>
+                          <button data-spin="npOpacity" data-dir="down">▼</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Sizes</div>
+                <div class="style-row">
+                  <span class="style-label">Song</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="npSongSize"
+                      class="spin-input"
+                      min="0.7"
+                      max="1.8"
+                      step="0.05"
+                      value="1.0"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="npSongSize" data-dir="up">▲</button>
+                      <button data-spin="npSongSize" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Artist</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="npArtistSize"
+                      class="spin-input"
+                      min="0.5"
+                      max="1.2"
+                      step="0.05"
+                      value="0.75"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="npArtistSize" data-dir="up">▲</button>
+                      <button data-spin="npArtistSize" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="style-section-label">Position</div>
+                <div class="style-row">
+                  <span class="style-label">X</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="npPosX"
+                      class="spin-input"
+                      min="10"
+                      max="300"
+                      step="5"
+                      value="32"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="npPosX" data-dir="up">▲</button>
+                      <button data-spin="npPosX" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Y</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="npPosY"
+                      class="spin-input"
+                      min="20"
+                      max="400"
+                      step="5"
+                      value="96"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="npPosY" data-dir="up">▲</button>
+                      <button data-spin="npPosY" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top: 1rem">
+                  <button class="block" id="npResetStyle">↺ Restore Style</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ RESULTADOS ═══ -->
+          <section
+            class="tab-content"
+            data-tab-content="resultados"
+            data-module-name="Results"
+            hidden
+          >
+            <h2>Election Results</h2>
+            <div class="lower-grid">
+              <div class="lower-left">
+                <div class="preview-scene">
+                  <div class="preview-stage">
+                    <iframe
+                      src="/templates/resultados/"
+                      class="preview-iframe"
+                      title="Results Preview"
+                    ></iframe>
+                  </div>
+                </div>
+
+                <div class="dual-grid">
+                  <div class="dual-side">
+                    <h5 class="dual-heading">Candidate A</h5>
+                    <div class="row">
+                      <input type="text" id="resNombreA" placeholder="Full Name" />
+                    </div>
+                    <div class="row">
+                      <input type="text" id="resPartidoA" placeholder="Political Party" />
+                    </div>
+                    <div class="row">
+                      <span class="row-label">Color</span
+                      ><input type="color" id="resColorA" value="#3b82f6" />
+                    </div>
+                    <div class="row">
+                      <span class="row-label">%</span>
+                      <input
+                        type="number"
+                        id="resPercentA"
+                        value="45.2"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        style="flex: 1"
+                      />
+                    </div>
+                    <div class="row">
+                      <span class="row-label">Votes</span>
+                      <input
+                        type="number"
+                        id="resVotosA"
+                        value="1234567"
+                        min="0"
+                        step="1"
+                        style="flex: 1"
+                      />
+                    </div>
+                    <div class="row">
+                      <span class="row-label">Photo</span>
+                      <div
+                        id="res-fotoA-picker"
+                        style="display: flex; flex-wrap: wrap; gap: 2px; flex: 1"
+                      ></div>
+                    </div>
+                  </div>
+                  <div class="dual-divider"></div>
+                  <div class="dual-side">
+                    <h5 class="dual-heading">Candidate B</h5>
+                    <div class="row">
+                      <input type="text" id="resNombreB" placeholder="Full Name" />
+                    </div>
+                    <div class="row">
+                      <input type="text" id="resPartidoB" placeholder="Political Party" />
+                    </div>
+                    <div class="row">
+                      <span class="row-label">Color</span
+                      ><input type="color" id="resColorB" value="#ef4444" />
+                    </div>
+                    <div class="row">
+                      <span class="row-label">%</span>
+                      <input
+                        type="number"
+                        id="resPercentB"
+                        value="42.8"
+                        min="0"
+                        max="100"
+                        step="0.1"
+                        style="flex: 1"
+                      />
+                    </div>
+                    <div class="row">
+                      <span class="row-label">Votes</span>
+                      <input
+                        type="number"
+                        id="resVotosB"
+                        value="1198765"
+                        min="0"
+                        step="1"
+                        style="flex: 1"
+                      />
+                    </div>
+                    <div class="row">
+                      <span class="row-label">Photo</span>
+                      <div
+                        id="res-fotoB-picker"
+                        style="display: flex; flex-wrap: wrap; gap: 2px; flex: 1"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row" style="margin-top: 0.75rem; justify-content: center">
+                  <label class="switch">
+                    <input type="checkbox" id="resultadosToggle" />
+                    <span class="switch-slider"></span>
+                  </label>
+                </div>
+                <div class="url-row" data-path="/templates/resultados/"></div>
+              </div>
+
+              <div class="lower-right style-panel">
+                <h3>Customize Data</h3>
+
+                <div class="style-section-label">Center</div>
+                <div class="style-row">
+                  <span class="style-label">Turnout</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="resParticipacion"
+                      class="spin-input"
+                      value="62.5"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="resParticipacion" data-dir="up">▲</button>
+                      <button data-spin="resParticipacion" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                  <span>%</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Top Dept.</span>
+                  <input type="text" id="resTopDept" value="Boyacá" style="flex: 1" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Trend</span>
+                  <input type="text" id="resTendencia" value="↑ Estable" style="flex: 1" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Difference</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="resDiferencia"
+                      class="spin-input"
+                      value="2.4"
+                      min="0"
+                      max="100"
+                      step="0.1"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="resDiferencia" data-dir="up">▲</button>
+                      <button data-spin="resDiferencia" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                  <span>%</span>
+                </div>
+
+                <div class="style-section-label">Header</div>
+                <div class="style-row">
+                  <span class="style-label">Date</span>
+                  <input type="text" id="resFecha" value="21 JUNIO 2026" style="flex: 1" />
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Ballots Counted</span>
+                  <div class="spin-group">
+                    <input
+                      type="number"
+                      id="resEscrutinio"
+                      class="spin-input"
+                      value="94.72"
+                      min="0"
+                      max="100"
+                      step="0.01"
+                    />
+                    <div class="spin-group-arrows">
+                      <button data-spin="resEscrutinio" data-dir="up">▲</button>
+                      <button data-spin="resEscrutinio" data-dir="down">▼</button>
+                    </div>
+                  </div>
+                  <span>%</span>
+                </div>
+                <div class="style-row">
+                  <span class="style-label">Logo</span>
+                  <div
+                    id="res-logo-picker"
+                    style="display: flex; flex-wrap: wrap; gap: 2px; flex: 1"
+                  ></div>
+                </div>
+
+                <div class="style-section-label">Ticker</div>
+                <div class="style-row">
+                  <textarea
+                    id="resTickerMsgs"
+                    rows="3"
+                    style="flex: 1; font-size: 0.75rem; resize: vertical"
+                    placeholder="One message per line"
+                  >
+Registraduría Nacional actualiza resultados
 Participación nacional supera el 62%
-Boyacá reporta 98% de mesas escrutadas</textarea>
+Boyacá reporta 98% de mesas escrutadas</textarea
+                  >
+                </div>
+              </div>
+            </div>
+          </section>
         </div>
+        <!-- /#module-container -->
       </div>
+      <!-- /.main-content -->
+
+      <!-- ═══ SETTINGS PANEL ═══ -->
+      <aside id="settings-panel">
+        <div class="sp-header">
+          <span>⚙ Settings</span>
+        </div>
+        <div class="sp-scroll">
+          <div class="sp-section">
+            <div class="sp-subtitle">Theme</div>
+            <div class="sp-theme-row">
+              <span class="sp-label">Dark Mode</span>
+              <label class="switch">
+                <input type="checkbox" id="spThemeSwitch" />
+                <span class="switch-slider"></span>
+              </label>
+            </div>
+          </div>
+          <div class="sp-section">
+            <div class="sp-subtitle">Module Visibility</div>
+            <div id="sp-module-list" class="sp-module-list"></div>
+          </div>
+          <div class="sp-section">
+            <div class="sp-subtitle">Keyboard Shortcuts</div>
+            <button id="sp-shortcuts-btn" class="sp-btn">View Shortcuts</button>
+          </div>
+          <div class="sp-section">
+            <div class="sp-subtitle">Connection</div>
+            <div id="sp-connection-info" class="sp-conn-info"></div>
+          </div>
+        </div>
+      </aside>
     </div>
-  </section>
+    <!-- /.dashboard-layout -->
 
-</div> <!-- /.main-content -->
-
-  <script type="module" src="./app.js"></script>
-</body>
+    <script type="module" src="./app.js"></script>
+  </body>
 </html>

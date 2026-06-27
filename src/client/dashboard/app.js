@@ -1,7 +1,10 @@
-import { initSocket, requestState } from './modules/socket.js';
-import { initTheme } from './modules/theme.js';
-import { initTabs } from './modules/tabs.js';
-import { initURLCopy, preventEnterOnDatalist, bindFontPicker, initSpinButtons } from './modules/utils.js';
+import { initSocket, getSocket } from './modules/socket.js';
+import {
+  initURLCopy,
+  preventEnterOnDatalist,
+  bindFontPicker,
+  initSpinButtons,
+} from './modules/utils.js';
 import { initLowerThird } from './modules/lower-third.js';
 import { initLiveBug } from './modules/livebug.js';
 import { initLowerDual } from './modules/lower-dual.js';
@@ -15,23 +18,24 @@ import { initNowPlaying } from './modules/nowplaying.js';
 import { initResultados } from './modules/resultados.js';
 import { initMedia } from './modules/media.js';
 import { initQuickPanel, qpSyncToggles } from './modules/quick-panel.js';
+import { initToast, showToast } from './modules/toast.js';
+import { initDialog } from './modules/dialog.js';
+import { initConnectionStatus, attachSocket } from './modules/connection-status.js';
+import { initKeyboardShortcuts } from './modules/keyboard-shortcuts.js';
+import { initSettingsPanel } from './modules/settings-panel.js';
+import { initModuleNav, onModuleVisibilityChanged } from './modules/module-nav.js';
 
 async function main() {
-  initTheme();
+  initToast();
+  initDialog();
+  initConnectionStatus();
+  initKeyboardShortcuts();
   await initSocket();
+  attachSocket(getSocket());
   initURLCopy();
   preventEnterOnDatalist();
   bindFontPicker('fontDropdownBtn', 'inputFont');
   initSpinButtons();
-
-  // Tab init
-  initTabs(() => {
-    setTimeout(qpSyncToggles, 50);
-    // Ask the server for the current state of every graphic so the newly
-    // visible preview iframe is up-to-date with OBS even if we haven't
-    // touched that tab in a while.
-    requestState();
-  });
 
   // Per-tab modules
   initScoreboard();
@@ -46,7 +50,26 @@ async function main() {
   initNowPlaying();
   initResultados();
   initMedia();
+
+  // Quick panel
   initQuickPanel();
+
+  // Settings panel + module navigator
+  initSettingsPanel({
+    onModuleVisibilityChange: () => {
+      onModuleVisibilityChanged();
+    },
+  });
+  initModuleNav({
+    syncToggles: qpSyncToggles,
+    showModule: () => {},
+  });
+
+  // Initial sync
+  setTimeout(qpSyncToggles, 300);
+  setTimeout(() => {
+    showToast('Dashboard ready. Press ? for shortcuts.', { type: 'info', duration: 4000 });
+  }, 500);
 }
 
 main().catch((err) => {
