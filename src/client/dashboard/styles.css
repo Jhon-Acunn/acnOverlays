@@ -81,6 +81,13 @@ body {
   min-height: 100vh;
   height: 100%;
   overflow-x: hidden;
+  text-transform: uppercase;
+}
+input,
+textarea,
+select,
+button {
+  text-transform: uppercase;
 }
 .dashboard-layout {
   display: grid;
