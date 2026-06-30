@@ -391,7 +391,7 @@ function tkrAnimEntrada(data) {
   const container = document.getElementById('tkr-container');
   tkVisible = true;
   tkrAplicarConfig(data);
-  container.style.display = '';
+  container.style.display = 'flex';
   gsap.set(container, { clearProps: 'y' });
   if (tkTimeline) tkTimeline.kill();
   tkrIniciarAnimacion();
