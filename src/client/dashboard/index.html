@@ -18,14 +18,6 @@
       <div class="main-content">
         <div class="module-header">
           <div id="module-tabs" class="module-tabs"></div>
-          <input
-            type="text"
-            id="build-info"
-            class="build-info"
-            readonly
-            value="—"
-            title="Last image build time (≈ last git push)"
-          />
           <button id="open-settings-btn" class="open-settings-btn" title="Open settings">⚙</button>
         </div>
 
@@ -2616,6 +2608,20 @@ Boyacá reporta 98% de mesas escrutadas</textarea
           <div class="sp-section">
             <div class="sp-subtitle">Connection</div>
             <div id="sp-connection-info" class="sp-conn-info"></div>
+          </div>
+          <div class="sp-section">
+            <div class="sp-subtitle">Build Info</div>
+            <div class="sp-build-info-row">
+              <span class="sp-label">Last deploy</span>
+              <input
+                type="text"
+                id="build-info"
+                class="build-info"
+                readonly
+                value="—"
+                title="Last image build time (≈ last git push) — America/Bogota"
+              />
+            </div>
           </div>
         </div>
       </aside>

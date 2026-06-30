@@ -1270,19 +1270,26 @@ section.tab-content[data-tab-content='resultados'] {
 /* ── Build info (last deploy timestamp) ── */
 .build-info {
   font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: var(--text-muted, #888);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  padding: 0.2rem 0.45rem;
-  min-width: 165px;
+  border-radius: 3px;
+  padding: 0.1rem 0.35rem;
+  width: 140px;
   text-align: center;
   cursor: help;
   user-select: all;
 }
 .build-info:hover {
   border-color: rgba(255, 255, 255, 0.18);
+}
+.sp-build-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.65rem;
+  color: var(--text-muted);
 }
 
 /* ── On-Air indicators (toggles active = live on screen) ── */
