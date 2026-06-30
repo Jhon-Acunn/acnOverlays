@@ -13,7 +13,7 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN:-}
     restart: unless-stopped
     volumes:
-      - overlays_data:/app/data
+      - overlays_data:/app/data:rw,U
 
 volumes:
   overlays_data:
