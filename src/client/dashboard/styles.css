@@ -946,7 +946,11 @@ section.tab-content[data-tab-content='resultados'] {
   flex-direction: row;
   align-items: center;
   gap: 0.5rem;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+.qc-row {
+  flex: 1 1 0;
+  min-width: 0;
 }
 .qc-row {
   display: flex;

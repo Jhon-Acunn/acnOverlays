@@ -145,7 +145,7 @@ function showDefault() {
     label: 'PRÓXIMO INICIO',
     mode: 'countdown',
     estilo: {
-      fontFamily: 'Inter, sans-serif',
+      fontFamily: 'Montserrat, sans-serif',
       labelSize: '0.6rem',
       labelColor: 'rgba(255,255,255,0.45)',
       displaySize: '2.8rem',

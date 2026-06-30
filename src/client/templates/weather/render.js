@@ -171,7 +171,7 @@ function showDefault() {
     country: 'Perú',
     refreshInterval: 600000,
     estilo: {
-      fontFamily: 'Inter, sans-serif',
+      fontFamily: 'Montserrat, sans-serif',
       fontSizeCountry: '0.7rem',
       fontSizeCity: '1.2rem',
       fontSizeTemp: '1.8rem',

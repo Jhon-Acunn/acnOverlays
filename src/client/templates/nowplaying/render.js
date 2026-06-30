@@ -98,7 +98,7 @@ function showDefault() {
     artist: 'The Weeknd',
     coverUrl: null,
     estilo: {
-      fontFamily: 'Inter, sans-serif',
+      fontFamily: 'Montserrat, sans-serif',
       barText: 'NOW PLAYING',
       barBg: '#1db954',
       barColor: '#ffffff',

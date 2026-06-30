@@ -32,7 +32,7 @@ function leerScoreEstilo() {
   const teamBBg = document.getElementById('scTeamBBg').value || '#c83232';
   const teamBOpacity = parseInt(document.getElementById('scTeamBBg').value, 10) / 100 || 0.3;
   return {
-    fontFamily: 'Inter, sans-serif',
+    fontFamily: 'Montserrat, sans-serif',
     scoreSize: document.getElementById('scScoreSize').value + 'rem',
     teamSize: document.getElementById('scTeamSize').value + 'rem',
     scoreColor: document.getElementById('scScoreColor').value,

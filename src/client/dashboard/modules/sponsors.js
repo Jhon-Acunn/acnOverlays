@@ -29,6 +29,9 @@ function saveSponsorsSettings() {
     spBgTop: document.getElementById('spBgTop').value,
     spBgBottom: document.getElementById('spBgBottom').value,
     spFont: document.getElementById('spFont').value,
+    spScale: document.getElementById('spScale').value,
+    spPosX: document.getElementById('spPosX').value,
+    spPosY: document.getElementById('spPosY').value,
     sponsorToggle: document.getElementById('sponsorToggle').checked,
     sponsorItems,
   });
@@ -48,6 +51,9 @@ function loadSponsorsSettings() {
   set('spBgTop', s.spBgTop);
   set('spBgBottom', s.spBgBottom);
   set('spFont', s.spFont);
+  set('spScale', s.spScale);
+  set('spPosX', s.spPosX);
+  set('spPosY', s.spPosY);
   const toggle = document.getElementById('sponsorToggle');
   if (toggle && s.sponsorToggle !== undefined) toggle.checked = s.sponsorToggle;
   if (s.sponsorItems && s.sponsorItems.length > 0) {
@@ -74,7 +80,10 @@ function leerSponsorsCfg() {
     bgGradientTop: document.getElementById('spBgTop').value || '#3a3a3a',
     bgGradientBottom: document.getElementById('spBgBottom').value || '#555555',
     rotationSpeed: parseInt(document.getElementById('spRotationSpeed').value, 10) || 5000,
-    fontFamily: document.getElementById('spFont').value || 'Inter, sans-serif',
+    fontFamily: document.getElementById('spFont').value || 'Montserrat, sans-serif',
+    escala: parseFloat(document.getElementById('spScale').value) || 1.0,
+    posX: parseInt(document.getElementById('spPosX').value, 10) || 0,
+    posY: parseInt(document.getElementById('spPosY').value, 10) || 0,
   };
 }
 
@@ -289,6 +298,9 @@ export function initSponsors() {
     'spBgTop',
     'spBgBottom',
     'spFont',
+    'spScale',
+    'spPosX',
+    'spPosY',
   ]) {
     document.getElementById(id)?.addEventListener('input', sponsorsUpdate);
   }
@@ -326,7 +338,10 @@ export function initSponsors() {
     document.getElementById('spBgTop').value = '#3a3a3a';
     document.getElementById('spBgBottom').value = '#555555';
     document.getElementById('spRotationSpeed').value = '5000';
-    document.getElementById('spFont').value = 'Inter, sans-serif';
+    document.getElementById('spFont').value = 'Montserrat, sans-serif';
+    document.getElementById('spScale').value = '1.0';
+    document.getElementById('spPosX').value = '0';
+    document.getElementById('spPosY').value = '0';
     setVal('valSpBarHeight', '44px');
     setVal('valSpRotationSpeed', '5.0s');
     sponsorsUpdate();
@@ -364,6 +379,9 @@ export function initSponsors() {
         set('spBgBottom', data.config.bgGradientBottom);
         set('spRotationSpeed', data.config.rotationSpeed);
         set('spFont', data.config.fontFamily);
+        set('spScale', data.config.escala);
+        set('spPosX', data.config.posX);
+        set('spPosY', data.config.posY);
         setVal('valSpBarHeight', document.getElementById('spBarHeight').value + 'px');
         setVal(
           'valSpRotationSpeed',

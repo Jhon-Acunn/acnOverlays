@@ -55,7 +55,7 @@ function leerNowPlayingData() {
     artist: document.getElementById('npArtist').value || '',
     coverUrl: document.getElementById('npCoverUrl').value || null,
     estilo: {
-      fontFamily: document.getElementById('npFont').value || 'Inter, sans-serif',
+      fontFamily: document.getElementById('npFont').value || 'Montserrat, sans-serif',
       barText: document.getElementById('npBarText').value || 'NOW PLAYING',
       barBg: document.getElementById('npBarBg').value,
       barColor: document.getElementById('npBarColor').value,
@@ -167,7 +167,7 @@ export function initNowPlaying() {
     if (document.getElementById(TOGGLE_ID)?.checked) nowPlayingUpdate();
   }, 500);
   document.getElementById('npResetStyle')?.addEventListener('click', () => {
-    document.getElementById('npFont').value = 'Inter, sans-serif';
+    document.getElementById('npFont').value = 'Montserrat, sans-serif';
     document.getElementById('npBarText').value = 'NOW PLAYING';
     document.getElementById('npBarBg').value = '#1db954';
     document.getElementById('npBarColor').value = '#ffffff';

@@ -49,12 +49,12 @@ function leerCountdownData() {
     label: document.getElementById('cdLabel').value || '',
     mode: document.getElementById('cdMode').value || 'countdown',
     estilo: {
-      fontFamily: document.getElementById('cdFont').value || 'Inter, sans-serif',
+      fontFamily: document.getElementById('cdFont').value || 'Montserrat, sans-serif',
       labelSize: document.getElementById('cdLabelSize').value + 'rem',
       labelColor: document.getElementById('cdLabelColor').value,
       displaySize: document.getElementById('cdDisplaySize').value + 'rem',
       displayColor: document.getElementById('cdDisplayColor').value,
-      displayFont: 'Bebas Neue, Inter, sans-serif',
+      displayFont: 'Bebas Neue, Montserrat, sans-serif',
       bgColor: hexToRgba(
         document.getElementById('cdBgColor').value,
         parseFloat(document.getElementById('cdOpacity').value) || 0.6
@@ -163,7 +163,7 @@ export function initCountdown() {
 
   document.getElementById('cdReset')?.addEventListener('click', () => countdownEmit('SHOW'));
   document.getElementById('cdResetStyle')?.addEventListener('click', () => {
-    document.getElementById('cdFont').value = 'Inter, sans-serif';
+    document.getElementById('cdFont').value = 'Montserrat, sans-serif';
     document.getElementById('cdLabelSize').value = '0.6';
     document.getElementById('cdDisplaySize').value = '2.8';
     document.getElementById('cdLabelColor').value = '#aaaaaa';

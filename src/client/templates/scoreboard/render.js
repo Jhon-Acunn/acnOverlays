@@ -40,7 +40,7 @@ function showDefault() {
     txtEquipoB: 'VISITANTE',
     puntosB: 0,
     estilo: {
-      fontFamily: 'Inter, sans-serif',
+      fontFamily: 'Montserrat, sans-serif',
       scoreSize: '3.5rem',
       teamSize: '1rem',
       scoreColor: '#ffffff',

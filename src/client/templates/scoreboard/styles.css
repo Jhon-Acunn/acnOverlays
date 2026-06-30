@@ -3,7 +3,7 @@
 body {
   background: transparent !important;
   overflow: hidden;
-  font-family: var(--sc-font, 'Inter', sans-serif);
+  font-family: var(--sc-font, 'Montserrat', sans-serif);
   width: 1920px;
   height: 1080px;
   position: relative;

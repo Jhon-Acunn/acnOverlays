@@ -55,7 +55,7 @@ function leerWeatherData() {
     country: document.getElementById('weatherCountry').value || '',
     refreshInterval: parseInt(document.getElementById('weatherRefresh').value, 10) * 1000,
     estilo: {
-      fontFamily: document.getElementById('weatherFont').value || 'Inter, sans-serif',
+      fontFamily: document.getElementById('weatherFont').value || 'Montserrat, sans-serif',
       textColor: document.getElementById('weatherTextColor').value,
       countryColor: document.getElementById('weatherCountryColor').value,
       bgColor: hexToRgba(
@@ -186,7 +186,7 @@ export function initWeather() {
   }, 500);
 
   document.getElementById('weatherResetStyle')?.addEventListener('click', () => {
-    document.getElementById('weatherFont').value = 'Inter, sans-serif';
+    document.getElementById('weatherFont').value = 'Montserrat, sans-serif';
     document.getElementById('weatherTextColor').value = '#ffffff';
     document.getElementById('weatherCountryColor').value = '#8ab4f8';
     document.getElementById('weatherBgColor').value = '#000000';

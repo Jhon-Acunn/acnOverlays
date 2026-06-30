@@ -1,7 +1,7 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Montserrat', sans-serif;
   background: transparent !important;
   overflow: hidden;
   width: 1920px;
@@ -352,7 +352,7 @@ body {
   --tkr-title-color: #ffffff;
   --tkr-msg-color: #111111;
   --tkr-msg-bg: #ffffff;
-  --tkr-font: 'Inter', sans-serif;
+  --tkr-font: 'Montserrat', sans-serif;
   --tkr-title-size: 44px;
   --tkr-font-size: 33px;
   --tkr-speed: 80;

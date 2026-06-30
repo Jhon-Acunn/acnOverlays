@@ -24,14 +24,25 @@ function aplicarConfig(cfg) {
   configActual = cfg;
   const root = document.documentElement;
   const bar = document.getElementById('sponsors-bar');
+  const container = document.getElementById('sponsors-container');
   if (cfg.barColor) root.style.setProperty('--sp-bar-bg', cfg.barColor);
   if (cfg.barTextColor) root.style.setProperty('--sp-bar-color', cfg.barTextColor);
   if (bar) bar.textContent = cfg.barText || 'PATROCINADO POR';
-  if (cfg.fontFamily) document.getElementById('sponsors-container').style.fontFamily = cfg.fontFamily;
+  if (cfg.fontFamily && container) container.style.fontFamily = cfg.fontFamily;
   if (cfg.barHeight) root.style.setProperty('--sp-bar-h', cfg.barHeight + 'px');
   const logosContainer = document.getElementById('sponsors-logos');
   if (cfg.bgGradientTop && cfg.bgGradientBottom) {
     logosContainer.style.background = `linear-gradient(180deg, ${cfg.bgGradientTop} 0%, ${cfg.bgGradientBottom} 100%)`;
+  }
+  // Apply scale + position to the whole container (independent of the
+  // entrance/exit animations on bar and logos). We use transform so GSAP can
+  // still control the x/scaleY without conflict.
+  if (container) {
+    const escala = (cfg.escala !== undefined && !isNaN(cfg.escala)) ? cfg.escala : 1.0;
+    const px = (cfg.posX !== undefined && !isNaN(cfg.posX)) ? cfg.posX : 0;
+    const py = (cfg.posY !== undefined && !isNaN(cfg.posY)) ? cfg.posY : 0;
+    container.style.transformOrigin = 'top left';
+    container.style.transform = `translate(${px}px, ${py}px) scale(${escala})`;
   }
 }
 
@@ -165,7 +176,7 @@ function showDefault() {
     barText: 'PATROCINADO POR',
     barColor: '#e53935',
     barTextColor: '#ffffff',
-    fontFamily: 'Inter, sans-serif',
+    fontFamily: 'Montserrat, sans-serif',
     barHeight: 44,
     bgGradientTop: '#3a3a3a',
     bgGradientBottom: '#555',

@@ -529,7 +529,7 @@ function showDefault() {
     ],
     config: {
       barText: 'PATROCINADO POR', barColor: '#e53935', barTextColor: '#ffffff',
-      fontFamily: 'Inter, sans-serif', barHeight: 44,
+      fontFamily: 'Montserrat, sans-serif', barHeight: 44,
       bgGradientTop: '#3a3a3a', bgGradientBottom: '#555', rotationSpeed: 5000,
     },
   });
@@ -558,7 +558,7 @@ function showDefault() {
     title: 'LIVE', message: 'Bienvenidos a la transmisión • Gracias por acompañarnos',
     titleSize: 44, titleColor: '#ffffff', titleBg: '#071041',
     fontSize: 33, msgColor: '#111111', msgBg: '#ffffff',
-    speed: 80, fontFamily: 'Inter, sans-serif', logoUrl: null, logoWidth: 4,
+    speed: 80, fontFamily: 'Montserrat, sans-serif', logoUrl: null, logoWidth: 4,
   });
 
   lbUpdateData({
