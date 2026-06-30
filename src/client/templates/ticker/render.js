@@ -117,11 +117,10 @@ function mostrar(cfg) {
   visible = true;
   aplicarConfig(cfg);
 
-  // Entrance: slide in from the right
-  gsap.set(container, { clearProps: 'x' });
+  // Entrance: slide in from the right — set offset, then animate in
+  gsap.set(container, { x: '100%' });
   gsap.set('#tkr-title', { x: '0%' });
   gsap.set('#tkr-track', { x: '0%' });
-  gsap.set(container, { x: '100%' });
 
   const speed = cfg.speed || 80;
 
@@ -156,8 +155,7 @@ function ocultar() {
   if (animTimeline) { animTimeline.kill(); animTimeline = null; }
   if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 
-  // Exit: slide out to the left
-  gsap.set(container, { clearProps: 'x' });
+  // Exit: slide out to the left, then clean up
   animTimeline = gsap.timeline({
     onComplete: () => {
       animTimeline = null;

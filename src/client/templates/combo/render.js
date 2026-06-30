@@ -382,8 +382,7 @@ function tkrAplicarConfig(data) {
 function tkrAnimSalida() {
   tkrReset();
   const container = document.getElementById('tkr-container');
-  // Exit: slide out to the left
-  gsap.set(container, { clearProps: 'y' });
+  // Exit: slide out to the left, then clean up
   if (tkTimeline) tkTimeline.kill();
   tkTimeline = gsap.timeline({
     onComplete: () => {
@@ -404,9 +403,8 @@ function tkrAnimEntrada(data) {
   const container = document.getElementById('tkr-container');
   tkVisible = true;
   tkrAplicarConfig(data);
-  // Entrance: slide in from the right
+  // Entrance: slide in from the right — set offset, then animate in
   container.style.display = 'flex';
-  gsap.set(container, { clearProps: 'y' });
   gsap.set(container, { x: '100%' });
   if (tkTimeline) tkTimeline.kill();
   tkTimeline = gsap.timeline({
