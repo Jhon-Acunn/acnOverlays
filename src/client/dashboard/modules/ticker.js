@@ -215,6 +215,10 @@ export function initTicker() {
     debouncedSaveTkr();
   });
 
+  // Load logos immediately on init so the selector is ready when the tab is
+  // first shown. Also refresh on every tab click in case logos were uploaded
+  // while the tab was hidden.
+  cargarTkrLogos();
   document.querySelector('[data-tab="ticker"]')?.addEventListener('click', () => {
     setTimeout(cargarTkrLogos, 100);
   });
