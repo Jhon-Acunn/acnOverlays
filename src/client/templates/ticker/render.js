@@ -117,15 +117,25 @@ function mostrar(cfg) {
   visible = true;
   aplicarConfig(cfg);
 
-  // Reset any leftover x transform (from a previous exit) and start the
-  // ticker scroll immediately. No entrance animation so preview and live
-  // view behave identically — the ticker simply appears scrolling.
+  // Entrance: slide in from the right
   gsap.set(container, { clearProps: 'x' });
   gsap.set('#tkr-title', { x: '0%' });
   gsap.set('#tkr-track', { x: '0%' });
+  gsap.set(container, { x: '100%' });
 
   const speed = cfg.speed || 80;
-  iniciarTicker(speed);
+
+  animTimeline = gsap.timeline({
+    onComplete: () => {
+      animTimeline = null;
+      iniciarTicker(speed);
+    },
+  });
+  animTimeline.to(container, {
+    x: '0%',
+    duration: 0.6,
+    ease: 'power3.out',
+  });
 }
 
 function updateWhileVisible(cfg) {
@@ -146,8 +156,20 @@ function ocultar() {
   if (animTimeline) { animTimeline.kill(); animTimeline = null; }
   if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 
-  container.style.display = 'none';
+  // Exit: slide out to the left
   gsap.set(container, { clearProps: 'x' });
+  animTimeline = gsap.timeline({
+    onComplete: () => {
+      animTimeline = null;
+      container.style.display = 'none';
+      gsap.set(container, { clearProps: 'x' });
+    },
+  });
+  animTimeline.to(container, {
+    x: '-100%',
+    duration: 0.45,
+    ease: 'power2.in',
+  });
 }
 
 function showDefault() {

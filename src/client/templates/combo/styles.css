@@ -388,9 +388,8 @@ body {
 }
 
 #tkr-sep {
-  width: 4px;
+  width: 0.5rem;
   background: var(--tkr-title-color);
-  opacity: 0.3;
   flex-shrink: 0;
 }
 

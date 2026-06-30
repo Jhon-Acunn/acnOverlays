@@ -47,8 +47,8 @@ body {
 }
 
 #tkr-sep {
-  width: 1px;
-  background: rgba(255, 255, 255, 0.3);
+  width: 0.5rem;
+  background: #ffffff;
   flex-shrink: 0;
 }
 

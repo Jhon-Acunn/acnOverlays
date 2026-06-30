@@ -382,19 +382,41 @@ function tkrAplicarConfig(data) {
 function tkrAnimSalida() {
   tkrReset();
   const container = document.getElementById('tkr-container');
-  container.style.display = 'none';
+  // Exit: slide out to the left
   gsap.set(container, { clearProps: 'y' });
-  tkVisible = false;
+  if (tkTimeline) tkTimeline.kill();
+  tkTimeline = gsap.timeline({
+    onComplete: () => {
+      container.style.display = 'none';
+      gsap.set(container, { clearProps: 'x' });
+      tkVisible = false;
+      tkTimeline = null;
+    },
+  });
+  tkTimeline.to(container, {
+    x: '-100%',
+    duration: 0.45,
+    ease: 'power2.in',
+  });
 }
 
 function tkrAnimEntrada(data) {
   const container = document.getElementById('tkr-container');
   tkVisible = true;
   tkrAplicarConfig(data);
+  // Entrance: slide in from the right
   container.style.display = 'flex';
   gsap.set(container, { clearProps: 'y' });
+  gsap.set(container, { x: '100%' });
   if (tkTimeline) tkTimeline.kill();
-  tkrIniciarAnimacion();
+  tkTimeline = gsap.timeline({
+    onComplete: () => tkrIniciarAnimacion(),
+  });
+  tkTimeline.to(container, {
+    x: '0%',
+    duration: 0.6,
+    ease: 'power3.out',
+  });
 }
 
 function tkrUpdate(data) {
