@@ -1,7 +1,7 @@
 import { setVal } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
-import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT } from './storage.js';
+import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT, isApplyingRemote } from './storage.js';
 
 const GUEST_STORAGE_KEY = 'lower_guests';
 const MODULE_KEY = 'lower_third_settings';
@@ -42,6 +42,7 @@ function loadLowerSettings() {
 
 let _lowerSaveTimer;
 function _lowerDebouncedSave() {
+  if (isApplyingRemote()) return;
   clearTimeout(_lowerSaveTimer);
   _lowerSaveTimer = setTimeout(saveLowerSettings, 300);
 }

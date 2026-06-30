@@ -1,6 +1,11 @@
 import { io } from 'socket.io-client';
 import { getAuthToken } from '../../shared/auth-token.js';
-import { onServerSave, SERVER_SETTINGS_EVENT } from './storage.js';
+import {
+  onServerSave,
+  SERVER_SETTINGS_EVENT,
+  setApplyingRemote,
+  isApplyingRemote,
+} from './storage.js';
 
 let socket = null;
 let authToken = '';
@@ -112,6 +117,8 @@ export function emitGraphic({
   debounceMs = 250,
   wrap,
 }) {
+  // Don't echo remote-applied changes back to the server.
+  if (isApplyingRemote()) return;
   const toggleAccion = toggleId ? getToggleAccion(toggleId) : 'SHOW';
   const accion = customAccion ?? (toggleAccion === 'SHOW' ? 'UPDATE' : 'HIDE');
   const raw = getData();
@@ -139,6 +146,8 @@ export function emitGraphicNow({
   accion: customAccion,
   wrap,
 }) {
+  // Don't echo remote-applied changes back to the server.
+  if (isApplyingRemote()) return;
   const accion = customAccion ?? (toggleId ? getToggleAccion(toggleId) : 'SHOW');
   const raw = getData();
   const data = wrap ? wrap(accion, raw) : { ...raw, accion };
@@ -193,7 +202,15 @@ export async function initSocket() {
     } catch {
       parsed = value;
     }
-    window.dispatchEvent(new CustomEvent(SERVER_SETTINGS_EVENT, { detail: { key, value: parsed } }));
+    // Set the applying-remote flag so the synthetic input/change events that
+    // modules dispatch while loading these settings do NOT bounce back to the
+    // server (which would cause an infinite sync loop).
+    setApplyingRemote(true);
+    try {
+      window.dispatchEvent(new CustomEvent(SERVER_SETTINGS_EVENT, { detail: { key, value: parsed } }));
+    } finally {
+      setApplyingRemote(false);
+    }
   }
 
   // Receive settings from server on connect

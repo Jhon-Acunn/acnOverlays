@@ -1,7 +1,7 @@
 import { setVal, bindFontPicker } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
-import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT } from './storage.js';
+import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT, isApplyingRemote } from './storage.js';
 
 const TIPO = 'LOWER_DUAL';
 const TAB = 'lower-dual';
@@ -46,6 +46,7 @@ function loadSettings() {
 
 let _dualSaveTimer;
 function _dualDebouncedSave() {
+  if (isApplyingRemote()) return;
   clearTimeout(_dualSaveTimer);
   _dualSaveTimer = setTimeout(saveSettings, 300);
 }

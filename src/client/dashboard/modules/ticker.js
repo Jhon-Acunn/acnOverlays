@@ -1,7 +1,7 @@
 import { setVal, bindFontPicker } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
-import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT } from './storage.js';
+import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT, isApplyingRemote } from './storage.js';
 
 const TIPO = 'TICKER';
 const TAB = 'ticker';
@@ -49,6 +49,7 @@ function loadTkrSettings() {
 }
 
 function debouncedSaveTkr() {
+  if (isApplyingRemote()) return;
   clearTimeout(tkrSaveTimer);
   tkrSaveTimer = setTimeout(saveTkrSettings, 300);
 }

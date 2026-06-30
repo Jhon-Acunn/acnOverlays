@@ -1,6 +1,13 @@
+import { isApplyingRemote } from './storage.js';
+
 export function debounce(fn, ms = 300) {
   let timer;
   return (...args) => {
+    // Skip scheduling when a remote settings round-trip is being applied.
+    // Without this, the synthetic input events dispatched by the remote
+    // handler would re-trigger the debounced save and create a sync loop
+    // where settings bounce back and forth between devices every ~600ms.
+    if (isApplyingRemote()) return;
     clearTimeout(timer);
     timer = setTimeout(() => fn(...args), ms);
   };

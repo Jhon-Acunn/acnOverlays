@@ -1,7 +1,7 @@
 import { setVal, bindFontPicker } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
-import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT } from './storage.js';
+import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT, isApplyingRemote } from './storage.js';
 
 const TIPO = 'SPONSORS';
 const TAB = 'sponsors';
@@ -60,6 +60,7 @@ function loadSponsorsSettings() {
 }
 
 function debouncedSaveSp() {
+  if (isApplyingRemote()) return;
   clearTimeout(spSaveTimer);
   spSaveTimer = setTimeout(saveSponsorsSettings, 300);
 }
