@@ -1,6 +1,6 @@
 import { setVal, debounce } from './utils.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
-import { loadJSON, saveJSON } from './storage.js';
+import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT } from './storage.js';
 
 const TIPO = 'LIVEBUG';
 const TAB = 'livebug';
@@ -119,6 +119,19 @@ export function initLiveBug() {
 
   window.addEventListener('storage', (e) => {
     if (e.key === SETTINGS_KEY && e.newValue) {
+      loadSettings();
+      const container = document.querySelector('[data-tab-content="livebug"]');
+      if (container) {
+        container.querySelectorAll('input, select, textarea').forEach(el => {
+          const eventType = el.type === 'checkbox' ? 'change' : 'input';
+          el.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+      }
+    }
+  });
+
+  window.addEventListener(SERVER_SETTINGS_EVENT, (e) => {
+    if (e.detail && e.detail.key === SETTINGS_KEY) {
       loadSettings();
       const container = document.querySelector('[data-tab-content="livebug"]');
       if (container) {

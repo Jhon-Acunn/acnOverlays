@@ -1,7 +1,7 @@
 import { setVal, bindFontPicker } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
-import { loadJSON, saveJSON } from './storage.js';
+import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT } from './storage.js';
 
 const TIPO = 'LOWER_DUAL';
 const TAB = 'lower-dual';
@@ -157,6 +157,19 @@ export function initLowerDual() {
     }
   });
 
+  window.addEventListener(SERVER_SETTINGS_EVENT, (e) => {
+    if (e.detail && e.detail.key === STORAGE_KEY) {
+      loadSettings();
+      const container = document.querySelector('[data-tab-content="lower-dual"]');
+      if (container) {
+        container.querySelectorAll('input, select, textarea').forEach(el => {
+          const eventType = el.type === 'checkbox' ? 'change' : 'input';
+          el.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+      }
+    }
+  });
+
   actualizarValDual();
 
   function syncBoth() {
@@ -253,7 +266,7 @@ export function initLowerDual() {
   }
   bindFontPicker('dualFontDropdownBtn', 'dualFont');
 
-  const dualContainer = document.getElementById(TAB);
+  const dualContainer = document.querySelector(`[data-tab-content="${TAB}"]`);
   if (dualContainer) {
     dualContainer.addEventListener('input', _dualDebouncedSave);
     dualContainer.addEventListener('change', _dualDebouncedSave);

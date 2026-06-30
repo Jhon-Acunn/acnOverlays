@@ -1,5 +1,7 @@
 const storageBus = new EventTarget();
 
+export const SERVER_SETTINGS_EVENT = 'acn-settings-changed';
+
 export function loadJSON(key, fallback = {}) {
   try {
     return JSON.parse(localStorage.getItem(key)) || fallback;

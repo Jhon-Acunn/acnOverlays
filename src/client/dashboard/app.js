@@ -24,6 +24,7 @@ import { initConnectionStatus, attachSocket } from './modules/connection-status.
 import { initKeyboardShortcuts } from './modules/keyboard-shortcuts.js';
 import { initSettingsPanel } from './modules/settings-panel.js';
 import { initModuleNav, onModuleVisibilityChanged } from './modules/module-nav.js';
+import { initBuildInfo } from './modules/build-info.js';
 
 async function main() {
   initToast();
@@ -67,6 +68,7 @@ async function main() {
 
   // Initial sync
   setTimeout(qpSyncToggles, 300);
+  initBuildInfo();
   setTimeout(() => {
     showToast('Dashboard ready. Press ? for shortcuts.', { type: 'info', duration: 4000 });
   }, 500);

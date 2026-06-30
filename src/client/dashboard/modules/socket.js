@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client';
 import { getAuthToken } from '../../shared/auth-token.js';
-import { onServerSave } from './storage.js';
+import { onServerSave, SERVER_SETTINGS_EVENT } from './storage.js';
 
 let socket = null;
 let authToken = '';
@@ -180,26 +180,20 @@ export async function initSocket() {
   }
 
   // ── Dashboard settings server sync ──
-  function applyServerSetting(key, value, { dispatchEvent: shouldDispatch = true } = {}) {
+  // Uses a custom event (SERVER_SETTINGS_EVENT) instead of StorageEvent because
+  // StorageEvent's `newValue` is not reliably settable across browsers when
+  // dispatched via JS, which made the previous sync flaky.
+  function applyServerSetting(key, value) {
     if (!key || value === undefined) return;
     const serialized = JSON.stringify(value);
     localStorage.setItem(key, serialized);
-    if (!shouldDispatch) return;
-    // StorageEvent ctor: some browsers ignore `newValue` in the init dict when
-    // the event is created via JS. Fall back to defineProperty to be safe.
+    let parsed;
     try {
-      const event = new StorageEvent('storage', { key, newValue: serialized });
-      if (event.newValue !== serialized) {
-        Object.defineProperty(event, 'key', { value: key, configurable: true });
-        Object.defineProperty(event, 'newValue', { value: serialized, configurable: true });
-      }
-      window.dispatchEvent(event);
+      parsed = JSON.parse(serialized);
     } catch {
-      const event = new Event('storage');
-      Object.defineProperty(event, 'key', { value: key, configurable: true });
-      Object.defineProperty(event, 'newValue', { value: serialized, configurable: true });
-      window.dispatchEvent(event);
+      parsed = value;
     }
+    window.dispatchEvent(new CustomEvent(SERVER_SETTINGS_EVENT, { detail: { key, value: parsed } }));
   }
 
   // Receive settings from server on connect

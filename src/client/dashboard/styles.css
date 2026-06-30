@@ -1267,6 +1267,24 @@ section.tab-content[data-tab-content='resultados'] {
   }
 }
 
+/* ── Build info (last deploy timestamp) ── */
+.build-info {
+  font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.65rem;
+  color: var(--text-muted, #888);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 0.2rem 0.45rem;
+  min-width: 165px;
+  text-align: center;
+  cursor: help;
+  user-select: all;
+}
+.build-info:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
 /* ── On-Air indicators (toggles active = live on screen) ── */
 .switch input:checked + .switch-slider {
   box-shadow: 0 0 0 0 var(--on-air-glow);

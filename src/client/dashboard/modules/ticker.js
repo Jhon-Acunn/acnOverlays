@@ -1,7 +1,7 @@
 import { setVal, bindFontPicker } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
-import { loadJSON, saveJSON } from './storage.js';
+import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT } from './storage.js';
 
 const TIPO = 'TICKER';
 const TAB = 'ticker';
@@ -146,6 +146,19 @@ export function initTicker() {
 
   window.addEventListener('storage', (e) => {
     if (e.key === 'ticker_settings' && e.newValue) {
+      loadTkrSettings();
+      const container = document.querySelector('[data-tab-content="ticker"]');
+      if (container) {
+        container.querySelectorAll('input, select, textarea').forEach(el => {
+          const eventType = el.type === 'checkbox' ? 'change' : 'input';
+          el.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+      }
+    }
+  });
+
+  window.addEventListener(SERVER_SETTINGS_EVENT, (e) => {
+    if (e.detail && e.detail.key === 'ticker_settings') {
       loadTkrSettings();
       const container = document.querySelector('[data-tab-content="ticker"]');
       if (container) {

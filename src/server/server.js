@@ -65,6 +65,19 @@ app.get('/api/health', (_req, res) =>
   res.json({ status: 'ok', uptime: process.uptime(), env: config.env })
 );
 
+// Build info: timestamp of the last image build (≈ last git push + rebuild time)
+app.get('/api/build-info', (_req, res) => {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const file = path.join(__dirname, '..', '..', 'build-info.json');
+    const raw = fs.readFileSync(file, 'utf8');
+    res.type('application/json').send(raw);
+  } catch {
+    res.json({ builtAt: 'unknown' });
+  }
+});
+
 // Expose the auth token to the dashboard so it can self-authenticate when
 // loaded from the same origin. The token is short and the dashboard is served
 // from the same server. In dev (no AUTH_TOKEN) this returns empty string.

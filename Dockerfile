@@ -14,6 +14,10 @@ COPY --from=builder /app/src ./src
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 RUN npm prune --omit=dev
+# Build info: written at image build time. Exposed by the server at /api/build-info
+# so the dashboard can show "last deploy" timestamp. Approximates the last git push
+# (Portainer rebuilds the image on every push to main, so builtAt ≈ push time + rebuild time).
+RUN echo "{\"builtAt\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" > /app/build-info.json
 USER node
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \

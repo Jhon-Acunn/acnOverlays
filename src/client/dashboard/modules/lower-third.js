@@ -1,7 +1,7 @@
 import { setVal } from './utils.js';
 import { createGuestSlots } from './guest-slots.js';
 import { emitGraphic, emitGraphicNow } from './socket.js';
-import { loadJSON, saveJSON } from './storage.js';
+import { loadJSON, saveJSON, SERVER_SETTINGS_EVENT } from './storage.js';
 
 const GUEST_STORAGE_KEY = 'lower_guests';
 const MODULE_KEY = 'lower_third_settings';
@@ -111,6 +111,19 @@ export function initLowerThird() {
       }
     }
   });
+
+  window.addEventListener(SERVER_SETTINGS_EVENT, (e) => {
+    if (e.detail && e.detail.key === MODULE_KEY) {
+      loadLowerSettings();
+      const container = document.querySelector('[data-tab-content="lower"]');
+      if (container) {
+        container.querySelectorAll('input, select, textarea').forEach(el => {
+          const eventType = el.type === 'checkbox' ? 'change' : 'input';
+          el.dispatchEvent(new Event(eventType, { bubbles: true }));
+        });
+      }
+    }
+  });
   setVal('valTitleSize', (document.getElementById('inputTitleSize')?.value || '0') + 'rem');
   setVal('valSubtitleSize', (document.getElementById('inputSubtitleSize')?.value || '0') + 'rem');
   setVal('valScale', (document.getElementById('inputScale')?.value || '0') + 'x');
@@ -183,7 +196,7 @@ export function initLowerThird() {
     lowerUpdate();
   });
 
-  const lowerContainer = document.getElementById(TAB);
+  const lowerContainer = document.querySelector(`[data-tab-content="${TAB}"]`);
   if (lowerContainer) {
     lowerContainer.addEventListener('input', _lowerDebouncedSave);
     lowerContainer.addEventListener('change', _lowerDebouncedSave);
