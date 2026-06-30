@@ -180,19 +180,36 @@ export async function initSocket() {
   }
 
   // ── Dashboard settings server sync ──
+  function applyServerSetting(key, value, { dispatchEvent: shouldDispatch = true } = {}) {
+    if (!key || value === undefined) return;
+    const serialized = JSON.stringify(value);
+    localStorage.setItem(key, serialized);
+    if (!shouldDispatch) return;
+    // StorageEvent ctor: some browsers ignore `newValue` in the init dict when
+    // the event is created via JS. Fall back to defineProperty to be safe.
+    try {
+      const event = new StorageEvent('storage', { key, newValue: serialized });
+      if (event.newValue !== serialized) {
+        Object.defineProperty(event, 'key', { value: key, configurable: true });
+        Object.defineProperty(event, 'newValue', { value: serialized, configurable: true });
+      }
+      window.dispatchEvent(event);
+    } catch {
+      const event = new Event('storage');
+      Object.defineProperty(event, 'key', { value: key, configurable: true });
+      Object.defineProperty(event, 'newValue', { value: serialized, configurable: true });
+      window.dispatchEvent(event);
+    }
+  }
+
   // Receive settings from server on connect
   socket.on('dashboard-settings', ({ key, value }) => {
-    if (key && value !== undefined) {
-      localStorage.setItem(key, JSON.stringify(value));
-    }
+    applyServerSetting(key, value);
   });
 
   // Receive live updates from other clients
   socket.on('dashboard-settings-updated', ({ key, value }) => {
-    if (key && value !== undefined) {
-      localStorage.setItem(key, JSON.stringify(value));
-      window.dispatchEvent(new StorageEvent('storage', { key, newValue: JSON.stringify(value) }));
-    }
+    applyServerSetting(key, value);
   });
 
   onServerSave((e) => {
@@ -203,7 +220,9 @@ export async function initSocket() {
 
   // ── Guest slot sync from other clients ──
   socket.on('guest-slot-updated', ({ storageKey }) => {
-    window.dispatchEvent(new StorageEvent('storage', { key: storageKey }));
+    if (socket && socket.connected) {
+      socket.emit('request-guest-slots', { storageKey });
+    }
   });
 
   // Load guest slots from server on connect
