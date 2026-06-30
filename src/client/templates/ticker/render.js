@@ -117,27 +117,15 @@ function mostrar(cfg) {
   visible = true;
   aplicarConfig(cfg);
 
-  // Slide in from the right. Set the initial offset first, then animate
-  // back to the resting position. We avoid clearProps:'all' because it can
-  // wipe out the inline display:flex we just set, leaving the preview
-  // black until the animation starts.
-  gsap.set(container, { x: '100%' });
+  // Reset any leftover x transform (from a previous exit) and start the
+  // ticker scroll immediately. No entrance animation so preview and live
+  // view behave identically — the ticker simply appears scrolling.
+  gsap.set(container, { clearProps: 'x' });
   gsap.set('#tkr-title', { x: '0%' });
   gsap.set('#tkr-track', { x: '0%' });
 
   const speed = cfg.speed || 80;
-
-  animTimeline = gsap.timeline({
-    onComplete: () => {
-      animTimeline = null;
-      iniciarTicker(speed);
-    },
-  });
-  animTimeline.to(container, {
-    x: '0%',
-    duration: 0.6,
-    ease: 'power3.out',
-  });
+  iniciarTicker(speed);
 }
 
 function updateWhileVisible(cfg) {
