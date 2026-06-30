@@ -146,20 +146,8 @@ function ocultar() {
   if (animTimeline) { animTimeline.kill(); animTimeline = null; }
   if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 
-  animTimeline = gsap.timeline({
-    onComplete: () => {
-      animTimeline = null;
-      container.style.display = 'none';
-      gsap.set(container, { clearProps: 'x' });
-    },
-  });
-
-  // Slide the whole bar out to the left with easing
-  animTimeline.to(container, {
-    x: '-100%',
-    duration: 0.45,
-    ease: 'power2.in',
-  });
+  container.style.display = 'none';
+  gsap.set(container, { clearProps: 'x' });
 }
 
 function showDefault() {
