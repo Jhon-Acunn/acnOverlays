@@ -2,7 +2,7 @@ const MODULES = [
   { id: 'lower-dual', name: 'Lower Dual', tipos: ['LOWER_DUAL'] },
   { id: 'lower', name: 'Lower Third', tipos: ['LOWER_THIRD'] },
   { id: 'ticker', name: 'Ticker', tipos: ['TICKER'] },
-  { id: 'sponsors', name: 'Patrocinadores', tipos: ['SPONSORS'] },
+  { id: 'sponsors', name: 'Sponsors', tipos: ['SPONSORS'] },
   { id: 'livebug', name: 'Live Bug', tipos: ['LIVEBUG'] },
   { id: 'weather', name: 'Clima', tipos: ['WEATHER'] },
   { id: 'scoreboard', name: 'Scoreboard', tipos: ['SCOREBOARD'] },

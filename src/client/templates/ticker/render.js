@@ -117,13 +117,13 @@ function mostrar(cfg) {
   visible = true;
   aplicarConfig(cfg);
 
-  // Reset transforms and slide in from the right. This animation is the
-  // same in the dashboard preview and in the OBS live view because both
-  // load this same render.js.
-  gsap.set(container, { clearProps: 'all' });
+  // Slide in from the right. Set the initial offset first, then animate
+  // back to the resting position. We avoid clearProps:'all' because it can
+  // wipe out the inline display:flex we just set, leaving the preview
+  // black until the animation starts.
+  gsap.set(container, { x: '100%' });
   gsap.set('#tkr-title', { x: '0%' });
   gsap.set('#tkr-track', { x: '0%' });
-  gsap.set(container, { x: '100%' });
 
   const speed = cfg.speed || 80;
 
