@@ -25,14 +25,23 @@ function spAplicarConfig(cfg) {
   spConfigActual = cfg;
   const root = document.documentElement;
   const bar = document.getElementById('sponsors-bar');
+  const container = document.getElementById('sponsors-container');
   if (cfg.barColor) root.style.setProperty('--sp-bar-bg', cfg.barColor);
   if (cfg.barTextColor) root.style.setProperty('--sp-bar-color', cfg.barTextColor);
   if (bar) bar.textContent = cfg.barText || 'PATROCINADO POR';
-  if (cfg.fontFamily) document.getElementById('sponsors-container').style.fontFamily = cfg.fontFamily;
+  if (cfg.fontFamily && container) container.style.fontFamily = cfg.fontFamily;
   if (cfg.barHeight) root.style.setProperty('--sp-bar-h', cfg.barHeight + 'px');
   const logosContainer = document.getElementById('sponsors-logos');
   if (cfg.bgGradientTop && cfg.bgGradientBottom) {
     logosContainer.style.background = `linear-gradient(180deg, ${cfg.bgGradientTop} 0%, ${cfg.bgGradientBottom} 100%)`;
+  }
+  // Scale + position (same as standalone sponsors template)
+  if (container) {
+    const escala = (cfg.escala !== undefined && !isNaN(cfg.escala)) ? cfg.escala : 1.0;
+    const px = (cfg.posX !== undefined && !isNaN(cfg.posX)) ? cfg.posX : 0;
+    const py = (cfg.posY !== undefined && !isNaN(cfg.posY)) ? cfg.posY : 0;
+    container.style.transformOrigin = 'top left';
+    container.style.transform = `translate(${px}px, ${py}px) scale(${escala})`;
   }
 }
 
@@ -373,23 +382,19 @@ function tkrAplicarConfig(data) {
 function tkrAnimSalida() {
   tkrReset();
   const container = document.getElementById('tkr-container');
-  gsap.to(container, {
-    duration: 0.3, y: '100%', ease: 'power2.in', onComplete: () => {
-      container.style.display = 'none';
-      gsap.set(container, { clearProps: 'transform' });
-      tkVisible = false;
-    },
-  });
+  container.style.display = 'none';
+  gsap.set(container, { clearProps: 'y' });
+  tkVisible = false;
 }
 
 function tkrAnimEntrada(data) {
   const container = document.getElementById('tkr-container');
   tkVisible = true;
   tkrAplicarConfig(data);
+  container.style.display = '';
+  gsap.set(container, { clearProps: 'y' });
   if (tkTimeline) tkTimeline.kill();
-  tkTimeline = gsap.timeline({ onComplete: () => tkrIniciarAnimacion() });
-  gsap.set(container, { y: '100%' });
-  tkTimeline.to(container, { duration: 0.4, y: '0%', ease: 'power3.out' });
+  tkrIniciarAnimacion();
 }
 
 function tkrUpdate(data) {
