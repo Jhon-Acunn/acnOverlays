@@ -320,7 +320,6 @@ export function initSponsors() {
       debouncedSaveSp();
     });
   }
-  }
   ['spBarHeight', 'spRotationSpeed'].forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
