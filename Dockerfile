@@ -1,4 +1,5 @@
 FROM node:20-alpine AS builder
+RUN apk add --no-cache python3 make g++ libc6-compat
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
@@ -6,6 +7,7 @@ COPY . .
 RUN npm run build
 
 FROM node:20-alpine
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
 COPY --from=builder /app/dist ./dist
