@@ -382,18 +382,18 @@ function tkrAplicarConfig(data) {
 function tkrAnimSalida() {
   tkrReset();
   const container = document.getElementById('tkr-container');
-  // Exit: slide out to the left, then clean up
+  // Exit: slide out to the bottom, then clean up
   if (tkTimeline) tkTimeline.kill();
   tkTimeline = gsap.timeline({
     onComplete: () => {
       container.style.display = 'none';
-      gsap.set(container, { clearProps: 'x' });
+      gsap.set(container, { clearProps: 'y' });
       tkVisible = false;
       tkTimeline = null;
     },
   });
   tkTimeline.to(container, {
-    x: '-100%',
+    y: '100%',
     duration: 0.45,
     ease: 'power2.in',
   });
@@ -403,15 +403,15 @@ function tkrAnimEntrada(data) {
   const container = document.getElementById('tkr-container');
   tkVisible = true;
   tkrAplicarConfig(data);
-  // Entrance: slide in from the right — set offset, then animate in
+  // Entrance: slide in from the bottom
   container.style.display = 'flex';
-  gsap.set(container, { x: '100%' });
+  gsap.set(container, { y: '100%' });
   if (tkTimeline) tkTimeline.kill();
   tkTimeline = gsap.timeline({
     onComplete: () => tkrIniciarAnimacion(),
   });
   tkTimeline.to(container, {
-    x: '0%',
+    y: '0%',
     duration: 0.6,
     ease: 'power3.out',
   });

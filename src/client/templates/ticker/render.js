@@ -117,8 +117,8 @@ function mostrar(cfg) {
   visible = true;
   aplicarConfig(cfg);
 
-  // Entrance: slide in from the right — set offset, then animate in
-  gsap.set(container, { x: '100%' });
+  // Entrance: slide in from bottom
+  gsap.set(container, { y: '100%' });
   gsap.set('#tkr-title', { x: '0%' });
   gsap.set('#tkr-track', { x: '0%' });
 
@@ -131,7 +131,7 @@ function mostrar(cfg) {
     },
   });
   animTimeline.to(container, {
-    x: '0%',
+    y: '0%',
     duration: 0.6,
     ease: 'power3.out',
   });
@@ -155,16 +155,16 @@ function ocultar() {
   if (animTimeline) { animTimeline.kill(); animTimeline = null; }
   if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 
-  // Exit: slide out to the left, then clean up
+  // Exit: slide out to the bottom, then clean up
   animTimeline = gsap.timeline({
     onComplete: () => {
       animTimeline = null;
       container.style.display = 'none';
-      gsap.set(container, { clearProps: 'x' });
+      gsap.set(container, { clearProps: 'y' });
     },
   });
   animTimeline.to(container, {
-    x: '-100%',
+    y: '100%',
     duration: 0.45,
     ease: 'power2.in',
   });
