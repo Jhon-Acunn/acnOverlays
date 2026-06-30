@@ -57,6 +57,10 @@ if (!config.isProd && config.corsOrigins.length) {
   });
 }
 
+// Serve uploaded logos from the persistent data volume so they survive
+// container redeploys. Must be added before the catch-all /assets route.
+app.use('/assets/logos', express.static(config.paths.logos));
+
 app.use('/assets', express.static(config.paths.assets));
 app.use('/api/media', media.router);
 

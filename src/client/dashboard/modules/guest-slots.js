@@ -1,4 +1,4 @@
-import { loadJSON, saveJSON, onStorageSave } from './storage.js';
+import { loadJSON, saveJSON, onStorageSave, SERVER_SETTINGS_EVENT } from './storage.js';
 import { confirmDialog } from './dialog.js';
 import { showToast } from './toast.js';
 
@@ -30,6 +30,10 @@ export function createGuestSlots({
 
   window.addEventListener('storage', (e) => {
     if (e.key === storageKey && e.newValue) render();
+  });
+
+  window.addEventListener(SERVER_SETTINGS_EVENT, (e) => {
+    if (e.detail && e.detail.key === storageKey) render();
   });
 
   function markActive(slot) {

@@ -303,6 +303,7 @@ export function initSponsors() {
     'spPosY',
   ]) {
     document.getElementById(id)?.addEventListener('input', sponsorsUpdate);
+    document.getElementById(id)?.addEventListener('input', debouncedSaveSp);
   }
   for (const id of ['spBarHeight', 'spRotationSpeed']) {
     const el = document.getElementById(id);
@@ -316,7 +317,9 @@ export function initSponsors() {
             : el.value + 'px';
       }
       sponsorsUpdate();
+      debouncedSaveSp();
     });
+  }
   }
   ['spBarHeight', 'spRotationSpeed'].forEach((id) => {
     const el = document.getElementById(id);

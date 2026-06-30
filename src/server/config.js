@@ -14,7 +14,7 @@ const config = {
     root: path.resolve(__dirname, '..', '..'),
     srcClient: path.resolve(__dirname, '..', '..', 'src', 'client'),
     assets: path.resolve(__dirname, '..', 'client', 'assets'),
-    logos: path.resolve(__dirname, '..', 'client', 'assets', 'logos'),
+    logos: path.resolve(__dirname, '..', '..', 'data', 'logos'),
     dist: path.resolve(__dirname, '..', '..', 'dist', 'client'),
     data: path.resolve(__dirname, '..', '..', 'data'),
   },
