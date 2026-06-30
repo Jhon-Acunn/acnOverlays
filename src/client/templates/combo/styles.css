@@ -370,7 +370,6 @@ body {
   flex-direction: row;
   align-items: stretch;
   font-family: var(--tkr-font);
-  transform: translateY(100%);
   will-change: transform;
 }
 
