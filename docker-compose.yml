@@ -1,13 +1,37 @@
 version: '3.8'
+
 services:
   overlays:
     build: .
     container_name: acn-overlays
-    ports:
-      - "3001:3000"
+    expose:
+      - "3000"
     environment:
       - NODE_ENV=production
       - PORT=3000
+      - AUTH_TOKEN=${AUTH_TOKEN}
+      - CORS_ORIGIN=${CORS_ORIGIN:-}
     restart: unless-stopped
     volumes:
-      - ./data:/app/data
+      - overlays_data:/app/data
+    networks:
+      - acn_net
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: acn-cloudflared
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    restart: unless-stopped
+    depends_on:
+      - overlays
+    networks:
+      - acn_net
+
+volumes:
+  overlays_data:
+
+networks:
+  acn_net:
+    driver: bridge
