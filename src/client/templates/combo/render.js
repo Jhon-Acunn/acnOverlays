@@ -284,6 +284,7 @@ function ltUpdate(left, right) {
 let tkAnimacion = null;
 let tkSpeed = 80;
 let tkTimeline = null;
+let tkAnimTimeline = null;
 let tkVisible = false;
 
 function tkrReset() {
@@ -292,6 +293,7 @@ function tkrReset() {
     tkAnimacion = null;
   }
   if (tkTimeline) tkTimeline.kill();
+  if (tkAnimTimeline) { tkAnimTimeline.kill(); tkAnimTimeline = null; }
   const track = document.getElementById('tkr-track');
   if (track) {
     gsap.set(track, { clearProps: 'all' });
@@ -380,19 +382,20 @@ function tkrAplicarConfig(data) {
 }
 
 function tkrAnimSalida() {
-  tkrReset();
   const container = document.getElementById('tkr-container');
-  // Exit: slide out to the bottom, then clean up
-  if (tkTimeline) tkTimeline.kill();
-  tkTimeline = gsap.timeline({
+  // Exit: slide out to the bottom. Keep the ticker scroll running so the
+  // text slides out together with the container. Only reset content after.
+  if (tkAnimTimeline) { tkAnimTimeline.kill(); tkAnimTimeline = null; }
+  tkAnimTimeline = gsap.timeline({
     onComplete: () => {
+      tkrReset();
       container.style.display = 'none';
       gsap.set(container, { clearProps: 'y' });
       tkVisible = false;
-      tkTimeline = null;
+      tkAnimTimeline = null;
     },
   });
-  tkTimeline.to(container, {
+  tkAnimTimeline.to(container, {
     y: '100%',
     duration: 0.45,
     ease: 'power2.in',
@@ -403,14 +406,16 @@ function tkrAnimEntrada(data) {
   const container = document.getElementById('tkr-container');
   tkVisible = true;
   tkrAplicarConfig(data);
-  // Entrance: slide in from the bottom
+  // Entrance: slide in from the bottom. Start the ticker scroll immediately
+  // so the text slides in together with the container, not after it.
   container.style.display = 'flex';
   gsap.set(container, { y: '100%' });
-  if (tkTimeline) tkTimeline.kill();
-  tkTimeline = gsap.timeline({
-    onComplete: () => tkrIniciarAnimacion(),
+  tkrIniciarAnimacion();
+  if (tkAnimTimeline) { tkAnimTimeline.kill(); tkAnimTimeline = null; }
+  tkAnimTimeline = gsap.timeline({
+    onComplete: () => { tkAnimTimeline = null; },
   });
-  tkTimeline.to(container, {
+  tkAnimTimeline.to(container, {
     y: '0%',
     duration: 0.6,
     ease: 'power3.out',

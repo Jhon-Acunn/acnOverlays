@@ -123,11 +123,11 @@ function mostrar(cfg) {
   gsap.set('#tkr-track', { x: '0%' });
 
   const speed = cfg.speed || 80;
+  iniciarTicker(speed);
 
   animTimeline = gsap.timeline({
     onComplete: () => {
       animTimeline = null;
-      iniciarTicker(speed);
     },
   });
   animTimeline.to(container, {
@@ -150,15 +150,16 @@ function updateWhileVisible(cfg) {
 
 function ocultar() {
   const container = document.getElementById('tkr-container');
-  tkrRunning = false;
   visible = false;
   if (animTimeline) { animTimeline.kill(); animTimeline = null; }
-  if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
 
-  // Exit: slide out to the bottom, then clean up
+  // Exit: slide out to the bottom. Keep the ticker scroll running during
+  // the exit so the text slides out together with the container.
   animTimeline = gsap.timeline({
     onComplete: () => {
       animTimeline = null;
+      tkrRunning = false;
+      if (tkrTimeline) { tkrTimeline.kill(); tkrTimeline = null; }
       container.style.display = 'none';
       gsap.set(container, { clearProps: 'y' });
     },
