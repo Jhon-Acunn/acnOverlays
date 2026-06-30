@@ -30,11 +30,7 @@ const deleteLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
 
 router.get('/', listLimiter, async (_req, res) => {
   try {
-    try {
-      await fsp.access(config.paths.logos);
-    } catch {
-      return res.json([]);
-    }
+    await ensureLogosDir();
     const files = await fsp.readdir(config.paths.logos);
     const out = files
       .filter((f) => VALID_EXT.test(f))
