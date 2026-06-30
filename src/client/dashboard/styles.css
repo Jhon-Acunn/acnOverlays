@@ -949,13 +949,13 @@ section.tab-content[data-tab-content='resultados'] {
   flex-wrap: nowrap;
 }
 .qc-row {
-  flex: 1 1 0;
+
   min-width: 0;
 }
 .qc-row {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+
   flex-wrap: wrap;
 }
 .qc-section-label {
@@ -983,6 +983,10 @@ section.tab-content[data-tab-content='resultados'] {
   gap: 0.3rem;
   font-size: 0.7rem;
   color: var(--text);
+  margin-right: 0.5rem;
+}
+.qc-toggle:last-child {
+  margin-right: 0;
 }
 .qc-toggle .qp-switch {
   width: 44px !important;
