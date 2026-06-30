@@ -9,7 +9,7 @@ RUN npm run build
 FROM node:20-alpine
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-RUN addgroup -S app && adduser -S app -G app
+RUN addgroup -g 1000 -S app && adduser -u 1000 -S app -G app
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/node_modules ./node_modules
