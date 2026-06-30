@@ -117,15 +117,27 @@ function mostrar(cfg) {
   visible = true;
   aplicarConfig(cfg);
 
-  // Reset transforms and start the ticker scroll directly. No slide-in
-  // entrance animation so the preview (which is always visible) and the
-  // live view in OBS behave identically.
-  gsap.set(container, { clearProps: 'x' });
+  // Reset transforms and slide in from the right. This animation is the
+  // same in the dashboard preview and in the OBS live view because both
+  // load this same render.js.
+  gsap.set(container, { clearProps: 'all' });
   gsap.set('#tkr-title', { x: '0%' });
   gsap.set('#tkr-track', { x: '0%' });
+  gsap.set(container, { x: '100%' });
 
   const speed = cfg.speed || 80;
-  iniciarTicker(speed);
+
+  animTimeline = gsap.timeline({
+    onComplete: () => {
+      animTimeline = null;
+      iniciarTicker(speed);
+    },
+  });
+  animTimeline.to(container, {
+    x: '0%',
+    duration: 0.6,
+    ease: 'power3.out',
+  });
 }
 
 function updateWhileVisible(cfg) {
