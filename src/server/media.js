@@ -47,6 +47,14 @@ router.post('/upload', httpAuth, uploadLimiter, async (req, res) => {
     const { name, data } = req.body || {};
     if (!name || !data) return res.status(400).json({ error: 'name y data requeridos' });
 
+    // Reject non-image extensions early. VALID_EXT is the single source of
+    // truth for both the listing filter and the upload guard.
+    if (!VALID_EXT.test(name)) {
+      return res
+        .status(415)
+        .json({ error: 'Solo se permiten imágenes (png, jpg, jpeg, gif, svg, webp)' });
+    }
+
     const approxBytes = Buffer.byteLength(data, 'utf8') * 0.75;
     if (approxBytes > config.limits.uploadBytes) {
       return res
